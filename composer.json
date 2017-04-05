@@ -4,6 +4,13 @@
   "license": "GPL-3.0",
   "version": "0.0.1",
   "minimum-stability": "dev",
+  "type": "magento2-module",
+  "repositories": {
+    "magebit": {
+        "type": "vcs",
+        "url": "https://chaot1x@bitbucket.org/magebit/dynamic-yield-integration-m2.git"
+    }
+  },
   "authors": [
     {
       "name": "Magebit",
