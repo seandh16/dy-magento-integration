@@ -3,6 +3,7 @@
   "description": "Dynamic Yield Integration",
   "license": "GPL-3.0",
   "version": "0.0.1",
+  "minimum-stability": "dev",
   "authors": [
     {
       "name": "Magebit",
