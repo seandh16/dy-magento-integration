@@ -13,7 +13,7 @@ class BeforeRemoveFromCartPlugin
     protected $_eventManager;
 
     /**
-     * AfterRemoveFromCartPlugin constructor
+     * BeforeRemoveFromCartPlugin constructor
      *
      * @param ManagerInterface $eventManager
      */

@@ -2,7 +2,6 @@
 
 namespace DynamicYield\Integration\Model\Event;
 
-
 use DynamicYield\Integration\Model\Event;
 use Magento\Sales\Model\Order;
 
@@ -24,7 +23,7 @@ class PurchaseEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     function getName()
     {
@@ -32,7 +31,7 @@ class PurchaseEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     function getType()
     {
@@ -40,7 +39,7 @@ class PurchaseEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     function getDefaultProperties()
     {
@@ -52,7 +51,7 @@ class PurchaseEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     function generateProperties()
     {

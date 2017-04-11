@@ -2,7 +2,6 @@
 
 namespace DynamicYield\Integration\Model\Event;
 
-
 use DynamicYield\Integration\Model\Event;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -30,7 +29,7 @@ class AddToCartEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     function getName()
     {
@@ -38,7 +37,7 @@ class AddToCartEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     function getType()
     {
@@ -46,7 +45,7 @@ class AddToCartEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     function getDefaultProperties()
     {
@@ -59,7 +58,7 @@ class AddToCartEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     function generateProperties()
     {

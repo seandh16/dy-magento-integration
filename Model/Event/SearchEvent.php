@@ -2,7 +2,6 @@
 
 namespace DynamicYield\Integration\Model\Event;
 
-
 use DynamicYield\Integration\Model\Event;
 
 class SearchEvent extends Event

@@ -30,6 +30,9 @@ class Data extends AbstractHelper implements HelperInterface
      */
     protected $_assetRepo;
 
+    /**
+     * @var Queue
+     */
     protected $_queue;
 
     /**

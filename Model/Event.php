@@ -2,7 +2,6 @@
 
 namespace DynamicYield\Integration\Model;
 
-
 abstract class Event
 {
     /**
