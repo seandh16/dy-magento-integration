@@ -3,6 +3,7 @@
 namespace DynamicYield\Integration\Helper;
 
 use DynamicYield\Integration\Api\Data\HelperInterface;
+use DynamicYield\Integration\Model\Queue;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Checkout\Model\Session;
@@ -29,6 +30,8 @@ class Data extends AbstractHelper implements HelperInterface
      */
     protected $_assetRepo;
 
+    protected $_queue;
+
     /**
      * Data constructor
      *
@@ -41,7 +44,8 @@ class Data extends AbstractHelper implements HelperInterface
         Context $context,
         Registry $registry,
         Session $quoteSession,
-        Repository $assetRepo
+        Repository $assetRepo,
+        Queue $queue
     )
     {
         parent::__construct($context);
@@ -49,6 +53,7 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_registry = $registry;
         $this->_quoteSession = $quoteSession;
         $this->_assetRepo = $assetRepo;
+        $this->_queue = $queue;
     }
 
     /**
@@ -92,6 +97,15 @@ class Data extends AbstractHelper implements HelperInterface
             $this->getViewFileUrl('DynamicYield_Integration::js/lib/xhook.min.js'),
             $this->getViewFileUrl('DynamicYield_Integration::js/hook.js')
         ];
+    }
+
+    /**
+     * @param $event
+     * @return string
+     */
+    public function addEvent($event)
+    {
+        return "<script>DY.API('event', " . json_encode($event['properties']) . ");</script>\n";
     }
 
     /**
@@ -207,6 +221,17 @@ class Data extends AbstractHelper implements HelperInterface
             foreach ($this->getJsIntegration() as $item) {
                 $html .= '<script type="text/javascript" src="' . $item . '"></script>' . "\n";
             }
+
+            $events = $this->_queue->getCollection();
+
+            if (!empty($events) || is_array($events)) {
+                foreach ($events as $event) {
+                    $html .= $this->addEvent($event);
+                }
+
+                $this->_queue->clearQueue();
+            }
+
         }
 
         return $html;

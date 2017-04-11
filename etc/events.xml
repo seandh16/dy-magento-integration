@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="salesrule_validator_process">
+        <observer name="AddPromoCodeEvent" instance="DynamicYield\Integration\Observer\AddPromoCodeObserver" />
+    </event>
+    <event name="checkout_cart_product_add_after">
+        <observer name="AddToCartEvent" instance="DynamicYield\Integration\Observer\AddToCartObserver" />
+    </event>
+    <event name="wishlist_add_product">
+        <observer name="AddToWishlistEvent" instance="DynamicYield\Integration\Observer\AddToWishlistObserver" />
+    </event>
+    <event name="customer_login">
+        <observer name="LoginEvent" instance="DynamicYield\Integration\Observer\LoginObserver" />
+    </event>
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="PurchaseEvent" instance="DynamicYield\Integration\Observer\PurchaseObserver" />
+    </event>
+    <event name="dyi_remove_item_from_cart">
+        <observer name="RemoveFromCartEvent" instance="DynamicYield\Integration\Observer\RemoveFromCartObserver" />
+    </event>
+    <event name="dyi_search_result_load_after">
+        <observer name="SearchEvent" instance="DynamicYield\Integration\Observer\SearchObserver" />
+    </event>
+    <event name="customer_register_success">
+        <observer name="SignupEvent" instance="DynamicYield\Integration\Observer\SignupObserver" />
+    </event>
+    <event name="dyi_newsletter_subscription_after">
+        <observer name="SubscribeToNewsletterEvent" instance="DynamicYield\Integration\Observer\SubscribeToNewsletterObserver" />
+    </event>
+</config>

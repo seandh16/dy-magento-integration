@@ -3,6 +3,7 @@
 namespace DynamicYield\Integration\Plugin;
 
 use DynamicYield\Integration\Helper\Data;
+use Magento\Framework\App\Response\Http;
 
 class ResponseHttpBefore
 {
@@ -22,11 +23,11 @@ class ResponseHttpBefore
     }
 
     /**
-     * @param $subject
+     * @param Http $subject
      * @param $value
      * @return array
      */
-    public function beforeAppendBody($subject, $value)
+    public function beforeAppendBody(Http $subject, $value)
     {
         if (is_callable([$subject, 'isAjax']) && $subject->isAjax()) {
             return [$value];

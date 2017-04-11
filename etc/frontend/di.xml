@@ -3,4 +3,16 @@
     <type name="Magento\Framework\App\Response\Http">
         <plugin name="DynamicYield_Integration::responseHttpBefore" type="DynamicYield\Integration\Plugin\ResponseHttpBefore" sortOrder="1" disabled="false" />
     </type>
+
+    <type name="Magento\CatalogSearch\Controller\Result\Index">
+        <plugin name="DynamicYield_Integration::afterSearchResult" type="DynamicYield\Integration\Plugin\AfterSearchResultPlugin" sortOrder="2" disabled="false" />
+    </type>
+
+    <type name="Magento\Newsletter\Controller\Subscriber\NewAction">
+        <plugin name="DynamicYield_Integration::afterNewsletterSubscription" type="DynamicYield\Integration\Plugin\AfterNewsletterSubscriptionPlugin" sortOrder="3" disabled="false" />
+    </type>
+
+    <type name="Magento\Checkout\Model\Cart">
+        <plugin name="DynamicYield_Integration::beforeRemoveFromCart" type="DynamicYield\Integration\Plugin\BeforeRemoveFromCartPlugin" sortOrder="4" disabled="false" />
+    </type>
 </config>

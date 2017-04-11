@@ -121,6 +121,7 @@
      * @param properties
      */
     DynamicYield_Tracking.prototype.callEvent = function(name, properties) {
+        console.log(name, properties);
         try {
             DY.API('event', {
                 name: name,
@@ -309,7 +310,7 @@
      */
     DynamicYield_Tracking.prototype.onSortChange = function(event) {
         var caller = event.currentTarget,
-            target = caller.parentNode,
+            target = getClosestElement(caller, '.toolbar-sorter'),
             select = target.querySelector('select'),
             option = select.options[select.selectedIndex];
 
