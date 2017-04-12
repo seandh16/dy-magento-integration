@@ -17,7 +17,9 @@ class ResponseHttpBefore
      *
      * @param Data $helper
      */
-    public function __construct(Data $helper)
+    public function __construct(
+        Data $helper
+    )
     {
         $this->_helper = $helper;
     }

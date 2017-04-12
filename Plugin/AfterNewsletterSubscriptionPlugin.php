@@ -23,7 +23,10 @@ class AfterNewsletterSubscriptionPlugin
      *
      * @param ManagerInterface $eventManager
      */
-    public function __construct(ManagerInterface $eventManager, Subscriber $subscriber)
+    public function __construct(
+        ManagerInterface $eventManager,
+        Subscriber $subscriber
+    )
     {
         $this->_eventManager = $eventManager;
         $this->_subscriber = $subscriber;
@@ -40,9 +43,11 @@ class AfterNewsletterSubscriptionPlugin
         if ($email) {
             $subscriber = $this->_subscriber->loadByEmail($email);
 
-            $this->_eventManager->dispatch('dyi_newsletter_subscription_after', [
-                'subscriber' => $subscriber
-            ]);
+            if ($subscriber) {
+                $this->_eventManager->dispatch('dyi_newsletter_subscription_after', [
+                    'subscriber' => $subscriber
+                ]);
+            }
         }
     }
 }

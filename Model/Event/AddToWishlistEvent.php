@@ -3,14 +3,14 @@
 namespace DynamicYield\Integration\Model\Event;
 
 use DynamicYield\Integration\Model\Event;
-use Magento\Catalog\Model\Product;
+use Magento\Wishlist\Model\Item;
 
 class AddToWishlistEvent extends Event
 {
     /**
-     * @var Product
+     * @var Item
      */
-    protected $_product;
+    protected $_item;
 
     /**
      * @return string
@@ -44,15 +44,15 @@ class AddToWishlistEvent extends Event
     function generateProperties()
     {
         return [
-            'productId' => $this->_product->getSku()
+            'productId' => $this->_item->getProduct()->getSku()
         ];
     }
 
     /**
-     * @param Product $product
+     * @param Item $item
      */
-    public function setProduct(Product $product)
+    public function setItem(Item $item)
     {
-        $this->_product = $product;
+        $this->_item = $item;
     }
 }

@@ -10,8 +10,7 @@ class SearchObserver extends AbstractObserver
 
     /**
      * @param Observer $observer
-     *
-     * @return array
+     * @return mixed
      */
     public function dispatch(Observer $observer)
     {

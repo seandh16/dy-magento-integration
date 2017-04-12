@@ -21,9 +21,7 @@
                     <label>Section ID</label>
                     <comment>Section ID for integration</comment>
                 </field>
-                <field id="event_name" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Event Name</label>
-                    <comment>Integration Event Name</comment>
+                <field id="event_name" type="hidden">
                     <validate>required-entry</validate>
                 </field>
             </group>

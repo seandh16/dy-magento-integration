@@ -17,7 +17,9 @@ class BeforeRemoveFromCartPlugin
      *
      * @param ManagerInterface $eventManager
      */
-    public function __construct(ManagerInterface $eventManager)
+    public function __construct(
+        ManagerInterface $eventManager
+    )
     {
         $this->_eventManager = $eventManager;
     }

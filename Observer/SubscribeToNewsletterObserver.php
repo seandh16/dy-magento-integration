@@ -18,11 +18,9 @@ class SubscribeToNewsletterObserver extends AbstractObserver
         $this->_subscribeToNewsletterEvent->setSubscriber($subscriber);
         $data = $this->_subscribeToNewsletterEvent->build();
 
-        $this->buildResponse([
+        return $this->buildResponse([
             'type' => self::EVENT_NAME,
             'properties' => $data
         ]);
-
-        return $data;
     }
 }

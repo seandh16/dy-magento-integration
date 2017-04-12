@@ -5,22 +5,22 @@ namespace DynamicYield\Integration\Model;
 abstract class Event
 {
     /**
-     * @return mixed
+     * @return string
      */
     abstract function getName();
 
     /**
-     * @return mixed
+     * @return string
      */
     abstract function getType();
 
     /**
-     * @return mixed
+     * @return array
      */
     abstract function getDefaultProperties();
 
     /**
-     * @return mixed
+     * @return array
      */
     abstract function generateProperties();
 

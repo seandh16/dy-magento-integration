@@ -4,7 +4,6 @@
     "use strict";
 
     function domReady(fn, context) {
-
         function onReady(event) {
             d.removeEventListener("DOMContentLoaded", onReady);
             fn.call(context || exports, event);
@@ -17,8 +16,11 @@
             }
         }
 
-        d.addEventListener && d.addEventListener("DOMContentLoaded", onReady) ||
-        d.attachEvent && d.attachEvent("onreadystatechange", onReadyIe);
+        if (d.addEventListener) {
+            d.addEventListener("DOMContentLoaded", onReady);
+        } else if (d.attachEvent) {
+            d.attachEvent("onreadystatechange", onReadyIe);
+        }
     }
 
     exports.domReady = domReady;
@@ -82,17 +84,22 @@
                 function(s) {
                     var matches = (this.document || this.ownerDocument).querySelectorAll(s),
                         i = matches.length;
-                    while (--i >= 0 && matches.item(i) !== this) {}
+                    while (--i >= 0 && matches.item(i) !== this) {
+                        // Define variable to fix empty block JSHint
+                        var l;
+                    }
+
                     return i > -1;
                 };
         }
 
         for ( ; element && element !== document; element = element.parentNode ) {
-            if ( element.matches( selector ) ) return element;
+            if ( element.matches( selector ) ) {
+                return element;
+            }
         }
 
         return null;
-
     }
 
     /**
@@ -121,7 +128,6 @@
      * @param properties
      */
     DynamicYield_Tracking.prototype.callEvent = function(name, properties) {
-        console.log(name, properties);
         try {
             DY.API('event', {
                 name: name,
@@ -165,9 +171,9 @@
                     sorterLink = sorter.querySelector('a');
 
                 if (sorterSelect !== null) {
-                    addEventHandler(sorterSelect, 'change', function (event) {
+                    sorterSelect.onchange = function(event) {
                         this.onSortChange(event);
-                    }.bind(this));
+                    }.bind(this);
                 }
 
                 if (sorterLink !== null) {
@@ -181,18 +187,49 @@
             var optionsWrapper = doc.querySelector('#product-options-wrapper');
 
             if (optionsWrapper !== null) {
-                var regularAttribute = optionsWrapper.querySelector('select.super-attribute-select');
+                var regularAttribute = optionsWrapper.querySelectorAll('select.super-attribute-select');
 
-                if (regularAttribute !== null) {
-                    addEventHandler(regularAttribute, 'change', function (event) {
-                        this.onProductAttributeSelectChange(event);
-                    }.bind(this));
+                if (regularAttribute !== null && regularAttribute.length) {
+                    for (var r = 0; r < regularAttribute.length; r++) {
+                        regularAttribute[r].onchange = function (event) {
+                            this.onProductAttributeSelectChange(event);
+                        }.bind(this);
+                    }
+                }
+
+                var customOption = optionsWrapper.querySelectorAll('.product-custom-option');
+
+                if (customOption !== null && customOption.length) {
+                    for (var c = 0; c < customOption.length; c++) {
+                        if (customOption[c].tagName.toLowerCase() === "select") {
+                            customOption[c].onchange = function (event) {
+                                this.onProductCustomOptionChange(event);
+                            }.bind(this);
+                        } else if (customOption[c].tagName.toLowerCase() === "input") {
+                            if (customOption[c].getAttribute('type') === "radio" ||
+                                customOption[c].getAttribute('type') === "checkbox") {
+                                addEventHandler(customOption[c], 'click', function (event) {
+                                    this.onProductCustomOptionChange(event);
+                                }.bind(this));
+                            }
+                        }
+                    }
                 }
 
                 var swatchAttribute = optionsWrapper.querySelector('.swatch-opt');
 
                 if (swatchAttribute !== null) {
                     addEventHandler(swatchAttribute, 'DOMNodeInserted', function (event) {
+                        var swatchSelect = swatchAttribute.querySelectorAll('select');
+
+                        if (swatchSelect !== null && swatchSelect.length) {
+                            for (var s = 0; s < swatchSelect.length; s++) {
+                                swatchSelect[s].onchange = function (event) {
+                                    this.onProductSwatchClick(event);
+                                }.bind(this);
+                            }
+                        }
+
                         this.onProductSwatchClick(event);
                     }.bind(this));
                 }
@@ -226,7 +263,10 @@
         name = filterTitle.innerText.trim();
 
         if (isSwatchLink !== null) {
-            value = isSwatchLink.getAttribute('data-option-label').trim();
+            var dataLabel = isSwatchLink.getAttribute('data-option-label'),
+                optionLabel = isSwatchLink.getAttribute('option-label');
+
+            value = (dataLabel || optionLabel).trim();
         } else {
             var prices = self.getElementsByClassName('price');
 
@@ -243,7 +283,6 @@
             }
         }
 
-
         if(name !== null && value !== null && value !== "") {
             this.callEvent('Filter Items', {
                 dyType: 'filter-items-v1',
@@ -259,10 +298,30 @@
      * @param event
      */
     DynamicYield_Tracking.prototype.onProductSwatchClick = function(event) {
-        var self = event.currentTarget,
-            child = self.querySelector('.swatch-attribute'),
-            name = child.querySelector('span.swatch-attribute-label').innerText,
-            value = child.querySelector('span.swatch-attribute-selected-option').innerText;
+        var self = event,
+            target = self.currentTarget,
+            relatedNode = self.relatedNode,
+            name,
+            value;
+
+        if (!relatedNode && !target) {
+            return false;
+        }
+
+        if (typeof relatedNode !== "undefined") {
+            var child = relatedNode.parentNode;
+
+            name = child.querySelector('span.swatch-attribute-label').innerText;
+            value = child.querySelector('span.swatch-attribute-selected-option').innerText.trim();
+        } else if (target.tagName.toLowerCase() === "select") {
+            var parent = getClosestElement(target, '.swatch-attribute'),
+                selected = target.options[target.selectedIndex];
+
+            name = parent.querySelector('span.swatch-attribute-label').innerText;
+            value = selected.value > 0 ? selected.innerText.trim() : false;
+        } else {
+            return false;
+        }
 
         name = name.trim();
 
@@ -288,19 +347,80 @@
         var self = event.currentTarget,
             parent = getClosestElement(self, '.field.configurable'),
             name = parent.querySelector('label.label').querySelector('span').innerText,
-            value = self.options[self.selectedIndex].innerText;
+            selected = self.options[self.selectedIndex],
+            value;
 
         name = name.trim();
+        value = selected.value > 0 ? selected.innerText.trim() : false;
 
         if (name.substr(-1) === ":") {
             name = name.substr(0, name.length - 1);
         }
 
-        this.callEvent('Change Attribute', {
-            dyType: 'change-attr-v1',
-            attributeType: name,
-            attributeValue: value
-        });
+        if (name && value) {
+            this.callEvent('Change Attribute', {
+                dyType: 'change-attr-v1',
+                attributeType: name,
+                attributeValue: value
+            });
+        }
+    };
+
+    /**
+     * Handles product custom option switcher
+     *
+     * @param event
+     */
+    DynamicYield_Tracking.prototype.onProductCustomOptionChange = function (event) {
+        var self = event,
+            target = self.currentTarget,
+            control = getClosestElement(target, '.control'),
+            parent = getClosestElement(control, '.field'),
+            name,
+            value;
+
+        if (!parent) {
+            return false;
+        }
+
+        var label = parent.querySelector('.label');
+
+        if (!label) {
+            return false;
+        }
+
+        name = label.querySelector('span').innerText.trim();
+
+        if (target.tagName.toLowerCase() === "select") {
+            if (target.getAttribute('multiple') === null) {
+                var selected = target.options[target.selectedIndex];
+
+                value = selected.value > 0 ? selected.innerText.trim() : false;
+            }
+        } else {
+            var subParent = getClosestElement(target, '.field'),
+                subLabel = subParent.querySelector('.label');
+
+            if (target.getAttribute('type') === "checkbox") {
+                if (target.checked) {
+                    value = subLabel.querySelector('span').innerText.trim();
+                }
+            } else {
+                value = subLabel.querySelector('span').innerText.trim();
+            }
+        }
+
+        if(name.substr(-1) === ":") {
+            name = name.substr(0, name.length - 1);
+        }
+
+        if (name && value) {
+            this.callEvent('Change Attribute', {
+                dyType: 'change-attr-v1',
+                attributeType: name,
+                attributeValue: value
+            });
+        }
     };
 
     /**

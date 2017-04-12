@@ -85,6 +85,23 @@ abstract class AbstractObserver implements ObserverInterface
      */
     protected $_subscribeToNewsletterEvent;
 
+    /**
+     * AbstractObserver constructor
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param Queue $queue
+     * @param Data $helper
+     * @param AddPromoCodeEvent $addPromoCodeEvent
+     * @param AddToCartEvent $addToCartEvent
+     * @param AddToWishlistEvent $addToWishlistEvent
+     * @param LoginEvent $loginEvent
+     * @param PurchaseEvent $purchaseEvent
+     * @param RemoveFromCartEvent $removeFromCartEvent
+     * @param SearchEvent $searchEvent
+     * @param SignupEvent $signupEvent
+     * @param SubscribeToNewsletterEvent $subscribeToNewsletterEvent
+     */
     public function __construct(
         Request $request,
         Response $response,
