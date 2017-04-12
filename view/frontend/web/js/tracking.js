@@ -128,6 +128,7 @@
      * @param properties
      */
     DynamicYield_Tracking.prototype.callEvent = function(name, properties) {
+        console.log(name, properties);
         try {
             DY.API('event', {
                 name: name,

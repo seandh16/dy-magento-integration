@@ -98,7 +98,8 @@ class Data extends AbstractHelper implements HelperInterface
             "//cdn.dynamicyield.com/api/{$sectionId}/api_static.js",
             "//cdn.dynamicyield.com/api/{$sectionId}/api_dynamic.js",
             $this->getViewFileUrl('DynamicYield_Integration::js/lib/xhook.min.js'),
-            $this->getViewFileUrl('DynamicYield_Integration::js/hook.js')
+            $this->getViewFileUrl('DynamicYield_Integration::js/hook.js'),
+            $this->getViewFileUrl('DynamicYield_Integration::js/tracking.js')
         ];
     }
 
