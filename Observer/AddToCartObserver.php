@@ -6,7 +6,7 @@ use Magento\Framework\Event\Observer;
 
 class AddToCartObserver extends AbstractObserver
 {
-    const EVENT_TYPE = 'checkout_cart_product_add_after';
+    const EVENT_TYPE = 'checkout_cart_add_product_complete';
 
     /**
      * @param Observer $observer
