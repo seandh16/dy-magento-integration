@@ -23,7 +23,9 @@ class AddToCartEvent extends Event
      *
      * @param CheckoutSession $checkoutSession
      */
-    public function __construct(CheckoutSession $checkoutSession)
+    public function __construct(
+        CheckoutSession $checkoutSession
+    )
     {
         $this->_checkoutSession = $checkoutSession;
     }
@@ -76,7 +78,7 @@ class AddToCartEvent extends Event
         return [
             'value' => $price,
             'currency' => $currency,
-            'productId' => $product->getSku(),
+            'productId' => $product->getData('sku'),
             'quantity' => round($item->getQty(), 2)
         ];
     }

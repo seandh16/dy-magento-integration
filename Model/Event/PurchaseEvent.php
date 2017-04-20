@@ -60,7 +60,7 @@ class PurchaseEvent extends Event
         foreach ($this->_order->getAllVisibleItems() as $item) {
             /** @var \Magento\Sales\Model\Order\Item $item */
             $items[] = [
-                'productId' => $item->getSku(),
+                'productId' => $item->getProduct()->getData('sku'),
                 'quantity' => round($item->getQtyOrdered(), 2),
                 'itemPrice' => $item->getPrice()
             ];

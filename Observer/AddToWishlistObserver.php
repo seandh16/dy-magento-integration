@@ -14,8 +14,8 @@ class AddToWishlistObserver extends AbstractObserver
      */
     function dispatch(Observer $observer)
     {
-        $item = $observer->getEvent()->getItem();
-        $this->_addToWishlistEvent->setItem($item);
+        $product = $observer->getEvent()->getProduct();
+        $this->_addToWishlistEvent->setProduct($product);
         $data = $this->_addToWishlistEvent->build();
 
         return $this->buildResponse([

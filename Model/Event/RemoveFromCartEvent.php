@@ -72,7 +72,7 @@ class RemoveFromCartEvent extends Event
         return [
             'value' => $item->getPrice(),
             'currency' => $quote->getQuoteCurrencyCode(),
-            'productId' => $item->getSku(),
+            'productId' => $item->getProduct()->getData('sku'),
             'quantity' => round($item->getQty(), 2)
         ];
     }
