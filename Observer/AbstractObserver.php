@@ -144,8 +144,6 @@ abstract class AbstractObserver implements ObserverInterface
      */
     public function buildResponse(array $data)
     {
-        file_put_contents('/var/www/magento2/public/var/log/observer.log', json_encode($this->_queue->getCollection()));
-
         if ($this->_request->isAjax()) {
             $this->_response->setHeader(strtolower($this->_helper->getEventName()), json_encode($data['properties']));
         } else {
