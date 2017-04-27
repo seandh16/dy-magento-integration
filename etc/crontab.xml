@@ -1,0 +1,7 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="product_feed_export" instance="DynamicYield\Integration\Console\Export" method="execute">
+            <config_path>dyi_integration/feed/schedule/cron_expr</config_path>
+        </job>
+    </group>
+</config>
