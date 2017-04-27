@@ -12,5 +12,5 @@ interface ProductFeedInterface
     const USED_ATTRIBUTES = 'dyi_integration/feed/used_attributes';
     const FEED_ATTRIBUTES = 'dyi_integration/feed/feed_attributes';
     const ACCESS_KEY = 'dyi_integration/feed/access_key';
-    const ACCESS_KEY_ID = 'dyi_integration/feed/access_key';
+    const ACCESS_KEY_ID = 'dyi_integration/feed/access_key_id';
 }
