@@ -125,7 +125,7 @@ class Export extends Command
 
     /**
      * Export constructor
-     * 
+     *
      * @param State $state
      * @param ObjectManagerInterface $objectManager
      * @param StoreManager $storeManager
