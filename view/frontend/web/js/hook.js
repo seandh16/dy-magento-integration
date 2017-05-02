@@ -9,12 +9,8 @@ xhook.after(function(request, response, callback) {
         try {
             var json = JSON.parse(headers[targetHeader]);
 
-            console.log('DY.Api:Event', json);
-
             DY.API('event', json);
-        } catch(e) {
-            console.error('Failed to read event data.', e);
-        }
+        } catch(e) {}
     }
 
     return callback();

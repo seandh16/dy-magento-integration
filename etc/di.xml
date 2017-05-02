@@ -7,4 +7,9 @@
             </argument>
         </arguments>
     </type>
+
+    <!-- Web API Plugin -->
+    <type name="Magento\Quote\Model\CouponManagement">
+        <plugin name="DynamicYield_Integration::afterSetCouponCode" type="DynamicYield\Integration\Plugin\AfterSetCouponCodePlugin" sortOrder="5" disabled="false" />
+    </type>
 </config>

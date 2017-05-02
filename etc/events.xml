@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="salesrule_validator_process">
+    <event name="dyi_set_coupon_code_after">
         <observer name="AddPromoCodeEvent" instance="DynamicYield\Integration\Observer\AddPromoCodeObserver" />
     </event>
     <event name="checkout_cart_add_product_complete">

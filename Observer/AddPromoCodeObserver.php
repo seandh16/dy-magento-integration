@@ -6,7 +6,7 @@ use Magento\Framework\Event\Observer;
 
 class AddPromoCodeObserver extends AbstractObserver
 {
-    const EVENT_TYPE = 'salesrule_validator_process';
+    const EVENT_TYPE = 'dyi_set_coupon_code_after';
 
     /**
      * @param Observer $observer

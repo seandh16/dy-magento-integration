@@ -248,7 +248,7 @@ class Export extends Command
 
         $path = $this->_feedHelper->getExportPath();
 
-        if (!is_dir($path)) {
+        if (!is_dir($path)) {;
             mkdir($path);
         }
 
@@ -260,7 +260,7 @@ class Export extends Command
         /** @var Attribute $attribute */
         foreach ($this->_usedProductAttribute->getAttributes() as $attribute) {
             if ($attribute->getIsGlobal()) {
-                $translatableAttributes[] = $attribute->getAttributeCode();
+                 $translatableAttributes[] = $attribute->getAttributeCode();
             }
 
             $additionalAttributes[] = $attribute->getAttributeCode();
