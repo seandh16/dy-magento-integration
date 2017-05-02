@@ -248,7 +248,7 @@ class Export extends Command
 
         $path = $this->_feedHelper->getExportPath();
 
-        if (!is_dir($path)) {;
+        if (!is_dir($path)) {
             mkdir($path);
         }
 

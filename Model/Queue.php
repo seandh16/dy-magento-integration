@@ -2,7 +2,6 @@
 
 namespace DynamicYield\Integration\Model;
 
-use Magento\Customer\Model\Session;
 use Magento\Framework\App\CacheInterface;
 
 class Queue
@@ -20,22 +19,14 @@ class Queue
     protected $_cache;
 
     /**
-     * @var Session
-     */
-    protected $_session;
-
-    /**
      * Queue constructor.
      * @param CacheInterface $cache
-     * @param Session $session
      */
     public function __construct(
-        CacheInterface $cache,
-        Session $session
+        CacheInterface $cache
     )
     {
         $this->_cache = $cache;
-        $this->_session = $session;
     }
 
     /**
