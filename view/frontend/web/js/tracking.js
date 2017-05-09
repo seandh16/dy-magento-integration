@@ -1,4 +1,4 @@
-/* global DY, console */
+/* global DY_STORAGE_KEY, DY, MGB */
 
 (function(exports, d) {
     "use strict";
@@ -128,12 +128,16 @@
      * @param properties
      */
     DynamicYield_Tracking.prototype.callEvent = function(name, properties) {
-        try {
-            DY.API('event', {
+        var eventData = {
                 name: name,
                 properties: properties
-            });
-        } catch(e) {}
+            };
+
+        try {
+            DY.API('event', eventData);
+        } catch(e) {
+            MGB.StorageUtils.setData(eventData);
+        }
     };
 
     /**
@@ -266,10 +270,17 @@
 
             value = (dataLabel || optionLabel).trim();
         } else {
-            var prices = self.getElementsByClassName('price');
+            var regex = /^\D+|\D+$/g,
+                prices = self.getElementsByClassName('price');
 
             if (prices !== null && prices.length) {
-                value = prices[0].innerText.trim();
+                var priceArray = [];
+
+                for(var p = 0; p < prices.length; p++) {
+                    priceArray.push(prices[p].innerText.replace(regex, '').trim());
+                }
+
+                value = priceArray.join('-');
             } else {
                 var countHtml = self.querySelector('.count');
 
@@ -277,7 +288,7 @@
                     self.querySelector('.count').remove();
                 }
 
-                value = self.innerText.trim();
+                value = self.innerText.replace(regex, '').trim();
             }
         }
 
@@ -285,7 +296,7 @@
             this.callEvent('Filter Items', {
                 dyType: 'filter-items-v1',
                 filterType: name,
-                filterStringValue: value
+                filterNumericValue: value
             });
         }
     };

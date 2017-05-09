@@ -97,6 +97,7 @@ class Data extends AbstractHelper implements HelperInterface
         return [
             "//cdn.dynamicyield.com/api/{$sectionId}/api_static.js",
             "//cdn.dynamicyield.com/api/{$sectionId}/api_dynamic.js",
+            $this->getViewFileUrl('DynamicYield_Integration::js/storage.js'),
             $this->getViewFileUrl('DynamicYield_Integration::js/lib/xhook.min.js'),
             $this->getViewFileUrl('DynamicYield_Integration::js/hook.js'),
             $this->getViewFileUrl('DynamicYield_Integration::js/tracking.js')
@@ -109,7 +110,17 @@ class Data extends AbstractHelper implements HelperInterface
      */
     public function addEvent($event)
     {
-        return "<script>DY.API('event', " . json_encode($event['properties']) . ");</script>\n";
+        if (isset($event['properties'])) {
+            $eventData = json_encode($event['properties']);
+
+            return "<script type=\"text/javascript\">
+                try {
+                    DY.API('event', " . $eventData . ");
+                } catch(e) {
+                    MGB.StorageUtils.setData(" . $eventData . ");
+                }
+            </script>\n";
+        }
     }
 
     /**
@@ -221,7 +232,12 @@ class Data extends AbstractHelper implements HelperInterface
                 DY.recommendationContext = ' . json_encode($this->getCurrentContext()) . ';
             // ]]>
             </script>' . "\n";
-            $html .= '<script type="text/javascript">var DY_HEADER_NAME = ("' . $this->getEventName() . '").toLowerCase();</script>' . "\n";
+            $html .= '<script type="text/javascript">
+                var DY_HEADER_NAME = ("' . $this->getEventName() . '").toLowerCase(),
+                    DY_STORAGE_URL = "' . $this->_urlBuilder->getUrl('dyIntegration/storage/index') . '";
+                
+                window.MGB = window.MGB || {};
+            </script>' . "\n";
             foreach ($this->getJsIntegration() as $item) {
                 $html .= '<script type="text/javascript" src="' . $item . '"></script>' . "\n";
             }

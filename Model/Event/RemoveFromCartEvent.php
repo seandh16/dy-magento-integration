@@ -67,8 +67,6 @@ class RemoveFromCartEvent extends Event
         /** @var Item $item */
         $item = $quote->getItemById($this->_cartItem);
 
-        var_dump($item->debug());
-
         return [
             'value' => $item->getPrice(),
             'currency' => $quote->getQuoteCurrencyCode(),

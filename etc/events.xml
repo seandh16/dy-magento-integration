@@ -18,6 +18,9 @@
     <event name="dyi_remove_item_from_cart">
         <observer name="RemoveFromCartEvent" instance="DynamicYield\Integration\Observer\RemoveFromCartObserver" />
     </event>
+    <event name="dyi_empty_cart">
+        <observer name="EmptyCartEvent" instance="DynamicYield\Integration\Observer\EmptyCartObserver" />
+    </event>
     <event name="dyi_search_result_load_after">
         <observer name="SearchEvent" instance="DynamicYield\Integration\Observer\SearchObserver" />
     </event>

@@ -145,7 +145,8 @@ abstract class AbstractObserver implements ObserverInterface
     public function buildResponse(array $data)
     {
         if ($this->_request->isAjax()
-            && $data['type'] != AddPromoCodeObserver::EVENT_TYPE) {
+            && $data['type'] != AddPromoCodeObserver::EVENT_TYPE
+            && $data['type'] != EmptyCartObserver::EVENT_TYPE) {
             $this->_response->setHeader(strtolower($this->_helper->getEventName()), json_encode($data['properties']));
         } else {
             $this->_queue->addToQueue($data);

@@ -15,4 +15,8 @@
     <type name="Magento\Checkout\Model\Cart">
         <plugin name="DynamicYield_Integration::beforeRemoveFromCart" type="DynamicYield\Integration\Plugin\BeforeRemoveFromCartPlugin" sortOrder="4" disabled="false" />
     </type>
+
+    <type name="Magento\Checkout\Model\Cart">
+        <plugin name="DynamicYield_Integration::aroundEmptyCartPlugin" type="DynamicYield\Integration\Plugin\AroundEmptyCartPlugin" sortOrder="5" disabled="false" />
+    </type>
 </config>
