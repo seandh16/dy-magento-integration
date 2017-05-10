@@ -250,7 +250,8 @@
             name,
             filterTitle,
             filterContainer = getClosestElement(self, '.filter-options-item'),
-            isSwatchLink = self.querySelector('.swatch-option');
+            isSwatchLink = self.querySelector('.swatch-option'),
+            isPrice = false;
 
         if (filterContainer === null) {
             return false;
@@ -274,6 +275,8 @@
                 prices = self.getElementsByClassName('price');
 
             if (prices !== null && prices.length) {
+                isPrice = true;
+
                 var priceArray = [];
 
                 for(var p = 0; p < prices.length; p++) {
@@ -282,22 +285,33 @@
 
                 value = priceArray.join('-');
             } else {
-                var countHtml = self.querySelector('.count');
+                var element = self.cloneNode(true),
+                    countHtml = element.querySelector('.count');
 
                 if (countHtml !== null) {
-                    self.querySelector('.count').remove();
+                    countHtml.remove();
                 }
 
-                value = self.innerText.replace(regex, '').trim();
+                value = element.innerText.trim();
             }
         }
 
         if(name !== null && value !== null && value !== "") {
-            this.callEvent('Filter Items', {
+            var eventProperties = {
                 dyType: 'filter-items-v1',
                 filterType: name,
                 filterNumericValue: value
-            });
+            };
+
+            if (!isPrice && isNaN(value)) {
+                eventProperties = {
+                    dyType: 'filter-items-v1',
+                    filterType: name,
+                    filterStringValue: value
+                };
+            }
+
+            this.callEvent('Filter Items', eventProperties);
         }
     };
 

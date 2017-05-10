@@ -7,7 +7,7 @@ use Magento\Quote\Model\CouponManagement;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\Event\ManagerInterface;
 
-class AfterSetCouponCodePlugin
+class SetCouponCodePlugin
 {
     /**
      * @var CartRepositoryInterface
@@ -20,7 +20,7 @@ class AfterSetCouponCodePlugin
     protected $_eventManager;
 
     /**
-     * AfterSetCouponCodePlugin constructor
+     * SetCouponCodePlugin constructor
      *
      * @param CartRepositoryInterface $cartRepository
      * @param ManagerInterface $eventManager
@@ -36,7 +36,7 @@ class AfterSetCouponCodePlugin
 
     /**
      * @param CouponManagement $couponManagement
-     * @param $result
+     * @param callable $proceed
      * @param $cartId
      * @param $couponCode
      */

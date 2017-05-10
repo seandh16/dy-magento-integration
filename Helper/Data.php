@@ -8,10 +8,12 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Magento\Framework\Registry;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Category;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Config\Model\Config\Factory as ConfigFactory;
 
 class Data extends AbstractHelper implements HelperInterface
 {
@@ -36,18 +38,25 @@ class Data extends AbstractHelper implements HelperInterface
     protected $_queue;
 
     /**
+     * @var ConfigFactory
+     */
+    protected $_configFactory;
+
+    /**
      * Data constructor
      *
      * @param Context $context
      * @param Registry $registry
      * @param Session $quoteSession
      * @param Repository $assetRepo
+     * @param ConfigFactory $configFactory
      */
     public function __construct(
         Context $context,
         Registry $registry,
         Session $quoteSession,
         Repository $assetRepo,
+        ConfigFactory $configFactory,
         Queue $queue
     )
     {
@@ -57,6 +66,7 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_quoteSession = $quoteSession;
         $this->_assetRepo = $assetRepo;
         $this->_queue = $queue;
+        $this->_configFactory = $configFactory;
     }
 
     /**
@@ -81,6 +91,20 @@ class Data extends AbstractHelper implements HelperInterface
     public function getEventName()
     {
         return $this->scopeConfig->getValue(self::EVENT_NAME);
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultAttributes()
+    {
+        return [
+            'name',
+            'sku',
+            'url_path',
+            'price',
+            'image'
+        ];
     }
 
     /**
@@ -255,5 +279,47 @@ class Data extends AbstractHelper implements HelperInterface
         }
 
         return $html;
+    }
+
+    /**
+     * Set custom config
+     *
+     * @param $configPath
+     * @param $configValue
+     * @param null $website
+     * @param null $store
+     * @return mixed
+     * @throws LocalizedException
+     */
+    public function setCustomConfig($configPath, $configValue, $website = null, $store = null)
+    {
+        if (empty($configPath)) {
+            throw new LocalizedException(
+                new Phrase('Config path can not be empty')
+            );
+        }
+
+        $configPath = explode('/', $configPath, 3);
+
+        if (count($configPath) != 3) {
+            throw new LocalizedException(
+                new Phrase('Incorrect config path')
+            );
+        }
+
+        return $this->_configFactory->create(['data' => [
+            'section' => $configPath[0],
+            'website' => $website,
+            'store' => $store,
+            'groups' => [
+                $configPath[1] => [
+                    'fields' => [
+                        $configPath[2] => [
+                            'value' => $configValue
+                        ]
+                    ]
+                ]
+            ]
+        ]])->save();
     }
 }

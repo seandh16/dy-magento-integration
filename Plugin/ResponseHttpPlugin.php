@@ -5,7 +5,7 @@ namespace DynamicYield\Integration\Plugin;
 use DynamicYield\Integration\Helper\Data;
 use Magento\Framework\App\Response\Http;
 
-class ResponseHttpBefore
+class ResponseHttpPlugin
 {
     /**
      * @var Data
@@ -13,7 +13,7 @@ class ResponseHttpBefore
     protected $_helper;
 
     /**
-     * ResponseHttpBefore constructor
+     * ResponseHttpPlugin constructor
      *
      * @param Data $helper
      */

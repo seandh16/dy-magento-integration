@@ -6,7 +6,7 @@ use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Checkout\Model\Cart;
 
-class AroundEmptyCartPlugin
+class EmptyCartPlugin
 {
     /**
      * @var ManagerInterface
@@ -14,7 +14,7 @@ class AroundEmptyCartPlugin
     protected $_eventManager;
 
     /**
-     * BeforeRemoveFromCartPlugin constructor
+     * EmptyCartPlugin constructor
      *
      * @param ManagerInterface $eventManager
      */

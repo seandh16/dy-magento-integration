@@ -11,8 +11,7 @@ class UpdateRateTypeAttribute implements ArrayInterface
      */
     protected $_rates = [
         60 => 'Hours',
-        1440 => 'Days',
-        10080 => 'Weeks'
+        1440 => 'Days'
     ];
 
     /**

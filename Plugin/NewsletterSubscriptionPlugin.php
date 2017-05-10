@@ -6,7 +6,7 @@ use Magento\Newsletter\Controller\Subscriber\NewAction;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 
-class AfterNewsletterSubscriptionPlugin
+class NewsletterSubscriptionPlugin
 {
     /**
      * @var ManagerInterface
@@ -19,9 +19,10 @@ class AfterNewsletterSubscriptionPlugin
     protected $_subscriber;
 
     /**
-     * AfterNewsletterSubscriptionPlugin constructor
+     * NewsletterSubscriptionPlugin constructor
      *
      * @param ManagerInterface $eventManager
+     * @param Subscriber $subscriber
      */
     public function __construct(
         ManagerInterface $eventManager,

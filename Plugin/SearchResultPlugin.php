@@ -5,7 +5,7 @@ namespace DynamicYield\Integration\Plugin;
 use Magento\CatalogSearch\Controller\Result\Index;
 use Magento\Framework\Event\ManagerInterface;
 
-class AfterSearchResultPlugin
+class SearchResultPlugin
 {
     /**
      * @var ManagerInterface
@@ -13,7 +13,7 @@ class AfterSearchResultPlugin
     protected $_eventManager;
 
     /**
-     * AfterSearchResultPlugin constructor
+     * SearchResultPlugin constructor
      *
      * @param ManagerInterface $eventManager
      */

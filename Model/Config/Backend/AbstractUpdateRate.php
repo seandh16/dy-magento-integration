@@ -3,16 +3,14 @@
 namespace DynamicYield\Integration\Model\Config\Backend;
 
 use DynamicYield\Integration\Api\Data\ProductFeedInterface;
-use Magento\Config\Model\Config\Factory as ConfigFactory;
+use DynamicYield\Integration\Helper\Data as Helper;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Value;
 use Magento\Framework\Data\Collection\AbstractDb;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\ValidatorException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Phrase;
 use Magento\Framework\Registry;
 
 abstract class AbstractUpdateRate extends Value
@@ -31,9 +29,9 @@ abstract class AbstractUpdateRate extends Value
     ];
 
     /**
-     * @var ConfigFactory
+     * @var Helper
      */
-    protected $_configFactory;
+    protected $_helper;
 
     /**
      * @var ScopeConfigInterface
@@ -47,7 +45,7 @@ abstract class AbstractUpdateRate extends Value
      * @param Registry $registry
      * @param ScopeConfigInterface $config
      * @param TypeListInterface $cacheTypeList
-     * @param ConfigFactory $configFactory
+     * @param Helper $helper
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -57,7 +55,7 @@ abstract class AbstractUpdateRate extends Value
         Registry $registry,
         ScopeConfigInterface $config,
         TypeListInterface $cacheTypeList,
-        ConfigFactory $configFactory,
+        Helper $helper,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -73,7 +71,7 @@ abstract class AbstractUpdateRate extends Value
             $data
         );
 
-        $this->_configFactory = $configFactory;
+        $this->_helper = $helper;
         $this->_config = $config;
     }
 
@@ -161,50 +159,8 @@ abstract class AbstractUpdateRate extends Value
 
         $cronExprString = str_replace(array_keys($cronExpr), $cronExpr, self::CRON_TEMPLATE);
 
-        $this->setCustomConfig(ProductFeedInterface::CRON_SCHEDULE_PATH, $cronExprString);
+        $this->_helper->setCustomConfig(ProductFeedInterface::CRON_SCHEDULE_PATH, $cronExprString);
 
         return parent::afterSave();
-    }
-
-    /**
-     * Set custom config
-     *
-     * @param $configPath
-     * @param $configValue
-     * @param null $website
-     * @param null $store
-     * @return mixed
-     * @throws LocalizedException
-     */
-    protected function setCustomConfig($configPath, $configValue, $website = null, $store = null)
-    {
-        if (empty($configPath)) {
-            throw new LocalizedException(
-                new Phrase('Config path can not be empty')
-            );
-        }
-
-        $configPath = explode('/', $configPath, 3);
-
-        if (count($configPath) != 3) {
-            throw new LocalizedException(
-                new Phrase('Incorrect config path')
-            );
-        }
-
-        return $this->_configFactory->create(['data' => [
-            'section' => $configPath[0],
-            'website' => $website,
-            'store' => $store,
-            'groups' => [
-                $configPath[1] => [
-                    'fields' => [
-                        $configPath[2] => [
-                            'value' => $configValue
-                        ]
-                    ]
-                ]
-            ]
-        ]])->save();
     }
 }

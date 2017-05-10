@@ -5,7 +5,7 @@ namespace DynamicYield\Integration\Plugin;
 use Magento\Checkout\Model\Cart;
 use Magento\Framework\Event\ManagerInterface;
 
-class BeforeRemoveFromCartPlugin
+class RemoveFromCartPlugin
 {
     /**
      * @var ManagerInterface
@@ -13,7 +13,7 @@ class BeforeRemoveFromCartPlugin
     protected $_eventManager;
 
     /**
-     * BeforeRemoveFromCartPlugin constructor
+     * RemoveFromCartPlugin constructor
      *
      * @param ManagerInterface $eventManager
      */
