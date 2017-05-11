@@ -21,7 +21,9 @@
 
                 <field id="section_id" translate="label comment" type="text" sortOrder="20" showInDefault="1">
                     <label>Site ID</label>
-                    <comment>Your site ID is listed under Sites in your Dynamic Yield account.</comment>
+                    <comment>
+                        <model>DynamicYield\Integration\Model\Config\Structure\Element\SectionId</model>
+                    </comment>
                 </field>
 
                 <field id="access_key_id" translate="label comment" type="text" sortOrder="30" showInDefault="1">
