@@ -14,24 +14,19 @@
             <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1">
                 <label>Settings</label>
 
-                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1">
-                    <label>Enable Integration</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-
-                <field id="section_id" translate="label comment" type="text" sortOrder="20" showInDefault="1">
+                <field id="section_id" translate="label comment" type="text" sortOrder="10" showInDefault="1">
                     <label>Site ID</label>
                     <comment>
                         <model>DynamicYield\Integration\Model\Config\Structure\Element\SectionId</model>
                     </comment>
                 </field>
 
-                <field id="access_key_id" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                <field id="access_key_id" translate="label comment" type="text" sortOrder="20" showInDefault="1">
                     <label>Access Key ID</label>
                     <comment>Place here the Access Key provided by Dynamic Yield.</comment>
                 </field>
 
-                <field id="access_key" translate="label comment" type="obscure" sortOrder="40" showInDefault="1">
+                <field id="access_key" translate="label comment" type="obscure" sortOrder="30" showInDefault="1">
                     <label>Secret Access Key</label>
                     <comment>Place here the Secret Key provided by Dynamic Yield.</comment>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -69,6 +64,216 @@
                     <comment>All used product attributes for sync. Notice: You can remove attributes by selecting them.</comment>
                     <source_model>DynamicYield\Integration\Model\Config\Source\UsedProductAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\UsedProductAttribute</backend_model>
+                </field>
+            </group>
+        </section>
+
+        <section id="dev">
+            <group id="dyi_event_selectors" translate="label" type="text" sortOrder="1" showInDefault="1">
+                <label>Dynamic Yield Integration Event HTML Selectors</label>
+
+                <field id="layered_nav_block" translate="label comment" type="text" sortOrder="10" showInDefault="1">
+                    <label>Layered Navigation Block</label>
+                    <comment>Layered navigation block selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_content" translate="label comment" type="text" sortOrder="20" showInDefault="1">
+                    <label>Layered Navigation Content</label>
+                    <comment>Layered navigation content selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_trigger" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Layered Navigation Trigger</label>
+                    <comment>Layered navigation trigger selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_filter_container" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Layered Navigation Filter Container</label>
+                    <comment>Layered navigation filter container selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_filter_title" translate="label comment" type="text" sortOrder="50" showInDefault="1">
+                    <label>Layered Navigation Filter Title</label>
+                    <comment>Layered navigation filter title selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_filter_swatch_option" translate="label comment" type="text" sortOrder="60" showInDefault="1">
+                    <label>Layered Navigation Swatch Option</label>
+                    <comment>Layered navigation filter swatch option selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_filter_swatch_title" translate="label comment" type="text" sortOrder="70" showInDefault="1">
+                    <label>Layered Navigation Filter Swatch Title</label>
+                    <comment>Layered navigation filter swatch title attribute.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_filter_swatch_data_title" translate="label comment" type="text" sortOrder="80" showInDefault="1">
+                    <label>Layered Navigation Filter Swatch Title (Alternative)</label>
+                    <comment>Layered navigation filter swatch title alternative attribute.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_filter_price" translate="label comment" type="text" sortOrder="90" showInDefault="1">
+                    <label>Layered Navigation Filter Price</label>
+                    <comment>Layered navigation filter price selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="layered_nav_filter_item_count" translate="label comment" type="text" sortOrder="100" showInDefault="1">
+                    <label>Layered Navigation Filter Item Count</label>
+                    <comment>Layered navigation filter item count selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="toolbar_sorter_block" translate="label comment" type="text" sortOrder="110" showInDefault="1">
+                    <label>Toolbar Sorter Block</label>
+                    <comment>Toolbar sorter block selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="toolbar_sorter_type" translate="label comment" type="text" sortOrder="120" showInDefault="1">
+                    <label>Toolbar Sorter Type</label>
+                    <comment>Toolbar sorter type selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="toolbar_sorter_order" translate="label comment" type="text" sortOrder="130" showInDefault="1">
+                    <label>Toolbar Sorter Order</label>
+                    <comment>Toolbar sorter order selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="toolbar_sorter_order_value" translate="label comment" type="text" sortOrder="140" showInDefault="1">
+                    <label>Toolbar Sorter Order Value</label>
+                    <comment>Toolbar sorter order value attribute.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_options_wrapper" translate="label comment" type="text" sortOrder="150" showInDefault="1">
+                    <label>Product Options Container</label>
+                    <comment>Product options container selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_options_regular_attribute" translate="label comment" type="text" sortOrder="160" showInDefault="1">
+                    <label>Product Options Attribute</label>
+                    <comment>Product options attribute selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_options_regular_attribute_parent" translate="label comment" type="text" sortOrder="170" showInDefault="1">
+                    <label>Product Options Attribute Parent</label>
+                    <comment>Product options attribute parent selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_options_regular_attribute_name_label" translate="label comment" type="text" sortOrder="180" showInDefault="1">
+                    <label>Product Options Attribute Name Label</label>
+                    <comment>Product options attribute name label selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_options_regular_attribute_name_container" translate="label comment" type="text" sortOrder="190" showInDefault="1">
+                    <label>Product Options Attribute Name Container</label>
+                    <comment>Product options attribute name container selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_container" translate="label comment" type="text" sortOrder="200" showInDefault="1">
+                    <label>Product Custom Options Container</label>
+                    <comment>Product custom options container selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_type_select" translate="label comment" type="text" sortOrder="210" showInDefault="1">
+                    <label>Product Custom Options Select</label>
+                    <comment>Product custom options select type selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_type_input" translate="label comment" type="text" sortOrder="220" showInDefault="1">
+                    <label>Product Custom Options Input</label>
+                    <comment>Product custom options input type selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_type_radio" translate="label comment" type="text" sortOrder="230" showInDefault="1">
+                    <label>Product Custom Options Radio</label>
+                    <comment>Product custom options radio input attribute.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_type_checkbox" translate="label comment" type="text" sortOrder="240" showInDefault="1">
+                    <label>Product Custom Options Checkbox</label>
+                    <comment>Product custom options checkbox input attribute.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_swatch_container" translate="label comment" type="text" sortOrder="250" showInDefault="1">
+                    <label>Product Custom Options Swatch Container</label>
+                    <comment>Product custom options swatch container selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_swatch_select" translate="label comment" type="text" sortOrder="260" showInDefault="1">
+                    <label>Product Custom Options Swatch Select</label>
+                    <comment>Product custom options swatch select selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_swatch_attribute_value" translate="label comment" type="text" sortOrder="270" showInDefault="1">
+                    <label>Product Custom Options Swatch Attribute Value</label>
+                    <comment>Product custom options swatch attribute value selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_swatch_attribute_selected" translate="label comment" type="text" sortOrder="280" showInDefault="1">
+                    <label>Product Custom Options Swatch Attribute Selected Value</label>
+                    <comment>Product custom options swatch attribute selected value selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_swatch_attribute_parent" translate="label comment" type="text" sortOrder="290" showInDefault="1">
+                    <label>Product Custom Options Swatch Attribute Parent</label>
+                    <comment>Product custom options swatch attribute parent selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_control" translate="label comment" type="text" sortOrder="300" showInDefault="1">
+                    <label>Product Custom Options Control</label>
+                    <comment>Product custom options control selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_control_parent" translate="label comment" type="text" sortOrder="310" showInDefault="1">
+                    <label>Product Custom Options Control Parent</label>
+                    <comment>Product custom options control parent selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_label" translate="label comment" type="text" sortOrder="320" showInDefault="1">
+                    <label>Product Custom Options Label</label>
+                    <comment>Product custom options label selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_label_container" translate="label comment" type="text" sortOrder="330" showInDefault="1">
+                    <label>Product Custom Options Label Container</label>
+                    <comment>Product custom options label container selector.</comment>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="product_custom_options_select_multiple" translate="label comment" type="text" sortOrder="340" showInDefault="1">
+                    <label>Product Custom Options Select Multiple</label>
+                    <comment>Product custom options select multiple attribute.</comment>
+                    <validate>required-entry</validate>
                 </field>
             </group>
         </section>

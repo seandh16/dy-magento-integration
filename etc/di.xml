@@ -4,6 +4,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="productExport" xsi:type="object">DynamicYield\Integration\Console\Export</item>
+                <item name="heartBeat" xsi:type="object">DynamicYield\Integration\Console\HeartBeat</item>
             </argument>
         </arguments>
     </type>

@@ -2,6 +2,7 @@
 
 namespace DynamicYield\Integration\Helper;
 
+use DynamicYield\Integration\Api\Data\EventSelectorInterface;
 use DynamicYield\Integration\Api\Data\HelperInterface;
 use DynamicYield\Integration\Model\Queue;
 use Magento\Framework\App\Helper\AbstractHelper;
@@ -74,7 +75,7 @@ class Data extends AbstractHelper implements HelperInterface
      */
     public function isEnabled()
     {
-        return $this->scopeConfig->getValue(self::ENABLED);
+        return !empty($this->getSectionId());
     }
 
     /**
@@ -124,7 +125,7 @@ class Data extends AbstractHelper implements HelperInterface
             $this->getViewFileUrl('DynamicYield_Integration::js/storage.js'),
             $this->getViewFileUrl('DynamicYield_Integration::js/lib/xhook.min.js'),
             $this->getViewFileUrl('DynamicYield_Integration::js/hook.js'),
-            $this->getViewFileUrl('DynamicYield_Integration::js/tracking.js')
+            $this->getViewFileUrl('DynamicYield_Integration::js/dy_tracker.js')
         ];
     }
 
@@ -164,17 +165,23 @@ class Data extends AbstractHelper implements HelperInterface
     }
 
     /**
+     * @return string
+     */
+    public function getCurrentPageType()
+    {
+        $module = $this->_request->getModuleName();
+        $controller = $this->_request->getControllerName();
+        $action = $this->_request->getActionName();
+
+        return strtolower("{$module}_{$controller}_{$action}");
+    }
+
+    /**
      * @return array
      */
     public function getCurrentContext()
     {
-        $request = $this->_request;
-
-        $module = $request->getModuleName();
-        $controller = $request->getControllerName();
-        $action = $request->getActionName();
-
-        $name = "{$module}_{$controller}_{$action}";
+        $name = $this->getCurrentPageType();
 
         $type = "OTHER";
         $data = null;
@@ -244,6 +251,58 @@ class Data extends AbstractHelper implements HelperInterface
     }
 
     /**
+     * @return array
+     */
+    public function getEventSelectors()
+    {
+        $eventSelectors = [
+            EventSelectorInterface::LAYERED_NAV_BLOCK,
+            EventSelectorInterface::LAYERED_NAV_CONTENT,
+            EventSelectorInterface::LAYERED_NAV_TRIGGER,
+            EventSelectorInterface::LAYERED_NAV_CONTAINER,
+            EventSelectorInterface::LAYERED_NAV_FILTER_TITLE,
+            EventSelectorInterface::LAYERED_NAV_SWATCH_OPTION,
+            EventSelectorInterface::LAYERED_NAV_SWATCH_TITLE,
+            EventSelectorInterface::LAYERED_NAV_SWATCH_DATA_TITLE,
+            EventSelectorInterface::LAYERED_NAV_FILTER_PRICE,
+            EventSelectorInterface::LAYERED_NAV_FILTER_ITEM_COUNT,
+            EventSelectorInterface::TOOLBAR_SORTER_BLOCK,
+            EventSelectorInterface::TOOLBAR_SORTER_TYPE,
+            EventSelectorInterface::TOOLBAR_SORTER_ORDER,
+            EventSelectorInterface::TOOLBAR_SORTER_VALUE,
+            EventSelectorInterface::PRODUCT_OPTIONS_CONTAINER,
+            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE,
+            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE_PARENT,
+            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE_NAME_LABEL,
+            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE_NAME_CONTAINER,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_CONTAINER,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_SELECT,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_INPUT,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_RADIO,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_CHECKBOX,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_CONTAINER,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_SELECT,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_ATTRIBUTE_VALUE,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_SELECTED_ATTRIBUTE,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_ATTRIBUTE_PARENT,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_CONTROL,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_CONTROL_PARENT,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_LABEL,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_LABEL_CONTAINER,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SELECT_MULTIPLE
+        ];
+
+        $output = [];
+
+        foreach ($eventSelectors as $eventSelector) {
+            $output[$eventSelector] = $this->scopeConfig
+                ->getValue(EventSelectorInterface::CONFIGURATION_PATH . $eventSelector);
+        }
+
+        return $output;
+    }
+
+    /**
      * @return string
      */
     public function getHtmlMarkup()
@@ -257,8 +316,12 @@ class Data extends AbstractHelper implements HelperInterface
             // ]]>
             </script>' . "\n";
             $html .= '<script type="text/javascript">
-                var DY_HEADER_NAME = ("' . $this->getEventName() . '").toLowerCase(),
-                    DY_STORAGE_URL = "' . $this->_urlBuilder->getUrl('dyIntegration/storage/index') . '";
+                var DY_SETTINGS = {
+                    "headerName": ("' . $this->getEventName() . '").toLowerCase(),
+                    "storageUrl": "' . $this->_urlBuilder->getUrl('dyIntegration/storage/index') . '",
+                    "currentPage": "' . $this->getCurrentPageType() . '",
+                    "eventSelectors": ' . json_encode($this->getEventSelectors()) . '
+                };
                 
                 window.MGB = window.MGB || {};
             </script>' . "\n";

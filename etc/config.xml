@@ -11,5 +11,44 @@
                 <access_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </feed>
         </dyi_integration>
+
+        <dev>
+            <dyi_event_selectors>
+                <layered_nav_block>#layered-filter-block</layered_nav_block>
+                <layered_nav_content>.filter-options-content</layered_nav_content>
+                <layered_nav_trigger>a</layered_nav_trigger>
+                <layered_nav_filter_container>.filter-options-item</layered_nav_filter_container>
+                <layered_nav_filter_title>.filter-options-title</layered_nav_filter_title>
+                <layered_nav_filter_swatch_option>.swatch-option</layered_nav_filter_swatch_option>
+                <layered_nav_filter_swatch_title>option-label</layered_nav_filter_swatch_title>
+                <layered_nav_filter_swatch_data_title>data-option-label</layered_nav_filter_swatch_data_title>
+                <layered_nav_filter_price>.price</layered_nav_filter_price>
+                <layered_nav_filter_item_count>.count</layered_nav_filter_item_count>
+                <toolbar_sorter_block>.toolbar-sorter</toolbar_sorter_block>
+                <toolbar_sorter_type>select</toolbar_sorter_type>
+                <toolbar_sorter_order>a</toolbar_sorter_order>
+                <toolbar_sorter_order_value>data-value</toolbar_sorter_order_value>
+                <product_options_wrapper>#product-options-wrapper</product_options_wrapper>
+                <product_options_regular_attribute>select.super-attribute-select</product_options_regular_attribute>
+                <product_options_regular_attribute_parent>.field.configurable</product_options_regular_attribute_parent>
+                <product_options_regular_attribute_name_label>label.label</product_options_regular_attribute_name_label>
+                <product_options_regular_attribute_name_container>span</product_options_regular_attribute_name_container>
+                <product_custom_options_container>.product-custom-option</product_custom_options_container>
+                <product_custom_options_type_select>select</product_custom_options_type_select>
+                <product_custom_options_type_input>input</product_custom_options_type_input>
+                <product_custom_options_type_radio>radio</product_custom_options_type_radio>
+                <product_custom_options_type_checkbox>checkbox</product_custom_options_type_checkbox>
+                <product_custom_options_swatch_container>.swatch-opt</product_custom_options_swatch_container>
+                <product_custom_options_swatch_select>select</product_custom_options_swatch_select>
+                <product_custom_options_swatch_attribute_value>span.swatch-attribute-label</product_custom_options_swatch_attribute_value>
+                <product_custom_options_swatch_attribute_selected>span.swatch-attribute-selected-option</product_custom_options_swatch_attribute_selected>
+                <product_custom_options_swatch_attribute_parent>.swatch-attribute</product_custom_options_swatch_attribute_parent>
+                <product_custom_options_control>.control</product_custom_options_control>
+                <product_custom_options_control_parent>.field</product_custom_options_control_parent>
+                <product_custom_options_label>.label</product_custom_options_label>
+                <product_custom_options_label_container>span</product_custom_options_label_container>
+                <product_custom_options_select_multiple>multiple</product_custom_options_select_multiple>
+            </dyi_event_selectors>
+        </dev>
     </default>
 </config>

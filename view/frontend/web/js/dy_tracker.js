@@ -1,5 +1,4 @@
-/* global DY_STORAGE_KEY, DY, MGB */
-
+/* global DY, DY_SETTINGS, MGB */
 (function(exports, d) {
     "use strict";
 
@@ -38,17 +37,6 @@
         exports.domReady(function () {
             this.onLoad();
         }.bind(this));
-    }
-
-    /**
-     * Check if element has class
-     *
-     * @param element
-     * @param cls
-     * @returns {boolean}
-     */
-    function hasClass(element, cls) {
-        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
     }
 
     /**
@@ -108,14 +96,14 @@
      * @returns {*}
      */
     DynamicYield_Tracking.prototype.detectPage = function() {
-        var body = doc.getElementsByTagName('body')[0];
+        if (DY_SETTINGS.currentPage.length) {
+            if (DY_SETTINGS.currentPage === 'catalog_category_view') {
+                return "category";
+            }
 
-        if(hasClass(body, 'catalog-category-view')) {
-            return 'category';
-        }
-
-        if(hasClass(body, 'catalog-product-view')) {
-            return 'product';
+            if (DY_SETTINGS.currentPage === 'catalog_product_view') {
+                return "product";
+            }
         }
 
         return null;
@@ -147,13 +135,13 @@
         var type = this.detectPage();
 
         if(type === 'category') {
-            var layeredNav = doc.querySelector('#layered-filter-block');
+            var layeredNav = doc.querySelector(DY_SETTINGS.eventSelectors.layered_nav_block);
             if (layeredNav !== null) {
-                var layeredOptionsWrapper = layeredNav.getElementsByClassName('filter-options-content');
+                var layeredOptionsWrapper = layeredNav.querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_content);
 
                 if (layeredOptionsWrapper !== null && layeredOptionsWrapper.length) {
                     for (var i = 0; i < layeredOptionsWrapper.length; i++) {
-                        var layeredLinks = layeredOptionsWrapper[i].getElementsByTagName('a');
+                        var layeredLinks = layeredOptionsWrapper[i].querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_trigger);
 
                         if (layeredLinks !== null && layeredLinks.length) {
                             for (var l = 0; l < layeredLinks.length; l++) {
@@ -166,11 +154,11 @@
                 }
             }
 
-            var sorter = doc.querySelector('.toolbar-sorter');
+            var sorter = doc.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_block);
 
             if (sorter !== null) {
-                var sorterSelect = sorter.querySelector('select'),
-                    sorterLink = sorter.querySelector('a');
+                var sorterSelect = sorter.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_type),
+                    sorterLink = sorter.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_order);
 
                 if (sorterSelect !== null) {
                     sorterSelect.onchange = function(event) {
@@ -186,10 +174,10 @@
             }
 
         } else if(type === 'product') {
-            var optionsWrapper = doc.querySelector('#product-options-wrapper');
+            var optionsWrapper = doc.querySelector(DY_SETTINGS.eventSelectors.product_options_wrapper);
 
             if (optionsWrapper !== null) {
-                var regularAttribute = optionsWrapper.querySelectorAll('select.super-attribute-select');
+                var regularAttribute = optionsWrapper.querySelectorAll(DY_SETTINGS.eventSelectors.product_options_regular_attribute);
 
                 if (regularAttribute !== null && regularAttribute.length) {
                     for (var r = 0; r < regularAttribute.length; r++) {
@@ -199,17 +187,17 @@
                     }
                 }
 
-                var customOption = optionsWrapper.querySelectorAll('.product-custom-option');
+                var customOption = optionsWrapper.querySelectorAll(DY_SETTINGS.eventSelectors.product_custom_options_container);
 
                 if (customOption !== null && customOption.length) {
                     for (var c = 0; c < customOption.length; c++) {
-                        if (customOption[c].tagName.toLowerCase() === "select") {
+                        if (customOption[c].tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_select) {
                             customOption[c].onchange = function (event) {
                                 this.onProductCustomOptionChange(event);
                             }.bind(this);
-                        } else if (customOption[c].tagName.toLowerCase() === "input") {
-                            if (customOption[c].getAttribute('type') === "radio" ||
-                                customOption[c].getAttribute('type') === "checkbox") {
+                        } else if (customOption[c].tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_input) {
+                            if (customOption[c].getAttribute('type').toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_radio ||
+                                customOption[c].getAttribute('type').toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_checkbox) {
                                 addEventHandler(customOption[c], 'click', function (event) {
                                     this.onProductCustomOptionChange(event);
                                 }.bind(this));
@@ -218,11 +206,11 @@
                     }
                 }
 
-                var swatchAttribute = optionsWrapper.querySelector('.swatch-opt');
+                var swatchAttribute = optionsWrapper.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_container);
 
                 if (swatchAttribute !== null) {
                     addEventHandler(swatchAttribute, 'DOMNodeInserted', function (event) {
-                        var swatchSelect = swatchAttribute.querySelectorAll('select');
+                        var swatchSelect = swatchAttribute.querySelectorAll(DY_SETTINGS.eventSelectors.product_custom_options_swatch_select);
 
                         if (swatchSelect !== null && swatchSelect.length) {
                             for (var s = 0; s < swatchSelect.length; s++) {
@@ -249,15 +237,15 @@
             value,
             name,
             filterTitle,
-            filterContainer = getClosestElement(self, '.filter-options-item'),
-            isSwatchLink = self.querySelector('.swatch-option'),
+            filterContainer = getClosestElement(self, DY_SETTINGS.eventSelectors.layered_nav_filter_container),
+            isSwatchLink = self.querySelector(DY_SETTINGS.eventSelectors.layered_nav_filter_swatch_option),
             isPrice = false;
 
         if (filterContainer === null) {
             return false;
         }
 
-        filterTitle = filterContainer.querySelector('.filter-options-title');
+        filterTitle = filterContainer.querySelector(DY_SETTINGS.eventSelectors.layered_nav_filter_title);
 
         if (filterTitle === null) {
             return false;
@@ -266,13 +254,13 @@
         name = filterTitle.innerText.trim();
 
         if (isSwatchLink !== null) {
-            var dataLabel = isSwatchLink.getAttribute('data-option-label'),
-                optionLabel = isSwatchLink.getAttribute('option-label');
+            var dataLabel = isSwatchLink.getAttribute(DY_SETTINGS.eventSelectors.layered_nav_filter_swatch_data_title),
+                optionLabel = isSwatchLink.getAttribute(DY_SETTINGS.eventSelectors.layered_nav_filter_swatch_title);
 
             value = (dataLabel || optionLabel).trim();
         } else {
             var regex = /^\D+|\D+$/g,
-                prices = self.getElementsByClassName('price');
+                prices = self.querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_filter_price);
 
             if (prices !== null && prices.length) {
                 isPrice = true;
@@ -286,7 +274,7 @@
                 value = priceArray.join('-');
             } else {
                 var element = self.cloneNode(true),
-                    countHtml = element.querySelector('.count');
+                    countHtml = element.querySelector(DY_SETTINGS.eventSelectors.layered_nav_filter_item_count);
 
                 if (countHtml !== null) {
                     countHtml.remove();
@@ -334,13 +322,13 @@
         if (typeof relatedNode !== "undefined") {
             var child = relatedNode.parentNode;
 
-            name = child.querySelector('span.swatch-attribute-label').innerText;
-            value = child.querySelector('span.swatch-attribute-selected-option').innerText.trim();
-        } else if (target.tagName.toLowerCase() === "select") {
-            var parent = getClosestElement(target, '.swatch-attribute'),
+            name = child.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_value).innerText;
+            value = child.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_selected).innerText.trim();
+        } else if (target.tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_swatch_select) {
+            var parent = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_parent),
                 selected = target.options[target.selectedIndex];
 
-            name = parent.querySelector('span.swatch-attribute-label').innerText;
+            name = parent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_value).innerText;
             value = selected.value > 0 ? selected.innerText.trim() : false;
         } else {
             return false;
@@ -368,8 +356,9 @@
      */
     DynamicYield_Tracking.prototype.onProductAttributeSelectChange = function(event) {
         var self = event.currentTarget,
-            parent = getClosestElement(self, '.field.configurable'),
-            name = parent.querySelector('label.label').querySelector('span').innerText,
+            parent = getClosestElement(self, DY_SETTINGS.eventSelectors.product_options_regular_attribute_parent),
+            name = parent.querySelector(DY_SETTINGS.eventSelectors.product_options_regular_attribute_name_label)
+                .querySelector(DY_SETTINGS.eventSelectors.product_options_regular_attribute_name_container).innerText,
             selected = self.options[self.selectedIndex],
             value;
 
@@ -397,8 +386,8 @@
     DynamicYield_Tracking.prototype.onProductCustomOptionChange = function (event) {
         var self = event,
             target = self.currentTarget,
-            control = getClosestElement(target, '.control'),
-            parent = getClosestElement(control, '.field'),
+            control = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control),
+            parent = getClosestElement(control, DY_SETTINGS.eventSelectors.product_custom_options_control_parent),
             name,
             value;
 
@@ -406,30 +395,30 @@
             return false;
         }
 
-        var label = parent.querySelector('.label');
+        var label = parent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label);
 
         if (!label) {
             return false;
         }
 
-        name = label.querySelector('span').innerText.trim();
+        name = label.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label_container).innerText.trim();
 
-        if (target.tagName.toLowerCase() === "select") {
-            if (target.getAttribute('multiple') === null) {
+        if (target.tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_swatch_select) {
+            if (target.getAttribute(DY_SETTINGS.eventSelectors.product_custom_options_select_multiple) === null) {
                 var selected = target.options[target.selectedIndex];
 
                 value = selected.value > 0 ? selected.innerText.trim() : false;
             }
         } else {
-            var subParent = getClosestElement(target, '.field'),
-                subLabel = subParent.querySelector('.label');
+            var subParent = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control_parent),
+                subLabel = subParent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label);
 
-            if (target.getAttribute('type') === "checkbox") {
+            if (target.getAttribute('type') === DY_SETTINGS.eventSelectors.product_custom_options_type_checkbox) {
                 if (target.checked) {
-                    value = subLabel.querySelector('span').innerText.trim();
+                    value = subLabel.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label_container).innerText.trim();
                 }
             } else {
-                value = subLabel.querySelector('span').innerText.trim();
+                value = subLabel.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label_container).innerText.trim();
             }
         }
 
@@ -453,8 +442,8 @@
      */
     DynamicYield_Tracking.prototype.onSortChange = function(event) {
         var caller = event.currentTarget,
-            target = getClosestElement(caller, '.toolbar-sorter'),
-            select = target.querySelector('select'),
+            target = getClosestElement(caller, DY_SETTINGS.eventSelectors.toolbar_sorter_block),
+            select = target.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_type),
             option = select.options[select.selectedIndex];
 
         if (!option) {
@@ -462,10 +451,10 @@
         }
 
         var title = option.innerText.trim(),
-            switcher = target.querySelector('a'),
+            switcher = target.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_order),
             sortOrder,
             changingDir = false,
-            url = switcher.getAttribute('data-value');
+            url = switcher.getAttribute(DY_SETTINGS.eventSelectors.toolbar_sorter_order_value);
 
         if (typeof url === "string") {
             sortOrder = url;

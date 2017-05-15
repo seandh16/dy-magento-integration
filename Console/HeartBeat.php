@@ -2,7 +2,7 @@
 
 namespace DynamicYield\Integration\Console;
 
-use DynamicYield\Integration\Model\Export as ExportModel;
+use DynamicYield\Integration\Model\HeartBeat as HeartBeatModel;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
@@ -10,17 +10,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Export extends Command
+class HeartBeat extends Command
 {
-    /**
-     * @var ExportModel
-     */
-    protected $_export;
-
     /**
      * @var State
      */
     protected $_state;
+
+    /**
+     * @var HeartBeatModel
+     */
+    protected $_heartBeat;
 
     /**
      * @var LoggerInterface
@@ -28,20 +28,22 @@ class Export extends Command
     protected $_logger;
 
     /**
-     * Export constructor.
-     * @param ExportModel $export
+     * HeartBeat constructor
+     *
+     * @param State $state
+     * @param null $name
      */
     public function __construct(
-        ExportModel $export,
         State $state,
+        HeartBeatModel $heartBeat,
         LoggerInterface $logger,
         $name = null
     )
     {
         parent::__construct($name);
 
-        $this->_export = $export;
         $this->_state = $state;
+        $this->_heartBeat = $heartBeat;
         $this->_logger = $logger;
     }
 
@@ -58,14 +60,13 @@ class Export extends Command
      */
     public function configure()
     {
-        $this->setName('product:export')
-            ->setDescription('Export Products');
+        $this->setName('dy:heartbeat')
+            ->setDescription('Do heartbeat for cronjobs');
     }
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     *
      * @return mixed
      */
     public function execute(InputInterface $input, OutputInterface $output)
@@ -77,7 +78,7 @@ class Export extends Command
         } catch (LocalizedException $e) {}
 
         try {
-            $this->_export->export();
+            $this->_heartBeat->newBeat();
         } catch (\Exception $exception) {
             $this->_logger->error($exception->getMessage());
         }

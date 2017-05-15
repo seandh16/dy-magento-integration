@@ -1,4 +1,4 @@
-/* global MGB, DY_STORAGE_URL */
+/* global MGB, DY_SETTINGS */
 (function(MGB, exports, doc) {
     "use strict";
 
@@ -76,7 +76,7 @@
      */
     MGB_Storage.prototype.setData = function (data) {
         try {
-            this.send(DY_STORAGE_URL, data);
+            this.send(DY_SETTINGS.storageUrl, data);
         } catch (e) {}
     };
 
@@ -85,7 +85,7 @@
      */
     MGB_Storage.prototype.getData = function () {
         try {
-            this.get(DY_STORAGE_URL);
+            this.get(DY_SETTINGS.storageUrl);
         } catch (e) {}
     };
 

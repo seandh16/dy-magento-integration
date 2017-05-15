@@ -1,9 +1,9 @@
-/* global xhook, DY_HEADER_NAME, MGB, DY */
+/* global xhook, DY_SETTINGS, MGB, DY */
 xhook.after(function(request, response, callback) {
     "use strict";
 
     var headers = response.headers;
-    var targetHeader = DY_HEADER_NAME || 'dy-event-data';
+    var targetHeader = DY_SETTINGS.headerName || 'dy-event-data';
 
     if(headers[targetHeader]) {
         var json = JSON.parse(headers[targetHeader]);
