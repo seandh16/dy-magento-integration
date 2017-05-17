@@ -6,8 +6,7 @@
                 <event_name>Dyi-Event-Data</event_name>
             </general>
             <feed>
-                <update_rate_time>1</update_rate_time>
-                <update_rate_type>1440</update_rate_type>
+                <update_rate>7,1440</update_rate>
                 <access_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </feed>
         </dyi_integration>

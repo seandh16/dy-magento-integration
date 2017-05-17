@@ -42,8 +42,6 @@ class SyncRate extends Select
      */
     public function getElementHtml()
     {
-        $this->addClass('select admin__control-select');
-
         $html = '';
         if ($this->getBeforeElementHtml()) {
             $html .= '<label class="addbefore" for="' .

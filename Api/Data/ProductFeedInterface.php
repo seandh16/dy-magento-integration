@@ -5,8 +5,7 @@ namespace DynamicYield\Integration\Api\Data;
 interface ProductFeedInterface
 {
     const EAV_ENTITY_TYPE = 4;
-    const UPDATE_RATE_TIME = 'dyi_integration/feed/update_rate_time';
-    const UPDATE_RATE_TYPE = 'dyi_integration/feed/update_rate_type';
+    const UPDATE_RATE = 'dyi_integration/feed/update_rate';
     const CRON_SCHEDULE_PATH = 'dyi_integration/feed/cron_expr';
     const ATTRIBUTES = 'dyi_integration/feed/attributes';
     const USED_ATTRIBUTES = 'dyi_integration/feed/used_attributes';
