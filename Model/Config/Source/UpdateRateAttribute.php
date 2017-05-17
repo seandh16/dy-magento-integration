@@ -4,7 +4,7 @@ namespace DynamicYield\Integration\Model\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 
-class UpdateRateTypeAttribute implements ArrayInterface
+class UpdateRateAttribute implements ArrayInterface
 {
     /**
      * @var array

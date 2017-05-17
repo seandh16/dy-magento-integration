@@ -13,7 +13,7 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 
-abstract class AbstractUpdateRate extends Value
+class UpdateRate extends Value
 {
     const CRON_TEMPLATE = 'min h d m w';
 
@@ -76,24 +76,24 @@ abstract class AbstractUpdateRate extends Value
     }
 
     /**
-     * @return mixed
-     */
-    abstract function getTime();
-
-    /**
-     * @return mixed
-     */
-    abstract function getType();
-
-    /**
      * @return Value
      * @throws ValidatorException
      */
     public function beforeSave()
     {
         $label = $this->getData('field_config/label');
-        $value = (int)$this->getTime();
-        $type = $this->getType();
+
+        if (!is_array($this->getValue())) {
+            list($value, $type) = explode(',', $this->getValue());
+        } else {
+            $value = $this->getValue()[0];
+            $type = $this->getValue()[1];
+        }
+
+        if (!is_numeric($value)) {
+            throw new ValidatorException(__('Sync rate should be an integer.'));
+        }
+
         $match = null;
 
         foreach ($this->_units as $unit) {
@@ -103,7 +103,7 @@ abstract class AbstractUpdateRate extends Value
         }
 
         if (!$match) {
-            throw new ValidatorException(__('Invalid update rate selected.'));
+            throw new ValidatorException(__('Invalid sync rate selected.'));
         }
 
         list($min, $max, $unit) = $match;
@@ -126,10 +126,14 @@ abstract class AbstractUpdateRate extends Value
      */
     public function afterSave()
     {
-        $value = [
-            (int)$this->getTime(),
-            $this->getType()
-        ];
+        if (!is_array($this->getValue())) {
+            $value = explode(',', $this->getValue());
+        } else {
+            $value = [
+                $this->getValue()[0],
+                $this->getValue()[1]
+            ];
+        }
 
         $minutes = array_reduce($value, function ($carry, $value) {
             return $carry * $value;

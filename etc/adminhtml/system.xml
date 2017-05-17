@@ -40,16 +40,10 @@
             <group id="feed" translate="label" type="text" sortOrder="20" showInDefault="1">
                 <label>Product Catalog Sync</label>
 
-                <field id="update_rate_time" translate="label comment" type="text" sortOrder="20" showInDefault="1">
-                    <label>Sync Rate Time</label>
-                    <validate>validate-digits</validate>
-                    <backend_model>DynamicYield\Integration\Model\Config\Backend\UpdateRateTime</backend_model>
-                </field>
-
-                <field id="update_rate_type" translate="label comment" type="select" sortOrder="30" showInDefault="1">
-                    <label>Sync Rate Frequency</label>
-                    <source_model>DynamicYield\Integration\Model\Config\Source\UpdateRateTypeAttribute</source_model>
-                    <backend_model>DynamicYield\Integration\Model\Config\Backend\UpdateRateType</backend_model>
+                <field id="update_rate" translate="label comment" type="DynamicYield\Integration\Block\Adminhtml\Form\Field\SyncRate" sortOrder="10" showInDefault="1">
+                    <label>Sync Rate</label>
+                    <source_model>DynamicYield\Integration\Model\Config\Source\UpdateRateAttribute</source_model>
+                    <backend_model>DynamicYield\Integration\Model\Config\Backend\UpdateRate</backend_model>
                 </field>
 
                 <field id="attributes" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1">
