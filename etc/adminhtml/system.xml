@@ -23,12 +23,12 @@
 
                 <field id="access_key_id" translate="label comment" type="text" sortOrder="20" showInDefault="1">
                     <label>Access Key ID</label>
-                    <comment>Place here the Access Key provided by Dynamic Yield.</comment>
+                    <comment>Enter the Access Key provided by Dynamic Yield.</comment>
                 </field>
 
                 <field id="access_key" translate="label comment" type="obscure" sortOrder="30" showInDefault="1">
                     <label>Secret Access Key</label>
-                    <comment>Place here the Secret Key provided by Dynamic Yield.</comment>
+                    <comment>Enter the Secret Key provided by Dynamic Yield.</comment>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
 
@@ -48,14 +48,14 @@
 
                 <field id="attributes" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1">
                     <label>Product Attributes</label>
-                    <comment>Enhance your personalization capabilities by syncing up to 10 additional key product attributes (mandatory attributes are already selected and not visible). Notice: You can add attributes by selecting them.</comment>
+                    <comment>Enhance your personalization capabilities by syncing up to 10 additional key product attributes (mandatory attributes are already selected and not visible). Note: You can add attributes by selecting them.</comment>
                     <source_model>DynamicYield\Integration\Model\Config\Source\ProductAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\ProductAttribute</backend_model>
                 </field>
 
                 <field id="used_attributes" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1">
                     <label>Used Product Attributes</label>
-                    <comment>All used product attributes for sync. Notice: You can remove attributes by selecting them.</comment>
+                    <comment>All used product attributes for sync. Note: You can remove attributes by selecting them.</comment>
                     <source_model>DynamicYield\Integration\Model\Config\Source\UsedProductAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\UsedProductAttribute</backend_model>
                 </field>
