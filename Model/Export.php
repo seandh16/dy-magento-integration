@@ -304,7 +304,7 @@ class Export
             'sku' => $_product->getData('sku'),
             'group_id' => $_product->getData('sku'),
             'price' => $_product->getPrice(),
-            'in_stock' => $_product->isSaleable() ? 1 : 0,
+            'in_stock' => $_product->isSaleable() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
         ];
@@ -406,6 +406,14 @@ class Export
     protected function buildAttributeData(Product $product, EavAttribute $attribute, $field)
     {
         $attributeData = $product->getData($attribute->getAttributeCode());
+
+        if ($attribute->getOptions() && !is_array($attributeData)) {
+            foreach ($attribute->getOptions() as $option) {
+                if ($attributeData == $option->getValue()) {
+                    $attributeData = $option->getLabel();
+                }
+            }
+        }
 
         if (is_array($attributeData)) {
             $attributeData = join("|", $attributeData);
