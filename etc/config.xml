@@ -4,10 +4,10 @@
         <dyi_integration>
             <general>
                 <event_name>Dyi-Event-Data</event_name>
+                <access_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </general>
             <feed>
                 <update_rate>7,1440</update_rate>
-                <access_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </feed>
         </dyi_integration>
 

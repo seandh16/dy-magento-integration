@@ -14,6 +14,11 @@ class AddToCartEvent extends Event
     protected $_product;
 
     /**
+     * @var integer
+     */
+    protected $_qty;
+
+    /**
      * @var CheckoutSession
      */
     protected $_checkoutSession;
@@ -79,15 +84,17 @@ class AddToCartEvent extends Event
             'value' => $price,
             'currency' => $currency,
             'productId' => $product->getData('sku'),
-            'quantity' => round($item->getQty(), 2)
+            'quantity' => round($this->_qty, 2)
         ];
     }
 
     /**
      * @param Product $product
+     * @param $qty
      */
-    public function setProduct(Product $product)
+    public function setProduct(Product $product, $qty)
     {
         $this->_product = $product;
+        $this->_qty = $qty;
     }
 }

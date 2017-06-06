@@ -6,7 +6,7 @@ use Magento\Framework\Event\Observer;
 
 class AddToCartObserver extends AbstractObserver
 {
-    const EVENT_TYPE = 'checkout_cart_add_product_complete';
+    const EVENT_TYPE = 'dyi_add_item_to_cart';
 
     /**
      * @param Observer $observer
@@ -15,7 +15,8 @@ class AddToCartObserver extends AbstractObserver
     public function dispatch(Observer $observer)
     {
         $product = $observer->getEvent()->getProduct();
-        $this->_addToCartEvent->setProduct($product);
+        $qty = $observer->getEvent()->getQty();
+        $this->_addToCartEvent->setProduct($product, $qty);
         $data = $this->_addToCartEvent->build();
 
         return $this->buildResponse([

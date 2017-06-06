@@ -3,7 +3,7 @@
     <event name="dyi_set_coupon_code_after">
         <observer name="AddPromoCodeEvent" instance="DynamicYield\Integration\Observer\AddPromoCodeObserver" />
     </event>
-    <event name="checkout_cart_add_product_complete">
+    <event name="dyi_add_item_to_cart">
         <observer name="AddToCartEvent" instance="DynamicYield\Integration\Observer\AddToCartObserver" />
     </event>
     <event name="wishlist_add_product">

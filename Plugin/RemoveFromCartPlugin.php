@@ -26,7 +26,7 @@ class RemoveFromCartPlugin
 
     /**
      * @param Cart $subject
-     * @param $result
+     * @param $itemId
      */
     public function beforeRemoveItem(Cart $subject, $itemId)
     {
