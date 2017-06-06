@@ -3,11 +3,12 @@
 namespace DynamicYield\Integration\Plugin;
 
 use Closure;
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
-use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Catalog\Model\ProductRepository;
-use Magento\Checkout\Controller\Cart\Add;
+use Magento\Checkout\Model\Cart;
+use Magento\Framework\DataObject;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\Store;
@@ -36,66 +37,88 @@ class AddToCartPlugin
     protected $_storeManager;
 
     /**
-     * @var Session
-     */
-    protected $_checkoutSession;
-
-    /**
      * AddToCartPlugin constructor
      *
      * @param ManagerInterface $eventManager
      * @param ProductRepository $productRepository
      * @param RequestInterface $request
      * @param StoreManagerInterface $storeManager
-     * @param Session $checkoutSession
      */
     public function __construct(
         ManagerInterface $eventManager,
         ProductRepository $productRepository,
         RequestInterface $request,
-        StoreManagerInterface $storeManager,
-        Session $checkoutSession
+        StoreManagerInterface $storeManager
     )
     {
         $this->_eventManager = $eventManager;
         $this->_productRepository = $productRepository;
         $this->_request = $request;
         $this->_storeManager = $storeManager;
-        $this->_checkoutSession = $checkoutSession;
     }
 
     /**
-     * @param Add $add
+     * @param Cart $cart
      * @param Closure $proceed
+     * @param Product|int $productInfo
+     * @param DataObject|array $requestInfo
      * @return mixed
      */
-    public function aroundExecute(Add $add, Closure $proceed)
+    public function aroundAddProduct(Cart $cart, Closure $proceed, $productInfo, $requestInfo)
     {
-        $oldCartItemCount = round($this->_checkoutSession->getQuote()->getItemsQty());
-        $productId = $this->_request->getParam('product', []);
-        $closure = $proceed();
+        $product = $this->_initProduct($productInfo);
+        $request = $this->_initProductRequest($requestInfo);
+        $closure = $proceed($product, $request);
 
         if ($closure) {
-            if (!is_array($productId) && is_numeric($productId)) {
-                /** @var Store $store */
-                $store = $this->_storeManager->getStore();
-                $newCartItemCount = round($this->_checkoutSession->getQuote()->getItemsQty());
+            $qty = $request->getData('qty') ? $request->getData('qty') : 1;
 
-                if ($newCartItemCount > $oldCartItemCount) {
-                    try {
-                        /** @var Product $product */
-                        $product = $this->_productRepository->getById($productId, false, $store->getId());
-                        $qty = $this->_request->getParam('qty', 1);
-
-                        $this->_eventManager->dispatch('dyi_add_item_to_cart', [
-                            'product' => $product,
-                            'qty' => $qty
-                        ]);
-                    } catch (NoSuchEntityException $exception) {}
-                }
-            }
+            $this->_eventManager->dispatch('dyi_add_item_to_cart', [
+                'product' => $product,
+                'qty' => $qty
+            ]);
         }
 
-        return $closure;
+        return $cart;
+    }
+
+    /**
+     * @param $product
+     * @return bool|ProductInterface|mixed
+     */
+    protected function _initProduct($product)
+    {
+        if ($product instanceof Product) {
+            if (!$product->getId()) {
+                return false;
+            }
+
+            return $product;
+        }
+
+        if (is_numeric($product) || is_string($product)) {
+            try {
+                /** @var Store $store */
+                $store = $this->_storeManager->getStore();
+                return $this->_productRepository->getById($product, false, $store->getId());
+            } catch (NoSuchEntityException $exception) {}
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $productRequest
+     * @return DataObject
+     */
+    protected function _initProductRequest($productRequest)
+    {
+        if (is_array($productRequest)) {
+            return new DataObject($productRequest);
+        } else if (is_numeric($productRequest)) {
+            return new DataObject(['qty' => $productRequest]);
+        }
+
+        return $productRequest;
     }
 }

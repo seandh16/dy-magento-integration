@@ -24,7 +24,7 @@
         <plugin name="DynamicYield_Integration::afterCartSetCouponCode" type="DynamicYield\Integration\Plugin\CartSetCouponCodePlugin" sortOrder="6" disabled="false" />
     </type>
 
-    <type name="Magento\Checkout\Controller\Cart\Add">
+    <type name="Magento\Checkout\Model\Cart">
         <plugin name="DynamicYield_Integration::addToCartPlugin" type="DynamicYield\Integration\Plugin\AddToCartPlugin" sortOrder="7" disabled="false" />
     </type>
 </config>
