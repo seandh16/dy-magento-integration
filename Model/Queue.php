@@ -2,11 +2,12 @@
 
 namespace DynamicYield\Integration\Model;
 
-use Magento\Catalog\Model\Session;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem\Io\File;
 
 class Queue
 {
-    const COLLECTION_ID = 'dyi_queue';
+    const FILE_NAME = 'dyi_queue.json';
 
     /**
      * @var array
@@ -14,19 +15,28 @@ class Queue
     protected $_collection = [];
 
     /**
-     * @var Session
+     * @var DirectoryList
      */
-    protected $_session;
+    protected $_directoryList;
 
     /**
-     * Queue constructor.
-     * @param Session $session
+     * @var File
+     */
+    protected $_file;
+
+    /**
+     * Queue constructor
+     *
+     * @param DirectoryList $directoryList
+     * @param File $file
      */
     public function __construct(
-        Session $session
+        DirectoryList $directoryList,
+        File $file
     )
     {
-        $this->_session = $session;
+        $this->_directoryList = $directoryList;
+        $this->_file = $file;
     }
 
     /**
@@ -34,21 +44,15 @@ class Queue
      */
     public function getCollection()
     {
-        $data = $this->_session->getData(self::COLLECTION_ID);
-
-        if (!$data || empty($data)) {
-            $this->_session->setData(self::COLLECTION_ID, serialize($this->_collection));
-        }
-
-        return unserialize($this->_session->getData(self::COLLECTION_ID));
+        return json_decode($this->_file->read($this->getFile()), true);
     }
 
     /**
-     * @return bool
+     * @return bool|int
      */
     public function updateCollection()
     {
-        return $this->_session->setData(self::COLLECTION_ID, serialize($this->_collection));
+        return $this->_file->write($this->getFile(), json_encode($this->_collection));
     }
 
     /**
@@ -65,11 +69,7 @@ class Queue
 
         $collection[] = $data;
 
-        $this->_collection = array_map('unserialize',
-            array_unique(
-                array_map('serialize', $collection)
-            )
-        );
+        $this->_collection = array_unique($collection, SORT_REGULAR);
 
         return $this->updateCollection();
     }
@@ -82,5 +82,24 @@ class Queue
         $this->_collection = [];
 
         return $this->updateCollection();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getFile()
+    {
+        $path = $this->_directoryList->getPath(DirectoryList::VAR_DIR);
+        $file = $path . '/' . self::FILE_NAME;
+
+        $this->_file->open([
+            'path' => $path
+        ]);
+
+        if (!$this->_file->fileExists($file)) {
+            $this->_file->write($file, json_encode($this->_collection), 0666);
+        }
+
+        return $file;
     }
 }
