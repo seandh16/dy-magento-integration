@@ -5,6 +5,8 @@ namespace DynamicYield\Integration\Model\Event;
 use DynamicYield\Integration\Model\Event;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 
 class AddToCartEvent extends Event
 {
@@ -24,15 +26,23 @@ class AddToCartEvent extends Event
     protected $_checkoutSession;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
      * AddToCartEvent constructor
      *
      * @param CheckoutSession $checkoutSession
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        StoreManagerInterface $storeManager
     )
     {
         $this->_checkoutSession = $checkoutSession;
+        $this->_storeManager = $storeManager;
     }
 
     /**
@@ -77,12 +87,17 @@ class AddToCartEvent extends Event
         $price = $item->getPrice();
 
         if (!$currency) {
-            $currency = $quote->getStoreCurrencyCode();
+            $currency = $quote->getStoreCurrencyCode() ?
+                $quote->getStoreCurrencyCode() : $quote->getBaseCurrencyCode();
         }
+
+        /** @var Store $store */
+        $store = $this->_storeManager->getStore();
+        $storeCurrency = $store->getCurrentCurrency();
 
         return [
             'value' => $price,
-            'currency' => $currency,
+            'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $product->getData('sku'),
             'quantity' => round($this->_qty, 2)
         ];

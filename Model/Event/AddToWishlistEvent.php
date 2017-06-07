@@ -49,7 +49,7 @@ class AddToWishlistEvent extends Event
     }
 
     /**
-     * @param Product $item
+     * @param Product $product
      */
     public function setProduct(Product $product)
     {

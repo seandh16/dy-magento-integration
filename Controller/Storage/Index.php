@@ -40,7 +40,7 @@ class Index extends Action
     }
 
     /**
-     * @return JsonFactory|Json
+     * @return Json
      */
     public function execute()
     {
@@ -49,7 +49,7 @@ class Index extends Action
 
         if (is_array($data) && empty($data)) {
             return $json->setData([
-                'data' => $this->_queue->getCollection()
+                'data' => $this->_queue->getCollection(),
             ]);
         }
 

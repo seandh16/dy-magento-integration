@@ -5,6 +5,8 @@ namespace DynamicYield\Integration\Model\Event;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use DynamicYield\Integration\Model\Event;
 use Magento\Quote\Model\Quote\Item;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 
 class RemoveFromCartEvent extends Event
 {
@@ -19,13 +21,23 @@ class RemoveFromCartEvent extends Event
     protected $_checkoutSession;
 
     /**
-     * AddToCartEvent constructor
+     * @var StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
+     * RemoveFromCartEvent constructor
      *
      * @param CheckoutSession $checkoutSession
+     * @param StoreManagerInterface $storeManager
      */
-    public function __construct(CheckoutSession $checkoutSession)
+    public function __construct(
+        CheckoutSession $checkoutSession,
+        StoreManagerInterface $storeManager
+    )
     {
         $this->_checkoutSession = $checkoutSession;
+        $this->_storeManager = $storeManager;
     }
 
     /**
@@ -66,10 +78,20 @@ class RemoveFromCartEvent extends Event
 
         /** @var Item $item */
         $item = $quote->getItemById($this->_cartItem);
+        $currency = $quote->getQuoteCurrencyCode();
+
+        if (!$currency) {
+            $currency = $quote->getStoreCurrencyCode() ?
+                $quote->getStoreCurrencyCode() : $quote->getBaseCurrencyCode();
+        }
+
+        /** @var Store $store */
+        $store = $this->_storeManager->getStore();
+        $storeCurrency = $store->getCurrentCurrency();
 
         return [
             'value' => $item->getPrice(),
-            'currency' => $quote->getQuoteCurrencyCode(),
+            'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $item->getProduct()->getData('sku'),
             'quantity' => round($item->getQty(), 2)
         ];
