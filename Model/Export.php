@@ -185,7 +185,7 @@ class Export
         ]);
 
         try {
-            $s3->upload(
+            return $s3->upload(
                 $this->_feedHelper->getBucket(),
                 $this->_feedHelper->getExportFilename(),
                 fopen($this->_feedHelper->getExportFile(), 'r')
@@ -281,7 +281,7 @@ class Export
             fputcsv($file, $this->fillLine($line), ',');
         }
 
-        return $collection->getSize();
+        return $collection->count();
     }
 
     /**
