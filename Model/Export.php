@@ -303,7 +303,7 @@ class Export
             'url' => $_product->getProductUrl(),
             'sku' => $_product->getData('sku'),
             'group_id' => $_product->getData('sku'),
-            'price' => $_product->getPrice(),
+            'price' => $_product->getData('price') ?: 0,
             'in_stock' => $_product->isSaleable() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
