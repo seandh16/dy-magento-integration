@@ -79,6 +79,7 @@ class AddToCartEvent extends Event
             'currency' => null,
             'productId' => '',
             'quantity' => 0,
+            'cart' => [],
         ];
     }
 

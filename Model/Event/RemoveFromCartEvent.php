@@ -73,7 +73,8 @@ class RemoveFromCartEvent extends Event
             'value' => 0,
             'currency' => null,
             'productId' => '',
-            'quantity' => 0
+            'quantity' => 0,
+            'cart' => [],
         ];
     }
 
