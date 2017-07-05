@@ -32,5 +32,6 @@
     </event>
     <event name="layout_load_before">
         <observer name="BackendLoadLayoutEvent" instance="DynamicYield\Integration\Observer\BackendLoadLayoutObserver" />
+        <observer name="FrontendLoadLayoutEvent" instance="DynamicYield\Integration\Observer\FrontendLoadLayoutObserver" />
     </event>
 </config>

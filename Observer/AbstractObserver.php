@@ -12,12 +12,15 @@ use DynamicYield\Integration\Model\Event\RemoveFromCartEvent;
 use DynamicYield\Integration\Model\Event\SearchEvent;
 use DynamicYield\Integration\Model\Event\SignupEvent;
 use DynamicYield\Integration\Model\Event\SubscribeToNewsletterEvent;
+use DynamicYield\Integration\Model\Event\SyncCartEvent;
 use DynamicYield\Integration\Model\Queue;
 use Magento\Framework\App\Response\Http as Response;
 use Magento\Framework\App\Request\Http as Request;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Registry;
+use Magento\Framework\App\State;
+use Magento\Customer\Model\Session;
 
 abstract class AbstractObserver implements ObserverInterface
 {
@@ -92,13 +95,28 @@ abstract class AbstractObserver implements ObserverInterface
     protected $_subscribeToNewsletterEvent;
 
     /**
+     * @var State
+     */
+    protected $_state;
+
+    /**
+     * @var Session
+     */
+    protected $_customerSession;
+
+    /**
+     * @var SyncCartEvent
+     */
+    protected $_syncCartEvent;
+
+    /**
      * AbstractObserver constructor
-     *
      * @param Request $request
      * @param Response $response
      * @param Queue $queue
      * @param Data $helper
      * @param Registry $registry
+     * @param SyncCartEvent $syncCartEvent
      * @param AddPromoCodeEvent $addPromoCodeEvent
      * @param AddToCartEvent $addToCartEvent
      * @param AddToWishlistEvent $addToWishlistEvent
@@ -108,6 +126,8 @@ abstract class AbstractObserver implements ObserverInterface
      * @param SearchEvent $searchEvent
      * @param SignupEvent $signupEvent
      * @param SubscribeToNewsletterEvent $subscribeToNewsletterEvent
+     * @param State $state
+     * @param Session $customerSession
      */
     public function __construct(
         Request $request,
@@ -115,6 +135,7 @@ abstract class AbstractObserver implements ObserverInterface
         Queue $queue,
         Data $helper,
         Registry $registry,
+        SyncCartEvent $syncCartEvent,
         AddPromoCodeEvent $addPromoCodeEvent,
         AddToCartEvent $addToCartEvent,
         AddToWishlistEvent $addToWishlistEvent,
@@ -123,7 +144,9 @@ abstract class AbstractObserver implements ObserverInterface
         RemoveFromCartEvent $removeFromCartEvent,
         SearchEvent $searchEvent,
         SignupEvent $signupEvent,
-        SubscribeToNewsletterEvent $subscribeToNewsletterEvent
+        SubscribeToNewsletterEvent $subscribeToNewsletterEvent,
+        State $state,
+        Session $customerSession
     )
     {
         $this->_request = $request;
@@ -140,6 +163,9 @@ abstract class AbstractObserver implements ObserverInterface
         $this->_searchEvent = $searchEvent;
         $this->_signupEvent = $signupEvent;
         $this->_subscribeToNewsletterEvent = $subscribeToNewsletterEvent;
+        $this->_state = $state;
+        $this->_customerSession = $customerSession;
+        $this->_syncCartEvent = $syncCartEvent;
     }
 
     /**

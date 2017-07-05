@@ -2,6 +2,8 @@
 
 namespace DynamicYield\Integration\Model;
 
+use Magento\Checkout\Model\Cart;
+
 abstract class Event
 {
     /**
@@ -36,5 +38,38 @@ abstract class Event
             'name' => $this->getName(),
             'properties' => $properties
         ];
+    }
+
+    /**
+     * Get all cart items
+     *
+     * @param Cart $cart
+     * @return array
+     */
+    public function getCartItems(Cart $cart)
+    {
+        $items = [];
+        $cartItems = $cart->getQuote()
+            ->getCollection()
+            ->addOrder('created_at', 'ASC');
+
+        if (!count($cartItems)) {
+            return [];
+        }
+
+        /** @var \Magento\Quote\Model\Quote\Item $item */
+        foreach ($cartItems as $item) {
+            if ($item->isDeleted() && $item->getParentItemId()) {
+                continue;
+            }
+
+            $items[] = [
+                'itemPrice' => $item->getProduct()->getPrice(),
+                'productId' => $item->getProduct()->getData('sku'),
+                'quantity' => round($item->getQty(), 2),
+            ];
+        }
+
+        return $items;
     }
 }

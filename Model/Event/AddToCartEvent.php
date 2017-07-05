@@ -7,6 +7,7 @@ use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Checkout\Model\Cart;
 
 class AddToCartEvent extends Event
 {
@@ -31,18 +32,25 @@ class AddToCartEvent extends Event
     protected $_storeManager;
 
     /**
+     * @var Cart
+     */
+    protected $_cart;
+
+    /**
      * AddToCartEvent constructor
-     *
      * @param CheckoutSession $checkoutSession
      * @param StoreManagerInterface $storeManager
+     * @param Cart $cart
      */
     public function __construct(
         CheckoutSession $checkoutSession,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Cart $cart
     )
     {
         $this->_checkoutSession = $checkoutSession;
         $this->_storeManager = $storeManager;
+        $this->_cart = $cart;
     }
 
     /**
@@ -96,6 +104,7 @@ class AddToCartEvent extends Event
         $storeCurrency = $store->getCurrentCurrency();
 
         return [
+            'cart' => $this->getCartItems($this->_cart),
             'value' => $price,
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $product->getData('sku'),

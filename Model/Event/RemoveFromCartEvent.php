@@ -7,6 +7,7 @@ use DynamicYield\Integration\Model\Event;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Checkout\Model\Cart;
 
 class RemoveFromCartEvent extends Event
 {
@@ -26,18 +27,25 @@ class RemoveFromCartEvent extends Event
     protected $_storeManager;
 
     /**
+     * @var Cart
+     */
+    protected $_cart;
+
+    /**
      * RemoveFromCartEvent constructor
-     *
      * @param CheckoutSession $checkoutSession
      * @param StoreManagerInterface $storeManager
+     * @param Cart $cart
      */
     public function __construct(
         CheckoutSession $checkoutSession,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Cart $cart
     )
     {
         $this->_checkoutSession = $checkoutSession;
         $this->_storeManager = $storeManager;
+        $this->_cart = $cart;
     }
 
     /**
@@ -90,6 +98,7 @@ class RemoveFromCartEvent extends Event
         $storeCurrency = $store->getCurrentCurrency();
 
         return [
+            'cart' => $this->getCartItems($this->_cart),
             'value' => $item->getPrice(),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $item->getProduct()->getData('sku'),
