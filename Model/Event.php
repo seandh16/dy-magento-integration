@@ -59,7 +59,7 @@ abstract class Event
 
         /** @var \Magento\Quote\Model\Quote\Item $item */
         foreach ($cartItems as $item) {
-            if ($item->isDeleted() && $item->getParentItemId()) {
+            if ($item->isDeleted() && $item->getParentItemId() || !$item->getProduct()) {
                 continue;
             }
 
