@@ -48,6 +48,7 @@ abstract class Event
      */
     public function getCartItems(Cart $cart, array $except = [])
     {
+        $prepareItems = [];
         $items = [];
         $cartItems = $cart->getQuote()->getAllVisibleItems();
 
@@ -56,16 +57,20 @@ abstract class Event
         }
 
         /** @var \Magento\Quote\Model\Quote\Item $item */
-        foreach ($cart->getQuote()->getAllVisibleItems() as $item) {
-            if (in_array($item->getId(), $except)) {
+        foreach ($cartItems as $item) {
+            if (in_array($item->getId(), $except) || isset($prepareItems[$item->getSku()])) {
                 continue;
             }
 
-            $items[] = [
-                'itemPrice' => $item->getProduct()->getPrice(),
+            $prepareItems[$item->getSku()] = [
+                'itemPrice' => $item->getProduct()->getData('price'),
                 'productId' => $item->getProduct()->getData('sku'),
                 'quantity' => round($item->getQty(), 2),
             ];
+        }
+
+        foreach ($prepareItems as $item) {
+            $items[] = $item;
         }
 
         return $items;
