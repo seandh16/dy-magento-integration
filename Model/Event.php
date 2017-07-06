@@ -42,11 +42,11 @@ abstract class Event
 
     /**
      * Get all cart items
-     *
      * @param Cart $cart
+     * @param array $except
      * @return array
      */
-    public function getCartItems(Cart $cart)
+    public function getCartItems(Cart $cart, array $except = [])
     {
         $items = [];
         $cartItems = $cart->getQuote()->getAllVisibleItems();
@@ -57,6 +57,10 @@ abstract class Event
 
         /** @var \Magento\Quote\Model\Quote\Item $item */
         foreach ($cart->getQuote()->getAllVisibleItems() as $item) {
+            if (in_array($item->getId(), $except)) {
+                continue;
+            }
+
             $items[] = [
                 'itemPrice' => $item->getProduct()->getPrice(),
                 'productId' => $item->getProduct()->getData('sku'),

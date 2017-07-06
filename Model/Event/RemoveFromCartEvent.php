@@ -99,7 +99,7 @@ class RemoveFromCartEvent extends Event
         $storeCurrency = $store->getCurrentCurrency();
 
         return [
-            'cart' => $this->getCartItems($this->_cart),
+            'cart' => $this->getCartItems($this->_cart, [$item->getId()]),
             'value' => $item->getPrice(),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $item->getProduct()->getData('sku'),
