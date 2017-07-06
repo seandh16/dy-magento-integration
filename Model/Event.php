@@ -49,20 +49,14 @@ abstract class Event
     public function getCartItems(Cart $cart)
     {
         $items = [];
-        $cartItems = $cart->getQuote()
-            ->getCollection()
-            ->addOrder('created_at', 'ASC');
+        $cartItems = $cart->getQuote()->getAllVisibleItems();
 
         if (!count($cartItems)) {
             return [];
         }
 
         /** @var \Magento\Quote\Model\Quote\Item $item */
-        foreach ($cartItems as $item) {
-            if ($item->isDeleted() && $item->getParentItemId() || !$item->getProduct()) {
-                continue;
-            }
-
+        foreach ($cart->getQuote()->getAllVisibleItems() as $item) {
             $items[] = [
                 'itemPrice' => $item->getProduct()->getPrice(),
                 'productId' => $item->getProduct()->getData('sku'),
