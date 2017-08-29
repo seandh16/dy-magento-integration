@@ -55,7 +55,7 @@
 
                 <field id="used_attributes" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1">
                     <label>Used Product Attributes</label>
-                    <comment>All used product attributes for sync. Note: You can remove attributes by selecting them.</comment>
+                    <comment>Additional used product attributes for sync.</comment>
                     <source_model>DynamicYield\Integration\Model\Config\Source\UsedProductAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\UsedProductAttribute</backend_model>
                 </field>

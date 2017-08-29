@@ -107,20 +107,14 @@ abstract class AbstractProductAttribute extends Value
     public function afterSave()
     {
         $attributes = $this->getAttributes();
-        $usedAttributes = $this->getUsedAttributes();
         $feedAttributes = $this->getFeedAttributes();
 
         $newAttributes = array_unique(
             array_merge($attributes, $feedAttributes)
         );
-        $newAttributes = array_diff($newAttributes, $usedAttributes);
 
         if ($attributes && $this->getPath() != ProductFeedInterface::ATTRIBUTES) {
             $this->_helper->setCustomConfig(ProductFeedInterface::ATTRIBUTES, '');
-        }
-
-        if ($usedAttributes && $this->getPath() != ProductFeedInterface::USED_ATTRIBUTES) {
-            $this->_helper->setCustomConfig(ProductFeedInterface::USED_ATTRIBUTES, '');
         }
 
         if ($feedAttributes != $newAttributes) {
