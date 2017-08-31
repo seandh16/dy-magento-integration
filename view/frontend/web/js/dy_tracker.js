@@ -116,17 +116,26 @@
      * @param properties
      */
     DynamicYield_Tracking.prototype.callEvent = function(name, properties) {
+        properties['uniqueRequestId'] = getUniqueId();
         var eventData = {
-                name: name,
-                properties: properties
-            };
-
+            name: name,
+            properties: properties
+        };
         try {
             DY.API('event', eventData);
         } catch(e) {
             MGB.StorageUtils.setData(eventData);
         }
     };
+
+    /**
+     * Generates unique id
+     *
+     * @returns {Number}
+     */
+    function getUniqueId() {
+        return parseInt(Date.now() + Math.random());
+    }
 
     /**
      * Registers all events based on page

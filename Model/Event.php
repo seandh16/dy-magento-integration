@@ -33,6 +33,7 @@ abstract class Event
     {
         $properties = array_replace((array) $this->getDefaultProperties(), (array) $this->generateProperties());
         $properties['dyType'] = $this->getType();
+        $properties['uniqueRequestId'] =  $this->generateUniqueId();
 
         return [
             'name' => $this->getName(),
@@ -74,5 +75,13 @@ abstract class Event
         }
 
         return $items;
+    }
+
+    /**
+     * @return int
+     */
+    public function generateUniqueId() {
+        $eventId = intval(str_pad(mt_rand(0, 999999999999), 10, '0', STR_PAD_LEFT));
+        return $eventId;
     }
 }

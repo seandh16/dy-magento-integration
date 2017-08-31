@@ -202,4 +202,6 @@ abstract class AbstractObserver implements ObserverInterface
         $this->dispatch($observer);
         $this->_registry->register($eventName, true);
     }
+
+
 }
