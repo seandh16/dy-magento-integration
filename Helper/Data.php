@@ -122,9 +122,6 @@ class Data extends AbstractHelper implements HelperInterface
         return [
             "//cdn.dynamicyield.com/api/{$sectionId}/api_static.js",
             "//cdn.dynamicyield.com/api/{$sectionId}/api_dynamic.js",
-            $this->getViewFileUrl('DynamicYield_Integration::js/storage.js'),
-            $this->getViewFileUrl('DynamicYield_Integration::js/lib/xhook.min.js'),
-            $this->getViewFileUrl('DynamicYield_Integration::js/hook.js'),
             $this->getViewFileUrl('DynamicYield_Integration::js/dy_tracker.js')
         ];
     }
@@ -139,11 +136,7 @@ class Data extends AbstractHelper implements HelperInterface
             $eventData = json_encode($event['properties']);
 
             return "<script type=\"text/javascript\">
-                try {
-                    DY.API('event', " . $eventData . ");
-                } catch(e) {
-                    MGB.StorageUtils.setData(" . $eventData . ");
-                }
+                    DY.API('event', " . $eventData . "); 
             </script>\n";
         }
     }
@@ -318,12 +311,9 @@ class Data extends AbstractHelper implements HelperInterface
             $html .= '<script type="text/javascript">
                 var DY_SETTINGS = {
                     "headerName": ("' . $this->getEventName() . '").toLowerCase(),
-                    "storageUrl": "' . $this->_urlBuilder->getUrl('dyIntegration/storage/index') . '",
                     "currentPage": "' . $this->getCurrentPageType() . '",
                     "eventSelectors": ' . json_encode($this->getEventSelectors()) . '
-                };
-                
-                window.MGB = window.MGB || {};
+                };  
             </script>' . "\n";
             foreach ($this->getJsIntegration() as $item) {
                 $html .= '<script type="text/javascript" src="' . $item . '"></script>' . "\n";

@@ -121,11 +121,7 @@
             name: name,
             properties: properties
         };
-        try {
-            DY.API('event', eventData);
-        } catch(e) {
-            MGB.StorageUtils.setData(eventData);
-        }
+        DY.API('event', eventData);
     };
 
     /**
