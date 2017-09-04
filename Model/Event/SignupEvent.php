@@ -44,7 +44,7 @@ class SignupEvent extends Event
     function generateProperties()
     {
         return [
-            'hashedEmail' => hash('sha256', $this->_customer->getEmail())
+            'hashedEmail' => hash('sha256', strtolower($this->_customer->getEmail()))
         ];
     }
 
