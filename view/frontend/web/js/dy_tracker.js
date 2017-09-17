@@ -36,6 +36,7 @@
     function DynamicYield_Tracking() {
         exports.domReady(function () {
             this.onLoad();
+            this.ajaxEvent(XMLHttpRequest);
         }.bind(this));
     }
 
@@ -132,6 +133,78 @@
     function getUniqueId() {
         return parseInt(Date.now() + Math.random());
     }
+
+    /**
+     * Tracks ajax events and sends a request to Dynamic Yield API
+     *
+     * @param DY_XHR
+     */
+    DynamicYield_Tracking.prototype.ajaxEvent = function (DY_XHR) {
+        var dy_send = DY_XHR.prototype.send;
+        var dy_headers = [];
+        DY_XHR.prototype.send = function(data) {
+            var readyState;
+            function onReadyStateChange() {
+                if (this.readyState == 4 && this.status == 200) {
+                    try {
+                        var key, name, val;
+                        var headers = dy_convertHeaders(this.getAllResponseHeaders());
+                        for (key in headers) {
+                            val = headers[key];
+                            if (!dy_headers[key]) {
+                                name = key.toLowerCase();
+                                dy_headers[name] = val;
+                            }
+                        }
+                        var targetHeader = DY_SETTINGS.headerName || 'dy-event-data';
+                        if(dy_headers[targetHeader]) {
+                            var json = JSON.parse(headers[targetHeader]);
+                            try { DY.API('event', json); } catch (e){}
+                        }
+                    } catch (e) {}
+                }
+                if (readyState) {
+                    readyState();
+                }
+            }
+            var dy_convertHeaders  = function(h, dest) {
+                var header, headers, k, name, v, value, _i, _len, _ref;
+                if (dest == null) {
+                    dest = {};
+                }
+                switch (typeof h) {
+                    case "object":
+                        headers = [];
+                        for (k in h) {
+                            v = h[k];
+                            name = k.toLowerCase();
+                            headers.push("" + name + ":\t" + v);
+                        }
+                        return headers.join('\n');
+                    case "string":
+                        headers = h.split('\n');
+                        for (_i = 0, _len = headers.length; _i < _len; _i++) {
+                            header = headers[_i];
+                            if (/([^:]+):\s*(.+)/.test(header)) {
+                                name = (_ref = RegExp.$1) != null ? _ref.toLowerCase() : void 0;
+                                value = RegExp.$2;
+                                if (dest[name] == null) {
+                                    dest[name] = value;
+                                }
+                            }
+                        }
+                        return dest;
+                }
+            };
+            if (this.addEventListener) {
+                this.addEventListener("readystatechange", onReadyStateChange, false);
+            } else {
+                readyState = this.onreadystatechange;
+                this.onreadystatechange = onReadyStateChange;
+            }
+            dy_send.call(this, data);
+        }
+    };
 
     /**
      * Registers all events based on page
