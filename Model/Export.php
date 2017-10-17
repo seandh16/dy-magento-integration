@@ -188,8 +188,7 @@ class Export
             return $s3->upload(
                 $this->_feedHelper->getBucket(),
                 $this->_feedHelper->getExportFilename(),
-                fopen($this->_feedHelper->getExportFile(), 'r'),
-                'authenticated-read'
+                fopen($this->_feedHelper->getExportFile(), 'r')
             );
         } catch (S3Exception $e) {
             echo "There was an error uploading the file.\n";
