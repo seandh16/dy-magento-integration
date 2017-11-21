@@ -15,6 +15,8 @@ use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Category;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Config\Model\Config\Factory as ConfigFactory;
+use Magento\Framework\Locale\Resolver as Store;
+
 
 class Data extends AbstractHelper implements HelperInterface
 {
@@ -44,6 +46,11 @@ class Data extends AbstractHelper implements HelperInterface
     protected $_configFactory;
 
     /**
+     * @var Store
+     */
+    protected $_store;
+
+    /**
      * Data constructor
      *
      * @param Context $context
@@ -51,6 +58,7 @@ class Data extends AbstractHelper implements HelperInterface
      * @param Session $quoteSession
      * @param Repository $assetRepo
      * @param ConfigFactory $configFactory
+     * @param Store $store
      */
     public function __construct(
         Context $context,
@@ -58,7 +66,8 @@ class Data extends AbstractHelper implements HelperInterface
         Session $quoteSession,
         Repository $assetRepo,
         ConfigFactory $configFactory,
-        Queue $queue
+        Queue $queue,
+        Store $store
     )
     {
         parent::__construct($context);
@@ -68,6 +77,7 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_assetRepo = $assetRepo;
         $this->_queue = $queue;
         $this->_configFactory = $configFactory;
+        $this->_store = $store;
     }
 
     /**
@@ -175,7 +185,7 @@ class Data extends AbstractHelper implements HelperInterface
     public function getCurrentContext()
     {
         $name = $this->getCurrentPageType();
-
+        $language = $this->_store->getLocale();
         $type = "OTHER";
         $data = null;
 
@@ -239,6 +249,7 @@ class Data extends AbstractHelper implements HelperInterface
 
         return array_filter([
             'type' => strtoupper($type),
+            'lng' => $language,
             'data' => $data
         ]);
     }
