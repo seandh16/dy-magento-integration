@@ -239,7 +239,8 @@ class Data extends AbstractHelper implements HelperInterface
 
                 if($quote) {
                     foreach ($quote->getAllVisibleItems() as $quoteItem) {
-                        $data[] = $quoteItem->getSku();
+                        if($quoteItem->getProduct()->getTypeId() == "grouped" || $quoteItem->getProduct()->getTypeId() == "bundle") continue;
+                        $data[] = $quoteItem->getProduct()->getData("sku");
                     }
                 }
 
