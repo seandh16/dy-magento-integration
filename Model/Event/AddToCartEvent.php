@@ -91,9 +91,20 @@ class AddToCartEvent extends Event
         $product = $this->_product;
         $quote = $this->_checkoutSession->getQuote();
 
-        $item = $quote->getItemByProduct($product)->getProduct();
+        $quoteItem = $quote->getItemByProduct($product);
+        if($quoteItem !== false) {
+            $item = $quoteItem->getProduct();
+            $price = $item->getPrice();
+        } else {
+            $cartItems = $this->_cart->getQuote()->getAllItems();
+            foreach ($cartItems as $cartItem){
+                if($cartItem->getProductId() == $product->getId()) {
+                    $item = $cartItem->getProduct();
+                    $price = $item->getPrice();
+                }
+            }
+        }
         $currency = $quote->getQuoteCurrencyCode();
-        $price = $item->getPrice();
 
         if (!$currency) {
             $currency = $quote->getStoreCurrencyCode() ?
@@ -106,7 +117,7 @@ class AddToCartEvent extends Event
 
         return [
             'cart' => $this->getCartItems($this->_cart),
-            'value' => $price,
+            'value' => isset($price) ? $price : "",
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $product->getData('sku'),
             'quantity' => round($this->_qty, 2)
