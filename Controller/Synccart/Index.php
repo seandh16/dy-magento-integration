@@ -52,8 +52,8 @@ class Index extends Action
     }
 
     /**
-     * Return session status true/false
-     * Return Sync Cart data
+     * Return session status if true/false
+     * Return Sync Cart data if false
      *
      * @return Json
      */
@@ -67,9 +67,17 @@ class Index extends Action
 
         $json = $this->_jsonFactory->create();
 
-        return $json->setData([
-            'sync_cart' => ($getSessionId == $this->_customerSession->getSessionId() ? true : false),
-            'eventData' => $this->_syncCartEvent->build()
-        ]);
+        $syncCart = $getSessionId == $this->_customerSession->getSessionId() ? true : false;
+
+        if(!$syncCart) {
+            return $json->setData([
+                'sync_cart' => $syncCart,
+                'eventData' => $this->_syncCartEvent->build()
+            ]);
+        } else {
+            return $json->setData([
+                'sync_cart' => $syncCart,
+            ]);
+        }
     }
 }
