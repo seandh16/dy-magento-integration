@@ -248,11 +248,9 @@ class Data extends AbstractHelper implements HelperInterface
             }
         }
 
-        return array_filter([
-            'type' => strtoupper($type),
-            'lng' => $language,
-            'data' => $data
-        ]);
+        $context = array('type' => strtoupper($type), 'lng' => $language, 'data' => $data);
+
+        return $context;
     }
 
     /**
