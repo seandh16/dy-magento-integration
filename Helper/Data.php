@@ -16,6 +16,7 @@ use Magento\Catalog\Model\Category;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Config\Model\Config\Factory as ConfigFactory;
 use Magento\Framework\Locale\Resolver as Store;
+use Magento\Store\Model\ScopeInterface as Scope;
 
 
 class Data extends AbstractHelper implements HelperInterface
@@ -123,7 +124,7 @@ class Data extends AbstractHelper implements HelperInterface
      */
     public function getJsIntegration()
     {
-        $sectionId = $this->getSectionId();
+        $sectionId = $this->scopeConfig->getValue(self::SECTION_ID,Scope::SCOPE_STORE);
 
         if (!$sectionId) {
             return false;
