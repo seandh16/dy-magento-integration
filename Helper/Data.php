@@ -97,6 +97,11 @@ class Data extends AbstractHelper implements HelperInterface
         return $this->scopeConfig->getValue(self::SECTION_ID);
     }
 
+    public function getQueue()
+    {
+        return $this->_queue;
+    }
+
     /**
      * @return mixed
      */
@@ -328,16 +333,6 @@ class Data extends AbstractHelper implements HelperInterface
             </script>' . "\n";
             foreach ($this->getJsIntegration() as $item) {
                 $html .= '<script type="text/javascript" src="' . $item . '"></script>' . "\n";
-            }
-
-            $events = $this->_queue->getCollection();
-
-            if (!empty($events) || is_array($events)) {
-                foreach ($events as $event) {
-                    $html .= $this->addEvent($event);
-                }
-
-                $this->_queue->clearQueue();
             }
 
         }
