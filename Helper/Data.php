@@ -97,6 +97,11 @@ class Data extends AbstractHelper implements HelperInterface
         return $this->scopeConfig->getValue(self::SECTION_ID);
     }
 
+    /**
+     * Return queue
+     *
+     * @return Queue
+     */
     public function getQueue()
     {
         return $this->_queue;

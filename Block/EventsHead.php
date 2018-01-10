@@ -42,7 +42,7 @@ class EventsHead extends AbstractBlock {
             $this->_helper->getQueue()->clearQueue();
         }
 
-        return $html . "that";
+        return $html;
     }
 
 }
