@@ -22,6 +22,10 @@ use Magento\Framework\ObjectManagerInterface;
 use DynamicYield\Integration\Helper\Feed as FeedHelper;
 use Magento\Framework\App\State;
 use Magento\Store\Model\Website;
+use Psr\Log\LoggerInterface;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\CatalogInventory\Model\Stock\StockItemRepository;
+use \Magento\Framework\UrlInterface;
 
 class Export
 {
@@ -121,6 +125,21 @@ class Export
     protected $_state;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $_logger;
+
+    /**
+     * @var ProductCollectionFactory
+     */
+    protected $_productCollectionFactory;
+
+    /**
+     * @var StockItemRepository
+     */
+    protected $_stockItemRepository;
+
+    /**
      * Export constructor
      *
      * @param State $state
@@ -129,6 +148,9 @@ class Export
      * @param Product $product
      * @param ProductResource $productResource
      * @param ProductFactory $productFactory
+     * @param LoggerInterface $logger
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param StockItemRepository $stockItemRepository
      */
     public function __construct(
         State $state,
@@ -136,7 +158,10 @@ class Export
         StoreManager $storeManager,
         Product $product,
         ProductResource $productResource,
-        ProductFactory $productFactory
+        ProductFactory $productFactory,
+        LoggerInterface $logger,
+        ProductCollectionFactory $productCollectionFactory,
+        StockItemRepository $stockItemRepository
     )
     {
         $this->_state = $state;
@@ -145,6 +170,9 @@ class Export
         $this->_product = $product;
         $this->_productResource = $productResource;
         $this->_productFactory = $productFactory;
+        $this->_logger = $logger;
+        $this->_productCollectionFactory = $productCollectionFactory;
+        $this->_stockItemRepository = $stockItemRepository;
     }
 
     /**
@@ -193,6 +221,17 @@ class Export
         } catch (S3Exception $e) {
             echo "There was an error uploading the file.\n";
         }
+    }
+
+    /**
+     * Return product stock item by product Id
+     * 
+     * @param $productId
+     * @return mixed
+     */
+    public function getStockItem($productId)
+    {
+        return $this->_stockItemRepository->get($productId);
     }
 
     /**
@@ -246,9 +285,10 @@ class Export
         $limit = $selected = 100;
 
         while($limit === $selected) {
-            $selected = $this->chunkProductExport($file, $limit, $offset);
 
-            $offset += $selected;
+            $result = $this->chunkProductExport($file, $limit, $offset);
+            $selected = $result['count'];
+            $offset = $result['last'];
 
             echo "Saved " . $selected . " from line " . $offset . "\n";
         }
@@ -260,20 +300,23 @@ class Export
      * @param $file
      * @param int $limit
      * @param int $offset
-     * @return int
+     * @return array
      */
     public function chunkProductExport($file, $limit = 100, $offset = 0)
     {
+
+        $time_start = microtime(true);
         /** @var Collection $collection */
-        $collection = $this->_objectManager->create(Collection::class);
+        $collection = $this->_productCollectionFactory->create();
         $collection->addAttributeToSelect('*')
             ->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
             ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
                 Visibility::VISIBILITY_BOTH,
                 Visibility::VISIBILITY_IN_CATALOG
             ]]);
-
-        $collection->getSelect()->limit($limit, $offset);
+        $collection->addUrlRewrite();
+        $collection->addFieldToFilter("entity_id",array("gt" => $offset));
+        $collection->getSelect()->limit($limit, 0);
 
         /** @var Product $item */
         foreach ($collection as $item) {
@@ -281,30 +324,28 @@ class Export
             fputcsv($file, $this->fillLine($line), ',');
         }
 
-        return $collection->count();
+        $memory = memory_get_usage();
+        $this->_logger->debug('MEMORY USED '.$memory.'. Full export execution time in seconds: '.(microtime(true) - $time_start));
+
+        return array(
+            'count' => $collection->count(),
+            'last' => $collection->getLastItem()->getEntityId()
+        );
     }
 
     /**
-     * @param Product $product
+     * @param Product $_product
      * @return array
      */
-    public function readLine(Product $product)
+    public function readLine(Product $_product)
     {
-        /**
-         * Fixes issue with not loading product attributes properly
-         *
-         * @var Product $_product
-         */
-        $this->_productResource->load($product, $product->getId());
-        $_product = $product;
-
         $rowData = [
             'name' => $_product->getName(),
-            'url' => $_product->getProductUrl(),
+            'url' => $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_WEB) . $_product->getData('url_key') . ".html",
             'sku' => $_product->getData('sku'),
             'group_id' => $_product->getData('sku'),
             'price' => $_product->getData('price') ?: 0,
-            'in_stock' => $_product->isSaleable() ? "true" : "false",
+            'in_stock' => $this->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
         ];
