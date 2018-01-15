@@ -225,7 +225,7 @@ class Export
 
     /**
      * Return product stock item by product Id
-     * 
+     *
      * @param $productId
      * @return mixed
      */
@@ -255,8 +255,10 @@ class Export
         $additionalAttributes = [];
         $translatableAttributes = [];
 
+        $usedAttributes = $this->_usedProductAttribute->getAttributes();
+
         /** @var Attribute $attribute */
-        foreach ($this->_usedProductAttribute->getAttributes() as $attribute) {
+        foreach ($usedAttributes as $attribute) {
             if ($attribute->getIsGlobal()) {
                 $translatableAttributes[] = $attribute->getAttributeCode();
             }
@@ -286,7 +288,7 @@ class Export
 
         while($limit === $selected) {
 
-            $result = $this->chunkProductExport($file, $limit, $offset);
+            $result = $this->chunkProductExport($file, $limit, $offset, $usedAttributes);
             $selected = $result['count'];
             $offset = $result['last'];
 
@@ -300,9 +302,11 @@ class Export
      * @param $file
      * @param int $limit
      * @param int $offset
+     * @param mixed $additionalAttributes
+     *
      * @return array
      */
-    public function chunkProductExport($file, $limit = 100, $offset = 0)
+    public function chunkProductExport($file, $limit = 100, $offset = 0, $additionalAttributes)
     {
 
         $time_start = microtime(true);
@@ -320,24 +324,26 @@ class Export
 
         /** @var Product $item */
         foreach ($collection as $item) {
-            $line = $this->readLine($item);
+            $line = $this->readLine($item, $additionalAttributes);
             fputcsv($file, $this->fillLine($line), ',');
         }
 
         $memory = memory_get_usage();
         $this->_logger->debug('MEMORY USED '.$memory.'. Full export execution time in seconds: '.(microtime(true) - $time_start));
 
-        return array(
+        return [
             'count' => $collection->count(),
             'last' => $collection->getLastItem()->getEntityId()
-        );
+        ];
     }
 
     /**
      * @param Product $_product
+     * @param mixed $additionalAttributes
+     *
      * @return array
      */
-    public function readLine(Product $_product)
+    public function readLine(Product $_product, $additionalAttributes)
     {
         $rowData = [
             'name' => $_product->getName(),
@@ -352,13 +358,11 @@ class Export
 
         $storeIds = $_product->getStoreIds();
         $currentStore = $_product->getStore();
-        $attributes = $this->_usedProductAttribute->getAttributes();
+
 
         /** @var Attribute $attribute */
-        foreach ($attributes as $attribute) {
-            if (!in_array($attribute->getAttributeCode(), $this->_excludedAttributes)) {
-                $rowData = array_merge($rowData, $this->buildAttributeData($_product, $attribute, $attribute->getAttributeCode()));
-            }
+        foreach ($additionalAttributes as $attribute) {
+            $rowData[$attribute->getAttributeCode()] = $this->buildAttributeData($_product, $attribute);
         }
 
         foreach ($storeIds as $storeId) {
@@ -378,12 +382,9 @@ class Export
                 ]);
 
                 /** @var Attribute $attribute */
-                foreach ($attributes as $attribute) {
-                    if (!in_array($attribute->getAttributeCode(), $this->_excludedAttributes)) {
-                        $field = $this->getLngKey($langCode, $attribute->getAttributeCode());
-
-                        $rowData = array_merge($rowData, $this->buildAttributeData($storeProduct, $attribute, $field));
-                    }
+                foreach ($additionalAttributes as $attribute) {
+                    $field = $this->getLngKey($langCode, $attribute->getAttributeCode());
+                    $rowData[$field] = $this->buildAttributeData($_product, $attribute);
                 }
             }
         }
@@ -441,27 +442,21 @@ class Export
     /**
      * @param Product $product
      * @param EavAttribute $attribute
-     * @param $field
+     *
      * @return array
      */
-    protected function buildAttributeData(Product $product, EavAttribute $attribute, $field)
+    protected function buildAttributeData(Product $product, EavAttribute $attribute)
     {
         $attributeData = $product->getData($attribute->getAttributeCode());
 
         if ($attribute->getOptions() && !is_array($attributeData)) {
-            foreach ($attribute->getOptions() as $option) {
-                if ($attributeData == $option->getValue()) {
-                    $attributeData = $option->getLabel();
-                }
-            }
+            $attributeData = $attribute->getFrontend()->getValue($product);
         }
 
         if (is_array($attributeData)) {
             $attributeData = join("|", $attributeData);
         }
 
-        return [
-            $field => $attributeData
-        ];
+        return $attributeData;
     }
 }
