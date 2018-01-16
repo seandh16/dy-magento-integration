@@ -118,4 +118,12 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     {
         return $this->getExportPath() . $this->getExportFilename();
     }
+
+    /**
+     * @return bool
+     */
+    public function getIsDebugMode()
+    {
+        return $this->scopeConfig->getValue(self::DEBUG_MODE);
+    }
 }

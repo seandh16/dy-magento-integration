@@ -22,6 +22,11 @@ use Magento\Framework\ObjectManagerInterface;
 use DynamicYield\Integration\Helper\Feed as FeedHelper;
 use Magento\Framework\App\State;
 use Magento\Store\Model\Website;
+use Psr\Log\LoggerInterface;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Framework\UrlInterface;
+use Magento\CatalogInventory\Model\StockRegistry;
+use Magento\Catalog\Model\Product\Type;
 
 class Export
 {
@@ -121,6 +126,21 @@ class Export
     protected $_state;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $_logger;
+
+    /**
+     * @var ProductCollectionFactory
+     */
+    protected $_productCollectionFactory;
+
+    /**
+     * @var StockRegistry
+     */
+    protected $_stockRegistry;
+
+    /**
      * Export constructor
      *
      * @param State $state
@@ -129,6 +149,9 @@ class Export
      * @param Product $product
      * @param ProductResource $productResource
      * @param ProductFactory $productFactory
+     * @param LoggerInterface $logger
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param StockRegistry $stockRegistry
      */
     public function __construct(
         State $state,
@@ -136,7 +159,10 @@ class Export
         StoreManager $storeManager,
         Product $product,
         ProductResource $productResource,
-        ProductFactory $productFactory
+        ProductFactory $productFactory,
+        LoggerInterface $logger,
+        ProductCollectionFactory $productCollectionFactory,
+        StockRegistry $stockRegistry
     )
     {
         $this->_state = $state;
@@ -145,6 +171,9 @@ class Export
         $this->_product = $product;
         $this->_productResource = $productResource;
         $this->_productFactory = $productFactory;
+        $this->_logger = $logger;
+        $this->_productCollectionFactory = $productCollectionFactory;
+        $this->_stockRegistry = $stockRegistry;;
     }
 
     /**
@@ -191,7 +220,7 @@ class Export
                 fopen($this->_feedHelper->getExportFile(), 'r')
             );
         } catch (S3Exception $e) {
-            echo "There was an error uploading the file.\n";
+            $this->_logger->error("DYI: There was an error uploading the file " . $e->getMessage());
         }
     }
 
@@ -216,9 +245,11 @@ class Export
         $additionalAttributes = [];
         $translatableAttributes = [];
 
+        $usedAttributes = $this->_usedProductAttribute->getAttributes();
+
         /** @var Attribute $attribute */
-        foreach ($this->_usedProductAttribute->getAttributes() as $attribute) {
-            if ($attribute->getIsGlobal()) {
+        foreach ($usedAttributes as $attribute) {
+            if (!$attribute->getIsGlobal()) {
                 $translatableAttributes[] = $attribute->getAttributeCode();
             }
 
@@ -246,11 +277,9 @@ class Export
         $limit = $selected = 100;
 
         while($limit === $selected) {
-            $selected = $this->chunkProductExport($file, $limit, $offset);
-
-            $offset += $selected;
-
-            echo "Saved " . $selected . " from line " . $offset . "\n";
+            $result = $this->chunkProductExport($file, $limit, $offset, $usedAttributes);
+            $selected = $result['count'];
+            $offset = $result['last'];
         }
 
         return $this->upload();
@@ -260,89 +289,115 @@ class Export
      * @param $file
      * @param int $limit
      * @param int $offset
-     * @return int
+     * @param mixed $additionalAttributes
+     *
+     * @return array
      */
-    public function chunkProductExport($file, $limit = 100, $offset = 0)
+    public function chunkProductExport($file, $limit = 100, $offset = 0, $additionalAttributes)
     {
+        if($this->_feedHelper->getIsDebugMode()){
+            $time_start = microtime(true);
+        }
         /** @var Collection $collection */
-        $collection = $this->_objectManager->create(Collection::class);
+        $collection = $this->_productCollectionFactory->create();
         $collection->addAttributeToSelect('*')
             ->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
             ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
                 Visibility::VISIBILITY_BOTH,
                 Visibility::VISIBILITY_IN_CATALOG
-            ]]);
+            ]])
+            ->addAttributeToFilter('type_id', array('nin' => array(
+                Type::TYPE_BUNDLE
+            )));
+        $collection->addUrlRewrite();
+        $collection->addFieldToFilter("entity_id",array("gt" => $offset));
+        $collection->getSelect()->limit($limit, 0);
 
-        $collection->getSelect()->limit($limit, $offset);
+        $storeCollection = [];
+
+        foreach ($this->_stores as $store) {
+            $this->_productCollectionFactory->create()->setStore($store);
+            $storeCollection[$store->getId()] = $this->_productCollectionFactory->create()
+                ->addAttributeToSelect('*')
+                ->addUrlRewrite();
+            $storeCollection[$store->getId()]->setStore($store);
+            $storeCollection[$store->getId()]->addFieldToFilter("entity_id",array("gt" => $offset));
+            $storeCollection[$store->getId()]->getSelect()->limit($limit, 0);
+            $storeCollection[$store->getId()]->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
+                ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
+                    Visibility::VISIBILITY_BOTH,
+                    Visibility::VISIBILITY_IN_CATALOG
+                ]]);
+            $storeCollection[$store->getId()]->load();
+        }
 
         /** @var Product $item */
         foreach ($collection as $item) {
-            $line = $this->readLine($item);
+            $line = $this->readLine($item, $storeCollection, $additionalAttributes);
             fputcsv($file, $this->fillLine($line), ',');
         }
 
-        return $collection->count();
+        if($this->_feedHelper->getIsDebugMode()) {
+            $memory = memory_get_usage();
+            $this->_logger->debug('DYI: MEMORY USED ' . $memory . '. Chunk export execution time in seconds: ' . (microtime(true) - $time_start));
+        }
+
+        return [
+            'count' => $collection->count(),
+            'last' => $collection->getLastItem()->getEntityId()
+        ];
     }
 
     /**
-     * @param Product $product
+     * @param Product $_product
+     * @param mixed $additionalAttributes
+     * @param mixed $storeCollection
+     *
      * @return array
      */
-    public function readLine(Product $product)
+    public function readLine(Product $_product, $storeCollection, $additionalAttributes)
     {
-        /**
-         * Fixes issue with not loading product attributes properly
-         *
-         * @var Product $_product
-         */
-        $this->_productResource->load($product, $product->getId());
-        $_product = $product;
-
         $rowData = [
             'name' => $_product->getName(),
-            'url' => $_product->getProductUrl(),
+            'url' => $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_WEB) . $_product->getData('url_key') . ".html",
             'sku' => $_product->getData('sku'),
             'group_id' => $_product->getData('sku'),
             'price' => $_product->getData('price') ?: 0,
-            'in_stock' => $_product->isSaleable() ? "true" : "false",
+            'in_stock' => $this->_stockRegistry->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
         ];
 
-        $storeIds = $_product->getStoreIds();
         $currentStore = $_product->getStore();
-        $attributes = $this->_usedProductAttribute->getAttributes();
 
         /** @var Attribute $attribute */
-        foreach ($attributes as $attribute) {
-            if (!in_array($attribute->getAttributeCode(), $this->_excludedAttributes)) {
-                $rowData = array_merge($rowData, $this->buildAttributeData($_product, $attribute, $attribute->getAttributeCode()));
-            }
+        foreach ($additionalAttributes as $attribute) {
+            $rowData[$attribute->getAttributeCode()] = $this->buildAttributeData($_product, $attribute);
         }
 
-        foreach ($storeIds as $storeId) {
+        foreach ($this->_stores as $store) {
             /** @var Store $store */
-            if (isset($this->_stores[$storeId])) {
-                $store = $this->_stores[$storeId];
-                $this->_storeManager->setCurrentStore($store);
-                $langCode = $store->getConfig(self::LOCALE_CODE);
+            $this->_storeManager->setCurrentStore($store);
+            $langCode = $store->getConfig(self::LOCALE_CODE);
 
-                /** @var Product $storeProduct */
-                $storeProduct = $this->_productFactory->create();
-                $this->_productResource->load($storeProduct, $_product->getId());
+            $continue = false;
 
-                $rowData[$this->getLngKey($langCode, 'categories')] = $this->buildCategories($storeProduct);
-                $rowData[$this->getLngKey($langCode, 'url')] = $storeProduct->getUrlInStore([
-                    '_store' => $store
-                ]);
+            foreach ($storeCollection[$store->getId()] as $loadedProduct) {
+                if($_product->getId() == $loadedProduct->getId()) {
+                    $continue = true;
+                    /** @var Product $storeProduct */
+                    $storeProduct = clone $loadedProduct;
+                    break;
+                }
+            }
 
-                /** @var Attribute $attribute */
-                foreach ($attributes as $attribute) {
-                    if (!in_array($attribute->getAttributeCode(), $this->_excludedAttributes)) {
-                        $field = $this->getLngKey($langCode, $attribute->getAttributeCode());
+            if(!$continue) continue;
 
-                        $rowData = array_merge($rowData, $this->buildAttributeData($storeProduct, $attribute, $field));
-                    }
+            /** @var Attribute $attribute */
+            foreach ($additionalAttributes as $attribute) {
+                $field = $this->getLngKey($langCode, $attribute->getAttributeCode());
+                if(in_array($field,$this->_header)){
+                    $rowData[$field] = $this->buildAttributeData($storeProduct, $attribute);
                 }
             }
         }
@@ -400,27 +455,21 @@ class Export
     /**
      * @param Product $product
      * @param EavAttribute $attribute
-     * @param $field
+     *
      * @return array
      */
-    protected function buildAttributeData(Product $product, EavAttribute $attribute, $field)
+    protected function buildAttributeData(Product $product, EavAttribute $attribute)
     {
         $attributeData = $product->getData($attribute->getAttributeCode());
 
-        if ($attribute->getOptions() && !is_array($attributeData)) {
-            foreach ($attribute->getOptions() as $option) {
-                if ($attributeData == $option->getValue()) {
-                    $attributeData = $option->getLabel();
-                }
-            }
+        if (!is_array($attributeData) && $attribute->getOptions()) {
+            $attributeData = $attribute->getFrontend()->getValue($product);
         }
 
         if (is_array($attributeData)) {
             $attributeData = join("|", $attributeData);
         }
 
-        return [
-            $field => $attributeData
-        ];
+        return $attributeData;
     }
 }

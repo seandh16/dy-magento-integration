@@ -59,6 +59,12 @@
                     <source_model>DynamicYield\Integration\Model\Config\Source\UsedProductAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\UsedProductAttribute</backend_model>
                 </field>
+
+                <field id="dyi_debug_mode" translate="label comment" type="select" sortOrder="60" showInDefault="1">
+                    <label>Debug Mode</label>
+                    <comment>View</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
         </section>
 
