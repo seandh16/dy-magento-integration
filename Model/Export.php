@@ -220,7 +220,7 @@ class Export
                 fopen($this->_feedHelper->getExportFile(), 'r')
             );
         } catch (S3Exception $e) {
-            echo "There was an error uploading the file.\n";
+            $this->_logger->error("DYI: There was an error uploading the file " . $e->getMessage());
         }
     }
 
@@ -250,7 +250,6 @@ class Export
         /** @var Attribute $attribute */
         foreach ($usedAttributes as $attribute) {
             if (!$attribute->getIsGlobal()) {
-                $this->_logger->debug($attribute->getAttributeCode() . " is global and translatable" . $attribute->getScope());
                 $translatableAttributes[] = $attribute->getAttributeCode();
             }
 
@@ -278,12 +277,9 @@ class Export
         $limit = $selected = 100;
 
         while($limit === $selected) {
-
             $result = $this->chunkProductExport($file, $limit, $offset, $usedAttributes);
             $selected = $result['count'];
             $offset = $result['last'];
-
-            echo "Saved " . $selected . " from line " . $offset  . "\n";
         }
 
         return $this->upload();
@@ -299,8 +295,9 @@ class Export
      */
     public function chunkProductExport($file, $limit = 100, $offset = 0, $additionalAttributes)
     {
-
-        $time_start = microtime(true);
+        if($this->_feedHelper->getIsDebugMode()){
+            $time_start = microtime(true);
+        }
         /** @var Collection $collection */
         $collection = $this->_productCollectionFactory->create();
         $collection->addAttributeToSelect('*')
@@ -340,8 +337,10 @@ class Export
             fputcsv($file, $this->fillLine($line), ',');
         }
 
-        $memory = memory_get_usage();
-        $this->_logger->debug('MEMORY USED '.$memory.'. Chunk export execution time in seconds: '.(microtime(true) - $time_start));
+        if($this->_feedHelper->getIsDebugMode()) {
+            $memory = memory_get_usage();
+            $this->_logger->debug('DYI: MEMORY USED ' . $memory . '. Chunk export execution time in seconds: ' . (microtime(true) - $time_start));
+        }
 
         return [
             'count' => $collection->count(),
