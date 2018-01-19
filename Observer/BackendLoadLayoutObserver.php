@@ -14,7 +14,6 @@ use DynamicYield\Integration\Helper\Feed;
 
 class BackendLoadLayoutObserver implements ObserverInterface
 {
-    const FEED_DEBUG_FILE = 'dyi_skipped_products.log';
     const AUTH_CHECK = 'admin_auth';
 
     /**
@@ -37,10 +36,14 @@ class BackendLoadLayoutObserver implements ObserverInterface
      */
     protected $_cronjob;
 
+
+
     /**
      * @var Feed
      */
     protected $_feedHelper;
+
+
 
     /**
      * BackendLoadLayoutObserver constructor
@@ -55,7 +58,7 @@ class BackendLoadLayoutObserver implements ObserverInterface
         State $state,
         ManagerInterface $messageManager,
         RequestInterface $request,
-        Cronjob $cronob,
+        Cronjob $cronjob,
         Feed $feed
     )
     {
@@ -87,7 +90,7 @@ class BackendLoadLayoutObserver implements ObserverInterface
                 $this->_messageManager->addErrorMessage($this->_cronjob->getMessage());
             }
             if($this->_feedHelper->isSkippedProducts()) {
-                $this->_messageManager->addWarningMessage("DynamicYield Integration: Products missing mandatory attributes. Details: var/log/dyi_skipped_products.log");
+                $this->_messageManager->addWarningMessage("DynamicYield Integration: Products missing mandatory attributes. Details: var/dyi_export/dyi_skipped_products.log");
             }
         }
     }

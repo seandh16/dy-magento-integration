@@ -2,6 +2,7 @@
 
 namespace DynamicYield\Integration\Model;
 
+use Aws\CloudFront\Exception\Exception;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use DynamicYield\Integration\Model\Config\Source\UsedProductAttribute;
@@ -32,6 +33,7 @@ use DynamicYield\Integration\Model\Logger\Handler;
 class Export
 {
     const LOCALE_CODE = 'general/locale/code';
+    const PRODUCT_GROUPED = "grouped";
 
     /**
      * @var array
@@ -318,7 +320,7 @@ class Export
                 Visibility::VISIBILITY_IN_CATALOG
             ]])
             ->addAttributeToFilter('type_id', array('nin' => array(
-                Type::TYPE_BUNDLE
+                Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
             )));
         $collection->addUrlRewrite();
         $collection->addFieldToFilter("entity_id",array("gt" => $offset));
@@ -499,7 +501,7 @@ class Export
         try {
             file_put_contents($this->_feedHelper->getFeedLogFile(), $products,FILE_APPEND | LOCK_EX);
         } catch (\Exception $e) {
-            $this->_logger->error("There was an error logging skipped products." . $e->getMessage());
+            $this->_logger->error("Error logging skipped products: ".$e->getMessage());
         }
     }
 
@@ -513,7 +515,7 @@ class Export
                 file_put_contents($this->_feedHelper->getFeedLogFile(), "");
             }
         } catch (\Exception $e) {
-            $this->_logger->error("DYI: There was an error logging file " . $e->getMessage());
+            $this->_logger->error("Error clearing log file: ".$e->getMessage());
         }
     }
 }

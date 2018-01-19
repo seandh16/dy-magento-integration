@@ -144,8 +144,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function getFeedLogFile()
     {
-        $path = $this->_directoryList->getPath(DirectoryList::LOG);
-        $file = $path . $this->_file->dirsep() . static::FEED_SKIPPED_PRODUCTS;
+        $file = $this->getExportPath().static::FEED_SKIPPED_PRODUCTS;
         return $file;
     }
 
