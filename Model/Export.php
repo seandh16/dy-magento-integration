@@ -27,6 +27,7 @@ use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductColl
 use Magento\Framework\UrlInterface;
 use Magento\CatalogInventory\Model\StockRegistry;
 use Magento\Catalog\Model\Product\Type;
+use DynamicYield\Integration\Model\Logger\Handler;
 
 class Export
 {
@@ -141,6 +142,12 @@ class Export
     protected $_stockRegistry;
 
     /**
+     * @var Handler
+     */
+    protected $_handler;
+
+
+    /**
      * Export constructor
      *
      * @param State $state
@@ -149,9 +156,10 @@ class Export
      * @param Product $product
      * @param ProductResource $productResource
      * @param ProductFactory $productFactory
-     * @param LoggerInterface $logger
      * @param ProductCollectionFactory $productCollectionFactory
      * @param StockRegistry $stockRegistry
+     * @param Handler $handler
+     * @param LoggerInterface $logger
      */
     public function __construct(
         State $state,
@@ -160,9 +168,10 @@ class Export
         Product $product,
         ProductResource $productResource,
         ProductFactory $productFactory,
-        LoggerInterface $logger,
         ProductCollectionFactory $productCollectionFactory,
-        StockRegistry $stockRegistry
+        StockRegistry $stockRegistry,
+        Handler $handler,
+        LoggerInterface $logger
     )
     {
         $this->_state = $state;
@@ -171,9 +180,10 @@ class Export
         $this->_product = $product;
         $this->_productResource = $productResource;
         $this->_productFactory = $productFactory;
-        $this->_logger = $logger;
         $this->_productCollectionFactory = $productCollectionFactory;
-        $this->_stockRegistry = $stockRegistry;;
+        $this->_stockRegistry = $stockRegistry;
+        $this->_handler = $handler;
+        $this->_logger = $logger->setHandlers([$this->_handler]);
     }
 
     /**
@@ -240,6 +250,7 @@ class Export
             mkdir($path);
         }
 
+        $this->clearSkippedProductsLog();
         $file = fopen($this->_feedHelper->getExportFile(), 'w+');
 
         $additionalAttributes = [];
@@ -334,7 +345,7 @@ class Export
         /** @var Product $item */
         foreach ($collection as $item) {
             $line = $this->readLine($item, $storeCollection, $additionalAttributes);
-            fputcsv($file, $this->fillLine($line), ',');
+            if($line) fputcsv($file, $this->fillLine($line), ',');
         }
 
         if($this->_feedHelper->getIsDebugMode()) {
@@ -367,6 +378,11 @@ class Export
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
         ];
+
+        if(count($rowData) != count(array_filter($rowData))) {
+            $this->logSkippedProducts(json_encode($rowData).PHP_EOL);
+            return false;
+        }
 
         $currentStore = $_product->getStore();
 
@@ -471,5 +487,33 @@ class Export
         }
 
         return $attributeData;
+    }
+
+    /**
+     * @param Mixed $products
+     *
+     * Writes skipped products in json format to a log file
+     */
+    public function logSkippedProducts($products)
+    {
+        try {
+            file_put_contents($this->_feedHelper->getFeedLogFile(), $products,FILE_APPEND | LOCK_EX);
+        } catch (\Exception $e) {
+            $this->_logger->error("There was an error logging skipped products." . $e->getMessage());
+        }
+    }
+
+    /**
+     *  Clears log file
+     */
+    public function clearSkippedProductsLog()
+    {
+        try{
+            if($this->_feedHelper->isSkippedProducts()) {
+                file_put_contents($this->_feedHelper->getFeedLogFile(), "");
+            }
+        } catch (\Exception $e) {
+            $this->_logger->error("DYI: There was an error logging file " . $e->getMessage());
+        }
     }
 }

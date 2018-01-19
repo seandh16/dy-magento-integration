@@ -8,9 +8,13 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Filesystem\Io\File;
+use DynamicYield\Integration\Helper\Feed;
+
 
 class BackendLoadLayoutObserver implements ObserverInterface
 {
+    const FEED_DEBUG_FILE = 'dyi_skipped_products.log';
     const AUTH_CHECK = 'admin_auth';
 
     /**
@@ -34,24 +38,32 @@ class BackendLoadLayoutObserver implements ObserverInterface
     protected $_cronjob;
 
     /**
+     * @var Feed
+     */
+    protected $_feedHelper;
+
+    /**
      * BackendLoadLayoutObserver constructor
      *
      * @param State $state
      * @param ManagerInterface $messageManager
      * @param RequestInterface $request
      * @param Cronjob $cronjob
+     * @param Feed $feed
      */
     public function __construct(
         State $state,
         ManagerInterface $messageManager,
         RequestInterface $request,
-        Cronjob $cronjob
+        Cronjob $cronob,
+        Feed $feed
     )
     {
         $this->_state = $state;
         $this->_messageManager = $messageManager;
         $this->_request = $request;
         $this->_cronjob = $cronjob;
+        $this->_feedHelper = $feed;
     }
 
     /**
@@ -70,11 +82,13 @@ class BackendLoadLayoutObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        if ($this->_state->getAreaCode() == "adminhtml" &&
-            !$this->_cronjob->isRunning() &&
-            !$this->isAuthPage()
-        ) {
-            $this->_messageManager->addErrorMessage($this->_cronjob->getMessage());
+        if ($this->_state->getAreaCode() == "adminhtml" && !$this->isAuthPage()) {
+            if(!$this->_cronjob->isRunning()){
+                $this->_messageManager->addErrorMessage($this->_cronjob->getMessage());
+            }
+            if($this->_feedHelper->isSkippedProducts()) {
+                $this->_messageManager->addWarningMessage("DynamicYield Integration: Products missing mandatory attributes. Details: var/log/dyi_skipped_products.log");
+            }
         }
     }
 }

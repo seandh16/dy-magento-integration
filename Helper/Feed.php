@@ -7,9 +7,12 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use DynamicYield\Integration\Api\Data\ProductFeedInterface;
 use Magento\Framework\App\Helper\Context;
 use DynamicYield\Integration\Helper\Data as DataHelper;
+use Magento\Framework\Filesystem\Io\File;
 
 class Feed extends AbstractHelper implements ProductFeedInterface
 {
+    const FEED_SKIPPED_PRODUCTS = 'dyi_skipped_products.log';
+
     /**
      * @var Data
      */
@@ -21,22 +24,30 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     protected $_directoryList;
 
     /**
+     * @var File
+     */
+    protected $_file;
+
+    /**
      * Feed constructor
      *
      * @param Context $context
      * @param Data $dataHelper
      * @param DirectoryList $directoryList
+     * @param File $file
      */
     public function __construct(
         Context $context,
         DataHelper $dataHelper,
-        DirectoryList $directoryList
+        DirectoryList $directoryList,
+        File $file
     )
     {
         parent::__construct($context);
 
         $this->_dataHelper = $dataHelper;
         $this->_directoryList = $directoryList;
+        $this->_file = $file;
     }
 
     /**
@@ -125,5 +136,23 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     public function getIsDebugMode()
     {
         return $this->scopeConfig->getValue(self::DEBUG_MODE);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getFeedLogFile()
+    {
+        $path = $this->_directoryList->getPath(DirectoryList::LOG);
+        $file = $path . $this->_file->dirsep() . static::FEED_SKIPPED_PRODUCTS;
+        return $file;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSkippedProducts(){
+        return $this->_file->fileExists($this->getFeedLogFile()) && filesize($this->getFeedLogFile()) != 0;
     }
 }
