@@ -340,7 +340,10 @@ class Export
                 ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
                     Visibility::VISIBILITY_BOTH,
                     Visibility::VISIBILITY_IN_CATALOG
-                ]]);
+                ]])
+                ->addAttributeToFilter('type_id', array('nin' => array(
+                    Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
+                )));
             $storeCollection[$store->getId()]->load();
         }
 
