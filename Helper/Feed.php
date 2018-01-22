@@ -12,6 +12,8 @@ use Magento\Framework\Filesystem\Io\File;
 class Feed extends AbstractHelper implements ProductFeedInterface
 {
     const FEED_SKIPPED_PRODUCTS = 'dyi_skipped_products.log';
+    const S3_BUCKET_REGION = 'us-east-1';
+    const AWS_SDK_VERSION = '2006-03-01';
 
     /**
      * @var Data
@@ -153,5 +155,21 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function isSkippedProducts(){
         return $this->_file->fileExists($this->getFeedLogFile()) && filesize($this->getFeedLogFile()) != 0;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRegion()
+    {
+        return static::S3_BUCKET_REGION;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return static::AWS_SDK_VERSION;
     }
 }

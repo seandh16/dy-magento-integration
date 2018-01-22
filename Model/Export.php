@@ -218,7 +218,10 @@ class Export
      * Upload exported file to Amazon
      */
     public function upload() {
-        $s3 = S3Client::factory([
+
+        $s3 = new S3Client([
+            'region'  => $this->_feedHelper->getRegion(),
+            'version' => $this->_feedHelper->getVersion(),
             'credentials' => [
                 'key'    => $this->_feedHelper->getAccessKeyId(),
                 'secret' => $this->_feedHelper->getAccessKey(),
