@@ -378,7 +378,7 @@ class Export
     {
         $rowData = [
             'name' => $_product->getName(),
-            'url' => $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_WEB) . $_product->getData('url_key') . ".html",
+            'url' => $_product->getProductUrl(),
             'sku' => $_product->getData('sku'),
             'group_id' => $_product->getData('sku'),
             'price' => $_product->getData('price') ?: 0,
@@ -387,7 +387,7 @@ class Export
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
         ];
 
-        if(count($rowData) != count(array_filter($rowData))) {
+        if(count($rowData) != count(array_diff($rowData,array('')))) {
             $this->logSkippedProducts(json_encode($rowData).PHP_EOL);
             return false;
         }
