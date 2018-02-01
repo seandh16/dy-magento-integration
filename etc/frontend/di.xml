@@ -8,7 +8,7 @@
         <plugin name="DynamicYield_Integration::afterSearchResult" type="DynamicYield\Integration\Plugin\SearchResultPlugin" sortOrder="2" disabled="false" />
     </type>
 
-    <type name="Magento\Newsletter\Controller\Subscriber\NewAction">
+    <type name="Magento\Newsletter\Model\Subscriber">
         <plugin name="DynamicYield_Integration::afterNewsletterSubscription" type="DynamicYield\Integration\Plugin\NewsletterSubscriptionPlugin" sortOrder="3" disabled="false" />
     </type>
 

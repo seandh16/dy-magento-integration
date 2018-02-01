@@ -1,10 +1,8 @@
 <?php
-
 namespace DynamicYield\Integration\Plugin;
 
-use Magento\Newsletter\Controller\Subscriber\NewAction;
-use Magento\Framework\Event\ManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
+use Magento\Framework\Event\ManagerInterface;
 
 class NewsletterSubscriptionPlugin
 {
@@ -12,43 +10,26 @@ class NewsletterSubscriptionPlugin
      * @var ManagerInterface
      */
     protected $_eventManager;
-
-    /**
-     * @var Subscriber
-     */
-    protected $_subscriber;
-
     /**
      * NewsletterSubscriptionPlugin constructor
      *
      * @param ManagerInterface $eventManager
-     * @param Subscriber $subscriber
      */
-    public function __construct(
-        ManagerInterface $eventManager,
-        Subscriber $subscriber
-    )
-    {
+    public function __construct(ManagerInterface $eventManager) {
         $this->_eventManager = $eventManager;
-        $this->_subscriber = $subscriber;
     }
-
     /**
-     * @param NewAction $subject
-     * @param $result
+     * @param Subscriber $subscriber
+     * @param $status
+     * @return mixed
      */
-    public function afterExecute(NewAction $subject, $result)
+    public function afterSubscribe(Subscriber $subscriber, $status)
     {
-        $email = (string)$subject->getRequest()->getParam('email');
-
-        if ($email) {
-            $subscriber = $this->_subscriber->loadByEmail($email);
-
-            if ($subscriber) {
-                $this->_eventManager->dispatch('dyi_newsletter_subscription_after', [
-                    'subscriber' => $subscriber
-                ]);
-            }
+        if ($subscriber->isStatusChanged() && $status === Subscriber::STATUS_SUBSCRIBED) {
+            $this->_eventManager->dispatch('dyi_newsletter_subscription_after', [
+                'subscriber' => $subscriber
+            ]);
         }
+        return $status;
     }
 }
