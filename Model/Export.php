@@ -381,7 +381,7 @@ class Export
             'url' => $_product->getProductUrl(),
             'sku' => $_product->getData('sku'),
             'group_id' => $_product->getData('sku'),
-            'price' => $_product->getData('price') ?: 0,
+            'price' => round($_product->getData('price'),2) ?: 0,
             'in_stock' => $this->_stockRegistry->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null

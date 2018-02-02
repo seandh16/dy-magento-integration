@@ -62,12 +62,12 @@ class PurchaseEvent extends Event
             $items[] = [
                 'productId' => $item->getProduct()->getData('sku'),
                 'quantity' => round($item->getQtyOrdered(), 2),
-                'itemPrice' => $item->getPrice()
+                'itemPrice' => round($item->getPrice(),2)
             ];
         }
 
         return [
-            'value' => $this->_order->getGrandTotal(),
+            'value' => round($this->_order->getGrandTotal(),2),
             'currency' => $this->_order->getOrderCurrencyCode(),
             'cart' => $items
         ];

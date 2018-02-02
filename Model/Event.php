@@ -64,7 +64,7 @@ abstract class Event
             }
 
             $prepareItems[$item->getSku()] = [
-                'itemPrice' => $item->getProduct()->getData('price'),
+                'itemPrice' => round($item->getProduct()->getData('price'),2),
                 'productId' => $item->getProduct()->getData('sku'),
                 'quantity' => round($item->getQty(), 2),
             ];

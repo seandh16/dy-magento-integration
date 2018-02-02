@@ -100,7 +100,7 @@ class RemoveFromCartEvent extends Event
 
         return [
             'cart' => $this->getCartItems($this->_cart, [$item->getId()]),
-            'value' => $item->getPrice(),
+            'value' => round($item->getPrice(),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $item->getProduct()->getData('sku'),
             'quantity' => round($item->getQty(), 2)
