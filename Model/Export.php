@@ -381,7 +381,7 @@ class Export
             'url' => $_product->getProductUrl(),
             'sku' => $_product->getData('sku'),
             'group_id' => $_product->getData('sku'),
-            'price' => round($_product->getData('price'),2) ?: 0,
+            'price' => $_product->getData('price') ? round($_product->getData('price'),2) : round($this->getChildPrice($_product),2),
             'in_stock' => $this->_stockRegistry->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
@@ -523,5 +523,22 @@ class Export
         } catch (\Exception $e) {
             $this->_logger->error("Error clearing log file: ".$e->getMessage());
         }
+    }
+
+    /**
+     * Get configurable product child price
+     * Return 0 if not found
+     *
+     * @param $configProduct
+     * @return int
+     */
+    public function getChildPrice($configProduct){
+        if($configProduct->getTypeId() == "configurable"){
+            $_children = $configProduct->getTypeInstance()->getUsedProducts($configProduct);
+            foreach ($_children as $child){
+                return $child->getPrice();
+            }
+        }
+        return 0;
     }
 }
