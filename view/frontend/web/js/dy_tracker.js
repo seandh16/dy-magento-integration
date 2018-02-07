@@ -435,7 +435,9 @@
         } else if (target.tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_swatch_select) {
             var parent = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_parent),
                 selected = target.options[target.selectedIndex];
-
+            if(!parent) {
+                return false;
+            }
             name = parent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_value).innerText;
             value = selected.value > 0 ? selected.innerText.trim() : false;
         } else {
@@ -464,8 +466,11 @@
      */
     DynamicYield_Tracking.prototype.onProductAttributeSelectChange = function(event) {
         var self = event.currentTarget,
-            parent = getClosestElement(self, DY_SETTINGS.eventSelectors.product_options_regular_attribute_parent),
-            name = parent.querySelector(DY_SETTINGS.eventSelectors.product_options_regular_attribute_name_label)
+            parent = getClosestElement(self, DY_SETTINGS.eventSelectors.product_options_regular_attribute_parent);
+        if (!parent) {
+            return false;
+        }
+        var name = parent.querySelector(DY_SETTINGS.eventSelectors.product_options_regular_attribute_name_label)
                 .querySelector(DY_SETTINGS.eventSelectors.product_options_regular_attribute_name_container).innerText,
             selected = self.options[self.selectedIndex],
             value;
@@ -494,8 +499,11 @@
     DynamicYield_Tracking.prototype.onProductCustomOptionChange = function (event) {
         var self = event,
             target = self.currentTarget,
-            control = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control),
-            parent = getClosestElement(control, DY_SETTINGS.eventSelectors.product_custom_options_control_parent),
+            control = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control);
+        if(!control) {
+            return false;
+        }
+        var parent = getClosestElement(control, DY_SETTINGS.eventSelectors.product_custom_options_control_parent),
             name,
             value;
 
@@ -518,8 +526,11 @@
                 value = selected.value > 0 ? selected.innerText.trim() : false;
             }
         } else {
-            var subParent = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control_parent),
-                subLabel = subParent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label);
+            var subParent = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control_parent);
+            if (!subParent) {
+                return false;
+            }
+            var subLabel = subParent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label);
 
             if (target.getAttribute('type') === DY_SETTINGS.eventSelectors.product_custom_options_type_checkbox) {
                 if (target.checked) {
@@ -531,8 +542,7 @@
         }
 
         if(name.substr(-1) === ":") {
-            name = name.substr(0, name.length - 1);
-        }
+            name = name.substr(0, name.length - 1)}
 
         if (name && value) {
             this.callEvent('Change Attribute', {
@@ -550,8 +560,11 @@
      */
     DynamicYield_Tracking.prototype.onSortChange = function(event) {
         var caller = event.currentTarget,
-            target = getClosestElement(caller, DY_SETTINGS.eventSelectors.toolbar_sorter_block),
-            select = target.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_type),
+            target = getClosestElement(caller, DY_SETTINGS.eventSelectors.toolbar_sorter_block);
+        if(!target) {
+            return false;
+        }
+        var select = target.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_type),
             option = select.options[select.selectedIndex];
 
         if (!option) {
