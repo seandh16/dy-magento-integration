@@ -17,6 +17,9 @@ use Magento\Framework\View\Asset\Repository;
 use Magento\Config\Model\Config\Factory as ConfigFactory;
 use Magento\Framework\Locale\Resolver as Store;
 use Magento\Store\Model\ScopeInterface as Scope;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Directory\Helper\Data as HelperData;
 
 
 class Data extends AbstractHelper implements HelperInterface
@@ -52,6 +55,16 @@ class Data extends AbstractHelper implements HelperInterface
     protected $_store;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $_scopeConfig;
+
+    /**
      * Data constructor
      *
      * @param Context $context
@@ -59,7 +72,11 @@ class Data extends AbstractHelper implements HelperInterface
      * @param Session $quoteSession
      * @param Repository $assetRepo
      * @param ConfigFactory $configFactory
+     * @param Queue $queue
      * @param Store $store
+     * @param StoreManagerInterface $storeManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Data $data
      */
     public function __construct(
         Context $context,
@@ -68,7 +85,9 @@ class Data extends AbstractHelper implements HelperInterface
         Repository $assetRepo,
         ConfigFactory $configFactory,
         Queue $queue,
-        Store $store
+        Store $store,
+        StoreManagerInterface $storeManager,
+        ScopeConfigInterface $scopeConfig
     )
     {
         parent::__construct($context);
@@ -79,6 +98,8 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_queue = $queue;
         $this->_configFactory = $configFactory;
         $this->_store = $store;
+        $this->_storeManager = $storeManager;
+        $this->_scopeConfig = $scopeConfig;
     }
 
     /**
@@ -196,7 +217,7 @@ class Data extends AbstractHelper implements HelperInterface
     public function getCurrentContext()
     {
         $name = $this->getCurrentPageType();
-        $language = $this->_store->getLocale();
+        $language = $this->isMultiLanguage() ? $this->_store->getLocale() : null;
         $type = "OTHER";
         $data = null;
 
@@ -261,7 +282,7 @@ class Data extends AbstractHelper implements HelperInterface
 
         $context = array('type' => strtoupper($type), 'lng' => $language, 'data' => $data);
 
-        return $context;
+        return array_filter($context,function($var){return !is_null($var);});
     }
 
     /**
@@ -385,5 +406,22 @@ class Data extends AbstractHelper implements HelperInterface
                 ]
             ]
         ]])->save();
+    }
+
+    /**
+     * Check if website has multiple active locales
+     *
+     * @return bool
+     */
+    public function isMultiLanguage()
+    {
+        $locale = [];
+        $stores = $this->_storeManager->getStores();
+        foreach ($stores as $store) {
+            if (!$store->isActive()) continue;
+            $locale[] = $this->_scopeConfig->getValue(HelperData::XML_PATH_DEFAULT_LOCALE, Scope::SCOPE_STORE,$store->getId());
+        }
+
+        return count(array_unique($locale)) > 1 ? true : false;
     }
 }
