@@ -14,6 +14,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     const FEED_SKIPPED_PRODUCTS = 'dyi_skipped_products.log';
     const S3_BUCKET_REGION = 'us-east-1';
     const AWS_SDK_VERSION = '2006-03-01';
+    const S3_FILE_NAME = 'productfeed.csv';
 
     /**
      * @var Data
@@ -105,7 +106,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function getBucket()
     {
-        return 'com.dynamicyield.feeds/' . $this->_dataHelper->getSectionId();
+        return 'com.dynamicyield.feeds';
     }
 
     /**
@@ -121,7 +122,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function getExportFilename()
     {
-        return "productfeed.csv";
+        return self::S3_FILE_NAME;
     }
 
     /**
