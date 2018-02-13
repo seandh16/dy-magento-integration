@@ -173,4 +173,12 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     {
         return static::AWS_SDK_VERSION;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getSectionId()
+    {
+        return $this->scopeConfig->getValue(self::SECTION_ID);
+    }
 }

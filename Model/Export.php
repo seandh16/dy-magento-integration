@@ -29,7 +29,6 @@ use Magento\Framework\UrlInterface;
 use Magento\CatalogInventory\Model\StockRegistry;
 use Magento\Catalog\Model\Product\Type;
 use DynamicYield\Integration\Model\Logger\Handler;
-use DynamicYield\Integration\Helper\Data as DataHelper;
 
 
 class Export
@@ -151,12 +150,6 @@ class Export
     protected $_handler;
 
     /**
-     * @var DataHelper
-     */
-    protected $_dataHelper;
-
-
-    /**
      * Export constructor
      *
      * @param State $state
@@ -181,8 +174,7 @@ class Export
         ProductCollectionFactory $productCollectionFactory,
         StockRegistry $stockRegistry,
         Handler $handler,
-        LoggerInterface $logger,
-        DataHelper $dataHelper
+        LoggerInterface $logger
     )
     {
         $this->_state = $state;
@@ -195,7 +187,6 @@ class Export
         $this->_stockRegistry = $stockRegistry;
         $this->_handler = $handler;
         $this->_logger = $logger->setHandlers([$this->_handler]);
-        $this->_dataHelper = $dataHelper;
     }
 
     /**
@@ -241,7 +232,7 @@ class Export
         try {
             return $s3->upload(
                 $this->_feedHelper->getBucket(),
-                $this->_dataHelper->getSectionId()."/".$this->_feedHelper->getExportFilename(),
+                $this->_feedHelper->getSectionId()."/".$this->_feedHelper->getExportFilename(),
                 fopen($this->_feedHelper->getExportFile(), 'r')
             );
         } catch (S3Exception $e) {

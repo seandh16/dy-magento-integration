@@ -10,6 +10,7 @@ interface ProductFeedInterface
     const ATTRIBUTES = 'dyi_integration/feed/attributes';
     const USED_ATTRIBUTES = 'dyi_integration/feed/used_attributes';
     const FEED_ATTRIBUTES = 'dyi_integration/feed/feed_attributes';
+    const SECTION_ID = 'dyi_integration/general/section_id';
     const ACCESS_KEY_ID = 'dyi_integration/general/access_key_id';
     const ACCESS_KEY = 'dyi_integration/general/access_key';
     const DEBUG_MODE = 'dyi_integration/feed/dyi_debug_mode';
