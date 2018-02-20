@@ -4,6 +4,7 @@ namespace DynamicYield\Integration\Model;
 
 use Magento\Checkout\Model\Cart;
 use DynamicYield\Integration\Helper\Data;
+use Magento\Catalog\Model\Product\Type;
 
 abstract class Event
 {
@@ -65,7 +66,7 @@ abstract class Event
             /**
              * Skip bundle and grouped products
              */
-            if($item->getProductType() == "grouped" || $item->getProductType() == "bundle") {
+            if($item->getProductType() == Type::TYPE_BUNDLE || $item->getProductType() == Data::PRODUCT_GROUPED) {
                 continue;
             }
 

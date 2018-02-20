@@ -27,8 +27,12 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status;
 
 
 
+
 class Data extends AbstractHelper implements HelperInterface
 {
+
+    const PRODUCT_GROUPED = "grouped";
+
     /**
      * @var Registry
      */
