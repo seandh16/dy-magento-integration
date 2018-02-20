@@ -19,6 +19,10 @@ use Magento\Framework\Locale\Resolver as Store;
 use Magento\Store\Model\ScopeInterface as Scope;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Directory\Helper\Data as HelperData;
+use Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
+
+
 
 
 class Data extends AbstractHelper implements HelperInterface
@@ -58,6 +62,11 @@ class Data extends AbstractHelper implements HelperInterface
      */
     protected $_storeManager;
 
+    /**
+     * @var ProductRepository
+     */
+    protected $_productRepository;
+
 
     /**
      * Data constructor
@@ -70,6 +79,7 @@ class Data extends AbstractHelper implements HelperInterface
      * @param Queue $queue
      * @param Store $store
      * @param StoreManagerInterface $storeManager
+     * @param ProductRepository $productRepository
      */
     public function __construct(
         Context $context,
@@ -79,7 +89,8 @@ class Data extends AbstractHelper implements HelperInterface
         ConfigFactory $configFactory,
         Queue $queue,
         Store $store,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ProductRepository $productRepository
     )
     {
         parent::__construct($context);
@@ -91,6 +102,7 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_configFactory = $configFactory;
         $this->_store = $store;
         $this->_storeManager = $storeManager;
+        $this->_productRepository = $productRepository;
     }
 
     /**
@@ -261,9 +273,30 @@ class Data extends AbstractHelper implements HelperInterface
                 $quote = $this->_quoteSession->getQuote();
 
                 if($quote) {
-                    foreach ($quote->getAllVisibleItems() as $quoteItem) {
-                        if($quoteItem->getProduct()->getTypeId() == "grouped" || $quoteItem->getProduct()->getTypeId() == "bundle") continue;
-                        $data[] = $quoteItem->getProduct()->getData("sku");
+                    foreach ($quote->getAllItems() as $quoteItem) {
+                        if($quoteItem->getProduct()->getTypeId() == "grouped" || $quoteItem->getProduct()->getTypeId() == "bundle") {
+                            continue;
+                        }
+
+                        $product = $quoteItem->getProduct();
+
+                        if (!$product) {
+                            continue;
+                        }
+
+                        $variation = $this->validateSku($product->getSku());
+
+                        /**
+                         * IF invalid variation and no parent item - skip (because we need parent values)
+                         * IF valid variation and does not have a parent - skip (because we need only variation values)
+                         */
+                        if (($variation == null && $quoteItem->getParentItemId() == null) || ($variation != null && $quoteItem->getParentItemId() != null)) {
+                            continue;
+                        }
+
+
+
+                        $data[] = $variation != null ? $variation->getSku() : ($this->getParentItemSku($quoteItem) ?: "");
                     }
                 }
 
@@ -410,9 +443,71 @@ class Data extends AbstractHelper implements HelperInterface
         $stores = $this->_storeManager->getStores();
         foreach ($stores as $store) {
             if (!$store->isActive()) continue;
-            $locale[] = $this->scopeConfig->getValue(HelperData::XML_PATH_DEFAULT_LOCALE, Scope::SCOPE_STORE,$store->getId());
+            $locale[] = $this->scopeConfig->getValue(HelperData::XML_PATH_DEFAULT_LOCALE, Scope::SCOPE_STORE, $store->getId());
         }
 
         return count(array_unique($locale)) > 1 ? true : false;
     }
+
+    /**
+     * Get variation from configurable product
+     *
+     * @param $product
+     * @return Mage_Catalog_Model_Product
+     */
+    public function getRandomChild($product){
+        if($product->getTypeId() == "configurable"){
+            $configurable = Mage::getModel('catalog/product_type_configurable')->setProduct($product);
+            if(!$configurable) {
+                return $product;
+            }
+            $simpleCollection = $configurable->getUsedProductCollection()
+                ->addAttributeToSelect('sku','price')
+                ->addFilterByRequiredOptions()
+                ->addAttributeToFilter('status', Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
+                ->addAttributeToFilter('visibility', array('in' => array(
+                    Visibility::VISIBILITY_BOTH,
+                    Visibility::VISIBILITY_IN_CATALOG
+                )));
+
+            foreach($simpleCollection as $simple){
+                return $simple;
+            }
+        }
+
+        return $product;
+    }
+
+    /**
+     * Check if SKU is valid as per product feed requirements
+     *
+     * @param $sku
+     * @return Mixed $product
+     */
+    public function validateSku($sku) {
+        $product = $this->_productRepository->get($sku);
+
+        if(in_array($product->getVisibility(),array(
+            Visibility::VISIBILITY_BOTH,
+            Visibility::VISIBILITY_IN_CATALOG))) {
+
+            return $product;
+        }
+
+        return null;
+    }
+
+    /**
+     * Return sales_quote_item parent product sku
+     *
+     * @param $item
+     * @return bool
+     */
+    public function getParentItemSku($item) {
+        if($item->getParentItemId()) {
+            return $item->getParentItem()->getProduct()->getData('sku');
+        }
+        return false;
+    }
+
 }
