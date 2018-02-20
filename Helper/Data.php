@@ -18,7 +18,6 @@ use Magento\Config\Model\Config\Factory as ConfigFactory;
 use Magento\Framework\Locale\Resolver as Store;
 use Magento\Store\Model\ScopeInterface as Scope;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Helper\Data as HelperData;
 
 
@@ -59,10 +58,6 @@ class Data extends AbstractHelper implements HelperInterface
      */
     protected $_storeManager;
 
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $_scopeConfig;
 
     /**
      * Data constructor
@@ -75,8 +70,6 @@ class Data extends AbstractHelper implements HelperInterface
      * @param Queue $queue
      * @param Store $store
      * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Data $data
      */
     public function __construct(
         Context $context,
@@ -86,8 +79,7 @@ class Data extends AbstractHelper implements HelperInterface
         ConfigFactory $configFactory,
         Queue $queue,
         Store $store,
-        StoreManagerInterface $storeManager,
-        ScopeConfigInterface $scopeConfig
+        StoreManagerInterface $storeManager
     )
     {
         parent::__construct($context);
@@ -99,7 +91,6 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_configFactory = $configFactory;
         $this->_store = $store;
         $this->_storeManager = $storeManager;
-        $this->_scopeConfig = $scopeConfig;
     }
 
     /**
@@ -419,7 +410,7 @@ class Data extends AbstractHelper implements HelperInterface
         $stores = $this->_storeManager->getStores();
         foreach ($stores as $store) {
             if (!$store->isActive()) continue;
-            $locale[] = $this->_scopeConfig->getValue(HelperData::XML_PATH_DEFAULT_LOCALE, Scope::SCOPE_STORE,$store->getId());
+            $locale[] = $this->scopeConfig->getValue(HelperData::XML_PATH_DEFAULT_LOCALE, Scope::SCOPE_STORE,$store->getId());
         }
 
         return count(array_unique($locale)) > 1 ? true : false;
