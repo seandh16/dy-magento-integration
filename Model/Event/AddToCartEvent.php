@@ -9,6 +9,7 @@ use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Checkout\Model\Cart;
 use DynamicYield\Integration\Helper\Data;
+use Magento\Framework\Pricing\Helper\Data as PriceHelper;
 
 
 class AddToCartEvent extends Event
@@ -44,23 +45,31 @@ class AddToCartEvent extends Event
     protected $_dataHelper;
 
     /**
+     * @var PriceHelper
+     */
+    protected $_priceHelper;
+
+    /**
      * AddToCartEvent constructor
      * @param CheckoutSession $checkoutSession
      * @param StoreManagerInterface $storeManager
      * @param Cart $cart
      * @param Data $data
+     * @param PriceHelper $priceHelper
      */
     public function __construct(
         CheckoutSession $checkoutSession,
         StoreManagerInterface $storeManager,
         Cart $cart,
-        Data $data
+        Data $data,
+        PriceHelper $priceHelper
     )
     {
         $this->_checkoutSession = $checkoutSession;
         $this->_storeManager = $storeManager;
         $this->_cart = $cart;
         $this->_dataHelper = $data;
+        $this->_priceHelper = $priceHelper;
     }
 
     /**
@@ -115,8 +124,8 @@ class AddToCartEvent extends Event
         $valid = $this->_dataHelper->validateSku($product->getSku());
 
         return [
-            'cart' => $this->getCartItems($this->_cart,$this->_dataHelper),
-            'value' => $valid != null ? round($valid->getData('price'),2) : round($product->getData('price'),2),
+            'cart' => $this->getCartItems($this->_cart,$this->_dataHelper,$this->_priceHelper),
+            'value' => $valid != null ? round($this->_priceHelper->currency($valid->getData('price'),false,false),2) : round($this->_priceHelper->currency($product->getData('price'),false,false),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $valid != null ? $product->getSku() : $product->getData('sku'),
             'quantity' => round($this->_qty, 2)

@@ -9,6 +9,7 @@ use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Checkout\Model\Cart;
 use DynamicYield\Integration\Helper\Data;
+use Magento\Framework\Pricing\Helper\Data as PriceHelper;
 
 
 class RemoveFromCartEvent extends Event
@@ -39,23 +40,31 @@ class RemoveFromCartEvent extends Event
     protected $_dataHelper;
 
     /**
+     * @var PriceHelper
+     */
+    protected $_priceHelper;
+
+    /**
      * RemoveFromCartEvent constructor
      * @param CheckoutSession $checkoutSession
      * @param StoreManagerInterface $storeManager
      * @param Cart $cart
      * @param Data $data
+     * @param PriceHelper $priceHelper
      */
     public function __construct(
         CheckoutSession $checkoutSession,
         StoreManagerInterface $storeManager,
         Cart $cart,
-        Data $data
+        Data $data,
+        PriceHelper $priceHelper
     )
     {
         $this->_checkoutSession = $checkoutSession;
         $this->_storeManager = $storeManager;
         $this->_cart = $cart;
         $this->_dataHelper = $data;
+        $this->_priceHelper = $priceHelper;
     }
 
     /**
@@ -111,8 +120,8 @@ class RemoveFromCartEvent extends Event
         $product = $this->_dataHelper->validateSku($item->getProduct()->getSku());
 
         return [
-            'cart' => $this->getCartItems($this->_cart,$this->_dataHelper,[$item->getId()]),
-            'value' => $product ? round($product->getData('price'),2) : round($item->getProduct()->getData('price'),2),
+            'cart' => $this->getCartItems($this->_cart,$this->_dataHelper, $this->_priceHelper,[$item->getId()]),
+            'value' => $product ? round($this->_priceHelper->currency($product->getData('price'),false,false),2) : round($this->_priceHelper->currency($item->getProduct()->getData('price'),false,false),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $product ? $product->getSku() : $item->getProduct()->getData('sku'),
             'quantity' => round($item->getQty(), 2)
