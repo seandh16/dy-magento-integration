@@ -21,6 +21,8 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Directory\Helper\Data as HelperData;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+
 
 
 
@@ -240,7 +242,7 @@ class Data extends AbstractHelper implements HelperInterface
                 $product = $this->_registry->registry('current_product');
 
                 if($product) {
-                    $data = [$product->getSku()];
+                    $data[] = $this->getRandomChild($product)->getSku();
                 }
 
                 break;
@@ -453,18 +455,14 @@ class Data extends AbstractHelper implements HelperInterface
      * Get variation from configurable product
      *
      * @param $product
-     * @return Mage_Catalog_Model_Product
+     * @return Product
      */
     public function getRandomChild($product){
         if($product->getTypeId() == "configurable"){
-            $configurable = Mage::getModel('catalog/product_type_configurable')->setProduct($product);
-            if(!$configurable) {
-                return $product;
-            }
-            $simpleCollection = $configurable->getUsedProductCollection()
+            $simpleCollection = $product->getTypeInstance()->getUsedProductCollection($product)
                 ->addAttributeToSelect('sku','price')
                 ->addFilterByRequiredOptions()
-                ->addAttributeToFilter('status', Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
+                ->addAttributeToFilter('status', Status::STATUS_ENABLED)
                 ->addAttributeToFilter('visibility', array('in' => array(
                     Visibility::VISIBILITY_BOTH,
                     Visibility::VISIBILITY_IN_CATALOG

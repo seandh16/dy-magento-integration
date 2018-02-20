@@ -4,6 +4,9 @@ namespace DynamicYield\Integration\Model\Event;
 
 use DynamicYield\Integration\Model\Event;
 use Magento\Sales\Model\Order;
+use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
+use DynamicYield\Integration\Helper\Data;
+
 
 class PurchaseEvent extends Event
 {
@@ -13,13 +16,27 @@ class PurchaseEvent extends Event
     protected $_order;
 
     /**
+     * @var ProductRepository
+     */
+    protected $_productRepository;
+
+    protected $_dataHelper;
+    /**
      * PurchaseEvent constructor
      *
      * @param Order $order
+     * @param ProductRepository $productRepository
+     * @param Data $data
      */
-    public function __construct(Order $order)
+    public function __construct(
+        Order $order,
+        ProductRepository $productRepository,
+        Data $data
+    )
     {
+        $this->_productRepository = $productRepository;
         $this->_order = $order;
+        $this->_dataHelper = $data;
     }
 
     /**
@@ -57,12 +74,36 @@ class PurchaseEvent extends Event
     {
         $items = [];
 
-        foreach ($this->_order->getAllVisibleItems() as $item) {
-            /** @var \Magento\Sales\Model\Order\Item $item */
+        foreach ($this->_order->getAllItems() as $item) {
+
+            /**
+             * Skip bundle and grouped products (out of scope)
+             */
+            if($item->getProductType() == "bundle" || $item->getProductType() == "grouped") {
+                continue;
+            }
+
+            $product = $item->getProduct();
+
+
+            if(!$product) {
+                continue;
+            }
+
+            $variation = $this->_dataHelper->validateSku($product->getSku());
+
+            /**
+             * IF invalid variation and no parent item - skip (because we need parent values)
+             * IF valid variation and does not have a parent - skip (because we need only variation values)
+             */
+            if(($variation == null && $item->getParentItemId() == null) || ($variation != null && $item->getParentItemId() == null && $product->getTypeId() != "simple")){
+                continue;
+            }
+
             $items[] = [
-                'productId' => $item->getProduct()->getData('sku'),
+                'productId' => $variation != null ? $variation->getSku() : ($this->_productRepository->getById($item->getParentItem()->getProductId())->getSku() ?: ""),
                 'quantity' => round($item->getQtyOrdered(), 2),
-                'itemPrice' => round($item->getPrice(),2)
+                'itemPrice' =>  $variation ? round($variation->getData('price'),2) : round($product->getData('price'),2)
             ];
         }
 

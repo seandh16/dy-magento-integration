@@ -4,6 +4,7 @@ namespace DynamicYield\Integration\Model\Event;
 
 use DynamicYield\Integration\Model\Event;
 use Magento\Checkout\Model\Cart;
+use DynamicYield\Integration\Helper\Data;
 
 class SyncCartEvent extends Event
 {
@@ -13,14 +14,22 @@ class SyncCartEvent extends Event
     protected $_cart;
 
     /**
+     * @var Data
+     */
+    protected $_dataHelper;
+
+    /**
      * AddToCartEvent constructor
      * @param Cart $cart
+     * @param Data $data
      */
     public function __construct(
-        Cart $cart
+        Cart $cart,
+        Data $data
     )
     {
         $this->_cart = $cart;
+        $this->_dataHelper = $data;
     }
 
     /**
@@ -55,7 +64,7 @@ class SyncCartEvent extends Event
     function generateProperties()
     {
         return [
-            'cart' => $this->getCartItems($this->_cart),
+            'cart' => $this->getCartItems($this->_cart,$this->_dataHelper),
         ];
     }
 }

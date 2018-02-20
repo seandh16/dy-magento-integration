@@ -3,6 +3,7 @@
 namespace DynamicYield\Integration\Model;
 
 use Magento\Checkout\Model\Cart;
+use DynamicYield\Integration\Helper\Data;
 
 abstract class Event
 {
@@ -44,14 +45,15 @@ abstract class Event
     /**
      * Get all cart items
      * @param Cart $cart
+     * @param Data $dataHelper
      * @param array $except
      * @return array
      */
-    public function getCartItems(Cart $cart, array $except = [])
+    public function getCartItems(Cart $cart, Data $dataHelper = null, array $except = [])
     {
         $prepareItems = [];
         $items = [];
-        $cartItems = $cart->getQuote()->getAllVisibleItems();
+        $cartItems = $cart->getQuote()->getAllItems();
 
         if (!count($cartItems)) {
             return [];
@@ -59,13 +61,37 @@ abstract class Event
 
         /** @var \Magento\Quote\Model\Quote\Item $item */
         foreach ($cartItems as $item) {
+
+            /**
+             * Skip bundle and grouped products
+             */
+            if($item->getProductType() == "grouped" || $item->getProductType() == "bundle") {
+                continue;
+            }
+
             if (in_array($item->getId(), $except) || isset($prepareItems[$item->getSku()])) {
                 continue;
             }
 
+            $product = $item->getProduct();
+
+            if(!$product) {
+                continue;
+            }
+
+            $variation = $dataHelper->validateSku($product->getSku());
+
+            /**
+             * IF invalid variation and no parent item - skip (because we need parent values)
+             * IF valid variation and does not have a parent - skip (because we want need only variation values)
+             */
+            if(($variation == null && $item->getParentItemId() == null) || ($variation != null && $item->getParentItemId() != null)){
+                continue;
+            }
+
             $prepareItems[$item->getSku()] = [
-                'itemPrice' => round($item->getProduct()->getData('price'),2),
-                'productId' => $item->getProduct()->getData('sku'),
+                'itemPrice' => $variation ? round($variation->getData('price'),2) : round($product->getData('price'),2),
+                'productId' =>  $variation != null ? $variation->getSku() : ($dataHelper->getParentItemSku($item) ?: ""),
                 'quantity' => round($item->getQty(), 2),
             ];
         }

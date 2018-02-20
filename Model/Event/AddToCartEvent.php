@@ -8,6 +8,8 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Checkout\Model\Cart;
+use DynamicYield\Integration\Helper\Data;
+
 
 class AddToCartEvent extends Event
 {
@@ -37,20 +39,28 @@ class AddToCartEvent extends Event
     protected $_cart;
 
     /**
+     * @var Data
+     */
+    protected $_dataHelper;
+
+    /**
      * AddToCartEvent constructor
      * @param CheckoutSession $checkoutSession
      * @param StoreManagerInterface $storeManager
      * @param Cart $cart
+     * @param Data $data
      */
     public function __construct(
         CheckoutSession $checkoutSession,
         StoreManagerInterface $storeManager,
-        Cart $cart
+        Cart $cart,
+        Data $data
     )
     {
         $this->_checkoutSession = $checkoutSession;
         $this->_storeManager = $storeManager;
         $this->_cart = $cart;
+        $this->_dataHelper = $data;
     }
 
     /**
@@ -91,19 +101,6 @@ class AddToCartEvent extends Event
         $product = $this->_product;
         $quote = $this->_checkoutSession->getQuote();
 
-        $quoteItem = $quote->getItemByProduct($product);
-        if($quoteItem !== false) {
-            $item = $quoteItem->getProduct();
-            $price = $item->getPrice();
-        } else {
-            $cartItems = $this->_cart->getQuote()->getAllItems();
-            foreach ($cartItems as $cartItem){
-                if($cartItem->getProductId() == $product->getId()) {
-                    $item = $cartItem->getProduct();
-                    $price = $item->getPrice();
-                }
-            }
-        }
         $currency = $quote->getQuoteCurrencyCode();
 
         if (!$currency) {
@@ -115,11 +112,13 @@ class AddToCartEvent extends Event
         $store = $this->_storeManager->getStore();
         $storeCurrency = $store->getCurrentCurrency();
 
+        $valid = $this->_dataHelper->validateSku($product->getSku());
+
         return [
-            'cart' => $this->getCartItems($this->_cart),
-            'value' => isset($price) ? round($price,2) : "",
+            'cart' => $this->getCartItems($this->_cart,$this->_dataHelper),
+            'value' => $valid != null ? round($valid->getData('price'),2) : round($product->getData('price'),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
-            'productId' => $product->getData('sku'),
+            'productId' => $valid != null ? $product->getSku() : $product->getData('sku'),
             'quantity' => round($this->_qty, 2)
         ];
     }
