@@ -7,6 +7,7 @@ use Magento\Sales\Model\Order;
 use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
 use DynamicYield\Integration\Helper\Data;
 use Magento\Catalog\Model\Product\Type;
+use Magento\Framework\Pricing\Helper\Data as PriceHelper;
 
 
 class PurchaseEvent extends Event
@@ -27,21 +28,29 @@ class PurchaseEvent extends Event
     protected $_dataHelper;
 
     /**
+     * @var PriceHelper
+     */
+    protected $_priceHelper;
+
+    /**
      * PurchaseEvent constructor
      *
      * @param Order $order
      * @param ProductRepository $productRepository
      * @param Data $data
+     * @param PriceHelper $priceHelper
      */
     public function __construct(
         Order $order,
         ProductRepository $productRepository,
-        Data $data
+        Data $data,
+        PriceHelper $priceHelper
     )
     {
         $this->_order = $order;
         $this->_productRepository = $productRepository;
         $this->_dataHelper = $data;
+        $this->_priceHelper = $priceHelper;
     }
 
     /**
@@ -108,7 +117,7 @@ class PurchaseEvent extends Event
             $items[] = [
                 'productId' => $variation != null ? $variation->getSku() : ($this->_productRepository->getById($item->getParentItem()->getProductId())->getSku() ?: ""),
                 'quantity' => round($item->getQtyOrdered(), 2),
-                'itemPrice' =>  $variation ? round($variation->getData('price'),2) : round($product->getData('price'),2)
+                'itemPrice' =>  $variation ? round($this->_priceHelper->currency($variation->getData('price'),false,false),2) : round($this->_priceHelper->currency($product->getData('price'),false,false),2)
             ];
         }
 

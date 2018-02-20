@@ -5,6 +5,7 @@ namespace DynamicYield\Integration\Model;
 use Magento\Checkout\Model\Cart;
 use DynamicYield\Integration\Helper\Data;
 use Magento\Catalog\Model\Product\Type;
+use Magento\Framework\Pricing\Helper\Data as PriceHelper;
 
 abstract class Event
 {
@@ -47,10 +48,11 @@ abstract class Event
      * Get all cart items
      * @param Cart $cart
      * @param Data $dataHelper
+     * @param PriceHelper $priceHelper
      * @param array $except
      * @return array
      */
-    public function getCartItems(Cart $cart, Data $dataHelper = null, array $except = [])
+    public function getCartItems(Cart $cart, Data $dataHelper = null,PriceHelper $priceHelper = null, array $except = [])
     {
         $prepareItems = [];
         $items = [];
@@ -91,7 +93,7 @@ abstract class Event
             }
 
             $prepareItems[$item->getSku()] = [
-                'itemPrice' => $variation ? round($variation->getData('price'),2) : round($product->getData('price'),2),
+                'itemPrice' => $variation ? round($priceHelper->currency($variation->getData('price'),false,false),2) : round($priceHelper->currency($product->getData('price'),false,false),2),
                 'productId' =>  $variation != null ? $variation->getSku() : ($dataHelper->getParentItemSku($item) ?: ""),
                 'quantity' => round($item->getQty(), 2),
             ];
