@@ -121,13 +121,13 @@ class AddToCartEvent extends Event
         $store = $this->_storeManager->getStore();
         $storeCurrency = $store->getCurrentCurrency();
 
-        $valid = $this->_dataHelper->validateSku($product->getSku());
+        $valid = $this->_dataHelper->validateSku($product);
 
         return [
             'cart' => $this->getCartItems($this->_cart,$this->_dataHelper,$this->_priceHelper),
-            'value' => $valid != null ? round($this->_priceHelper->currency($valid->getData('price'),false,false),2) : round($this->_priceHelper->currency($product->getData('price'),false,false),2),
+            'value' => $valid ? round($this->_priceHelper->currency($valid->getData('price'),false,false),2) : round($this->_priceHelper->currency($product->getData('price'),false,false),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
-            'productId' => $valid != null ? $product->getSku() : $product->getData('sku'),
+            'productId' => $valid ? $valid->getSku() : $product->getData('sku'),
             'quantity' => round($this->_qty, 2)
         ];
     }

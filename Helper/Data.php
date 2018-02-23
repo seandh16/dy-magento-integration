@@ -22,7 +22,7 @@ use Magento\Directory\Helper\Data as HelperData;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
-
+use Magento\Framework\Exception\NoSuchEntityException;
 
 
 
@@ -290,7 +290,7 @@ class Data extends AbstractHelper implements HelperInterface
                             continue;
                         }
 
-                        $variation = $this->validateSku($product->getSku());
+                        $variation = $this->validateSku($product);
 
                         /**
                          * IF invalid variation and no parent item - skip (because we need parent values)
@@ -483,17 +483,25 @@ class Data extends AbstractHelper implements HelperInterface
     /**
      * Check if SKU is valid as per product feed requirements
      *
-     * @param $sku
-     * @return Mixed $product
+     * @param $product
+     * @return Mixed $variation
      */
-    public function validateSku($sku) {
-        $product = $this->_productRepository->get($sku);
+    public function validateSku($product) {
+        try {
+            $variation = $this->_productRepository->get($product->getSku());
+        } catch (NoSuchEntityException $e) {
+            try {
+                $variation = $this->_productRepository->get($product->getData('sku'));
+            } catch (NoSuchEntityException $e){
+                return null;
+            }
+        }
 
-        if(in_array($product->getVisibility(),array(
-            Visibility::VISIBILITY_BOTH,
-            Visibility::VISIBILITY_IN_CATALOG))) {
+        if($variation && in_array($variation->getVisibility(),array(
+                Visibility::VISIBILITY_BOTH,
+                Visibility::VISIBILITY_IN_CATALOG))) {
 
-            return $product;
+            return $variation;
         }
 
         return null;

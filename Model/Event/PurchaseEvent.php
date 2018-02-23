@@ -104,7 +104,7 @@ class PurchaseEvent extends Event
                 continue;
             }
 
-            $variation = $this->_dataHelper->validateSku($product->getSku());
+            $variation = $this->_dataHelper->validateSku($product);
 
             /**
              * IF invalid variation and no parent item - skip (because we need parent values)

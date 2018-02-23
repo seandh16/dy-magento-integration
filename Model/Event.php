@@ -82,7 +82,7 @@ abstract class Event
                 continue;
             }
 
-            $variation = $dataHelper->validateSku($product->getSku());
+            $variation = $dataHelper->validateSku($product);
 
             /**
              * IF invalid variation and no parent item - skip (because we need parent values)
@@ -94,7 +94,7 @@ abstract class Event
 
             $prepareItems[$item->getSku()] = [
                 'itemPrice' => $variation ? round($priceHelper->currency($variation->getData('price'),false,false),2) : round($priceHelper->currency($product->getData('price'),false,false),2),
-                'productId' =>  $variation != null ? $variation->getSku() : ($dataHelper->getParentItemSku($item) ?: ""),
+                'productId' =>  $variation ? $variation->getSku() : ($dataHelper->getParentItemSku($item) ?: ""),
                 'quantity' => round($item->getQty(), 2),
             ];
         }
