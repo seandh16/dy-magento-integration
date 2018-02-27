@@ -276,12 +276,14 @@ class Export
         $header = array_unique(array_merge($this->_baseAttributes, $additionalAttributes));
         $header = array_diff($header, $this->_excludedHeader);
 
-        foreach ($header as $code) {
-            if (!in_array($code, $this->_globalAttributes)
-                && in_array($code, $translatableAttributes)) {
-                /** @var Store $store */
-                foreach ($this->_stores as $store) {
-                    $header[] = $this->getLngKey($store->getConfig(self::LOCALE_CODE), $code);
+        if($this->_feedHelper->isMultiLanguage()) {
+            foreach ($header as $code) {
+                if (!in_array($code, $this->_globalAttributes)
+                    && in_array($code, $translatableAttributes)) {
+                    /** @var Store $store */
+                    foreach ($this->_stores as $store) {
+                        $header[] = $this->getLngKey($store->getConfig(self::LOCALE_CODE), $code);
+                    }
                 }
             }
         }
@@ -320,35 +322,44 @@ class Export
         $collection->addAttributeToSelect('*')
             ->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
             ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
-                Visibility::VISIBILITY_BOTH,
-                Visibility::VISIBILITY_IN_CATALOG
+                Visibility::VISIBILITY_BOTH, Visibility::VISIBILITY_IN_CATALOG
             ]])
-            ->addAttributeToFilter('type_id', array('nin' => array(
+            ->addAttributeToFilter('type_id', ['nin' => [
                 Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
-            )));
+            ]]);
         $collection->addUrlRewrite();
-        $collection->addFieldToFilter("entity_id",array("gt" => $offset));
+        $collection->addFieldToFilter("entity_id",["gt" => $offset]);
         $collection->getSelect()->limit($limit, 0);
 
         $storeCollection = [];
 
-        foreach ($this->_stores as $store) {
-            $this->_productCollectionFactory->create()->setStore($store);
-            $storeCollection[$store->getId()] = $this->_productCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addUrlRewrite();
-            $storeCollection[$store->getId()]->setStore($store);
-            $storeCollection[$store->getId()]->addFieldToFilter("entity_id",array("gt" => $offset));
-            $storeCollection[$store->getId()]->getSelect()->limit($limit, 0);
-            $storeCollection[$store->getId()]->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
-                ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
-                    Visibility::VISIBILITY_BOTH,
-                    Visibility::VISIBILITY_IN_CATALOG
-                ]])
-                ->addAttributeToFilter('type_id', array('nin' => array(
-                    Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
-                )));
-            $storeCollection[$store->getId()]->load();
+        if($this->_feedHelper->isMultiLanguage()) {
+            $ids = [];
+
+            /**
+            * Collect selected product IDs
+            */
+            foreach ($collection as $product) {
+                $ids[] = $product->getId();
+            }
+
+            foreach ($this->_stores as $store) {
+                $this->_productCollectionFactory->create()->setStore($store);
+                $storeCollection[$store->getId()] = $this->_productCollectionFactory->create()
+                    ->addAttributeToSelect('*')
+                    ->addUrlRewrite();
+                $storeCollection[$store->getId()]->setStore($store);
+                $storeCollection[$store->getId()]->addFieldToFilter("entity_id",["in" => $ids]);
+                $storeCollection[$store->getId()]->getSelect()->limit($limit, 0);
+                $storeCollection[$store->getId()]->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
+                    ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
+                        Visibility::VISIBILITY_BOTH, Visibility::VISIBILITY_IN_CATALOG
+                    ]])
+                    ->addAttributeToFilter('type_id', ['nin' => [
+                        Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
+                    ]]);
+                $storeCollection[$store->getId()]->load();
+            }
         }
 
         /** @var Product $item */
@@ -400,29 +411,31 @@ class Export
             $rowData[$attribute->getAttributeCode()] = $this->buildAttributeData($_product, $attribute);
         }
 
-        foreach ($this->_stores as $store) {
-            /** @var Store $store */
-            $this->_storeManager->setCurrentStore($store);
-            $langCode = $store->getConfig(self::LOCALE_CODE);
+        if(!empty($storeCollection)) {
+            foreach ($this->_stores as $store) {
+                /** @var Store $store */
+                $this->_storeManager->setCurrentStore($store);
+                $langCode = $store->getConfig(self::LOCALE_CODE);
 
-            $continue = false;
+                $continue = false;
 
-            foreach ($storeCollection[$store->getId()] as $loadedProduct) {
-                if($_product->getId() == $loadedProduct->getId()) {
-                    $continue = true;
-                    /** @var Product $storeProduct */
-                    $storeProduct = clone $loadedProduct;
-                    break;
+                foreach ($storeCollection[$store->getId()] as $loadedProduct) {
+                    if($_product->getId() == $loadedProduct->getId()) {
+                        $continue = true;
+                        /** @var Product $storeProduct */
+                        $storeProduct = clone $loadedProduct;
+                        break;
+                    }
                 }
-            }
 
-            if(!$continue) continue;
+                if(!$continue) continue;
 
-            /** @var Attribute $attribute */
-            foreach ($additionalAttributes as $attribute) {
-                $field = $this->getLngKey($langCode, $attribute->getAttributeCode());
-                if(in_array($field,$this->_header)){
-                    $rowData[$field] = $this->buildAttributeData($storeProduct, $attribute);
+                /** @var Attribute $attribute */
+                foreach ($additionalAttributes as $attribute) {
+                    $field = $this->getLngKey($langCode, $attribute->getAttributeCode());
+                    if(in_array($field,$this->_header)){
+                        $rowData[$field] = $this->buildAttributeData($storeProduct, $attribute);
+                    }
                 }
             }
         }

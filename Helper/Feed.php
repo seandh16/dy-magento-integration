@@ -181,4 +181,14 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     {
         return $this->scopeConfig->getValue(self::SECTION_ID);
     }
+
+    /**
+     * Check if website has multiple active locales
+     *
+     * @return bool
+     */
+    public function isMultiLanguage()
+    {
+        return $this->_dataHelper->isMultiLanguage();
+    }
 }
