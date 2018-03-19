@@ -73,6 +73,11 @@ class Data extends AbstractHelper implements HelperInterface
      */
     protected $_productRepository;
 
+    /**
+     * @var Int
+     */
+    protected $_count;
+
 
     /**
      * Data constructor
@@ -315,55 +320,85 @@ class Data extends AbstractHelper implements HelperInterface
         return array_filter($context,function($var){return !is_null($var);});
     }
 
+
     /**
+     * Adds prefix to methods to allow duplicate keys in array
+     *
+     * @param $element
+     * @return array|mixed
+     */
+    public function prepareStructure($element) {
+        $preparedElement = [];
+        $this->_count = 0;
+        $preparedElement = preg_replace_callback('/,"/', array($this, '_addPrefix'), $element);
+        return $preparedElement;
+    }
+
+    /**
+     * Callback to prepare elements by adding a prefix
+     *
+     * @param $matches
+     * @return string
+     */
+    private function _addPrefix($matches) {
+        return ',"' . $this->_count++;
+    }
+
+    /**
+     * Returns array of prepared theme structure
+     *
+     * @return array
+     */
+    public function getCustomStructure() {
+
+        $output = [];
+        $structureElements = [
+            EventSelectorInterface::LAYERED_NAV_TYPE,
+            EventSelectorInterface::LAYERED_NAV_PRICE_VALUE,
+            EventSelectorInterface::LAYERED_NAV_REGULAR_VALUE,
+            EventSelectorInterface::LAYERED_NAV_SWATCH_VALUE,
+            EventSelectorInterface::LAYERED_NAV_SWATCH_IMAGE_VALUE,
+            EventSelectorInterface::PRODUCT_SWATCH_TYPE,
+            EventSelectorInterface::PRODUCT_SWATCH_VALUE,
+            EventSelectorInterface::PRODUCT_SWATCH_IMAGE_VALUE,
+            EventSelectorInterface::PRODUCT_ATTRIBUTE_TYPE,
+            EventSelectorInterface::PRODUCT_ATTRIBUTE_VALUE,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTION_TYPE,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTION_VALUE,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTION_ALT_VALUE,
+            EventSelectorInterface::CATEGORY_SORT_ORDER_VALUE,
+            EventSelectorInterface::CATEGORY_SORT_ORDER_DIRECTION,
+        ];
+
+        foreach ($structureElements as $structureElement) {
+            $output[$structureElement] = $this->prepareStructure($this->scopeConfig
+                ->getValue(EventSelectorInterface::CONFIGURATION_PATH . $structureElement));
+        }
+
+        return $output;
+    }
+
+    /**
+     * Returns selectors that trigger filter tracking
+     *
      * @return array
      */
     public function getEventSelectors()
     {
-        $eventSelectors = [
-            EventSelectorInterface::LAYERED_NAV_BLOCK,
-            EventSelectorInterface::LAYERED_NAV_CONTENT,
-            EventSelectorInterface::LAYERED_NAV_TRIGGER,
-            EventSelectorInterface::LAYERED_NAV_CONTAINER,
-            EventSelectorInterface::LAYERED_NAV_FILTER_TITLE,
-            EventSelectorInterface::LAYERED_NAV_SWATCH_OPTION,
-            EventSelectorInterface::LAYERED_NAV_SWATCH_TITLE,
-            EventSelectorInterface::LAYERED_NAV_SWATCH_DATA_TITLE,
-            EventSelectorInterface::LAYERED_NAV_FILTER_PRICE,
-            EventSelectorInterface::LAYERED_NAV_FILTER_ITEM_COUNT,
-            EventSelectorInterface::TOOLBAR_SORTER_BLOCK,
-            EventSelectorInterface::TOOLBAR_SORTER_TYPE,
-            EventSelectorInterface::TOOLBAR_SORTER_ORDER,
-            EventSelectorInterface::TOOLBAR_SORTER_VALUE,
-            EventSelectorInterface::PRODUCT_OPTIONS_CONTAINER,
-            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE,
-            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE_PARENT,
-            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE_NAME_LABEL,
-            EventSelectorInterface::PRODUCT_OPTIONS_ATTRIBUTE_NAME_CONTAINER,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_CONTAINER,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_SELECT,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_INPUT,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_RADIO,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_TYPE_CHECKBOX,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_CONTAINER,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_SELECT,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_ATTRIBUTE_VALUE,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_SELECTED_ATTRIBUTE,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SWATCH_ATTRIBUTE_PARENT,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_CONTROL,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_CONTROL_PARENT,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_LABEL,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_LABEL_CONTAINER,
-            EventSelectorInterface::PRODUCT_CUSTOM_OPTIONS_SELECT_MULTIPLE
-        ];
-
         $output = [];
-
+        $eventSelectors = [
+            EventSelectorInterface::LAYERED_NAV_TRIGGER,
+            EventSelectorInterface::LAYERED_NAV_SWATCH_TRIGGER,
+            EventSelectorInterface::PRODUCT_SWATCH_TRIGGER,
+            EventSelectorInterface::PRODUCT_ATTRIBUTE_TRIGGER,
+            EventSelectorInterface::PRODUCT_CUSTOM_OPTION_TRIGGER,
+            EventSelectorInterface::CATEGORY_SORT_ORDER_TRIGGER,
+            EventSelectorInterface::CATEGORY_SORT_ORDER_SWITCHER_TRIGGER,
+        ];
         foreach ($eventSelectors as $eventSelector) {
             $output[$eventSelector] = $this->scopeConfig
                 ->getValue(EventSelectorInterface::CONFIGURATION_PATH . $eventSelector);
         }
-
         return $output;
     }
 
@@ -385,8 +420,17 @@ class Data extends AbstractHelper implements HelperInterface
                     "headerName": ("' . $this->getEventName() . '").toLowerCase(),
                     "currentPage": "' . $this->getCurrentPageType() . '",
                     "eventSelectors": ' . json_encode($this->getEventSelectors()) . '
-                };  
+                };
+                
             </script>' . "\n";
+
+            $html .= '<script type="text/javascript">
+                var DY_CUSTOM_STRUCTURE = {' . "\n";
+            foreach($this->getCustomStructure() as $key => $element) {
+                $html .= '"'.$key .'":'. $element.",\n";
+            }
+
+            $html .= "};</script> \n";
             foreach ($this->getJsIntegration() as $item) {
                 $html .= '<script type="text/javascript" src="' . $item . '"></script>' . "\n";
             }

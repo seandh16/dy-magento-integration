@@ -13,40 +13,28 @@
 
         <dev>
             <dyi_event_selectors>
-                <layered_nav_block>#layered-filter-block</layered_nav_block>
-                <layered_nav_content>.filter-options-content</layered_nav_content>
-                <layered_nav_trigger>a</layered_nav_trigger>
-                <layered_nav_filter_container>.filter-options-item</layered_nav_filter_container>
-                <layered_nav_filter_title>.filter-options-title</layered_nav_filter_title>
-                <layered_nav_filter_swatch_option>.swatch-option</layered_nav_filter_swatch_option>
-                <layered_nav_filter_swatch_title>option-label</layered_nav_filter_swatch_title>
-                <layered_nav_filter_swatch_data_title>data-option-label</layered_nav_filter_swatch_data_title>
-                <layered_nav_filter_price>.price</layered_nav_filter_price>
-                <layered_nav_filter_item_count>.count</layered_nav_filter_item_count>
-                <toolbar_sorter_block>.toolbar-sorter</toolbar_sorter_block>
-                <toolbar_sorter_type>select</toolbar_sorter_type>
-                <toolbar_sorter_order>a</toolbar_sorter_order>
-                <toolbar_sorter_order_value>data-value</toolbar_sorter_order_value>
-                <product_options_wrapper>#product-options-wrapper</product_options_wrapper>
-                <product_options_regular_attribute>select.super-attribute-select</product_options_regular_attribute>
-                <product_options_regular_attribute_parent>.field.configurable</product_options_regular_attribute_parent>
-                <product_options_regular_attribute_name_label>label.label</product_options_regular_attribute_name_label>
-                <product_options_regular_attribute_name_container>span</product_options_regular_attribute_name_container>
-                <product_custom_options_container>.product-custom-option</product_custom_options_container>
-                <product_custom_options_type_select>select</product_custom_options_type_select>
-                <product_custom_options_type_input>input</product_custom_options_type_input>
-                <product_custom_options_type_radio>radio</product_custom_options_type_radio>
-                <product_custom_options_type_checkbox>checkbox</product_custom_options_type_checkbox>
-                <product_custom_options_swatch_container>.swatch-opt</product_custom_options_swatch_container>
-                <product_custom_options_swatch_select>select</product_custom_options_swatch_select>
-                <product_custom_options_swatch_attribute_value>span.swatch-attribute-label</product_custom_options_swatch_attribute_value>
-                <product_custom_options_swatch_attribute_selected>span.swatch-attribute-selected-option</product_custom_options_swatch_attribute_selected>
-                <product_custom_options_swatch_attribute_parent>.swatch-attribute</product_custom_options_swatch_attribute_parent>
-                <product_custom_options_control>.control</product_custom_options_control>
-                <product_custom_options_control_parent>.field</product_custom_options_control_parent>
-                <product_custom_options_label>.label</product_custom_options_label>
-                <product_custom_options_label_container>span</product_custom_options_label_container>
-                <product_custom_options_select_multiple>multiple</product_custom_options_select_multiple>
+                <layered_nav_trigger>.filter-options-content .item a</layered_nav_trigger>
+                <layered_nav_swatch_trigger>.filter-options-content .swatch-option</layered_nav_swatch_trigger>
+                <product_page_swatch_trigger>.swatch-attribute-options .swatch-option</product_page_swatch_trigger>
+                <product_page_attribute_trigger>.swatch-attribute-options .swatch-select</product_page_attribute_trigger>
+                <product_page_custom_option_trigger>.product-custom-option</product_page_custom_option_trigger>
+                <category_page_sort_order_trigger>.sorter-options</category_page_sort_order_trigger>
+                <category_page_sort_order_switcher_trigger>.sorter-action</category_page_sort_order_switcher_trigger>
+                <category_page_filters_type>{"closest":".filter-options-item","querySelector":".filter-options-title","innerText":""}</category_page_filters_type>
+                <category_page_filters_price_value>{"removeElement":".count","innerText":"","trim":"()"}</category_page_filters_price_value>
+                <category_page_filters_regular_value>{"childNodes":"","textContent":"","trim":"()"}</category_page_filters_regular_value>
+                <category_page_filters_swatch_value>{"getAttribute":"option-label"}</category_page_filters_swatch_value>
+                <category_page_filters_swatch_image_value>{"getAttribute":"option-label"}</category_page_filters_swatch_image_value>
+                <product_page_swatch_type>{"closest":".swatch-attribute","querySelector":".swatch-attribute-label","innerText":""}</product_page_swatch_type>
+                <product_page_swatch_value>{"innerText":""}</product_page_swatch_value>
+                <product_page_swatch_image_value>{"getAttribute":"option-label"}</product_page_swatch_image_value>
+                <product_page_attribute_type>{"closest":".swatch-attribute","querySelector":".swatch-attribute-label","innerText":""}</product_page_attribute_type>
+                <product_page_attribute_value>{"options":"","innerText":"","trim":"()"}</product_page_attribute_value>
+                <product_page_custom_option_type>{"closest":".control","closest":".field","querySelector":".label span","innerText":""}</product_page_custom_option_type>
+                <product_page_custom_option_value>{"options":"","innerText":"","trim":"()"}</product_page_custom_option_value>
+                <product_page_custom_option_alt_value>{"closest":".field","querySelector":".label","innerText":""}</product_page_custom_option_alt_value>
+                <category_page_sort_order_by>{"closest":".toolbar-sorter","querySelector":".sorter-options","options":"","innerText":"","trim":"()"}</category_page_sort_order_by>
+                <category_page_sort_order_direction>{"closest":".toolbar-sorter","querySelector":".sorter-action","getAttribute":"data-value"}</category_page_sort_order_direction>
             </dyi_event_selectors>
         </dev>
     </default>

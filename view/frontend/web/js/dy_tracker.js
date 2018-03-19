@@ -56,40 +56,22 @@
     }
 
     /**
-     * Get closest matching parent element
+     * Remove child element by selector and return current element
      *
-     * @param element
      * @param selector
-     * @returns {*}
+     * @returns {Node}
      */
-    function getClosestElement(element, selector) {
-        if (!Element.prototype.matches) {
-            Element.prototype.matches =
-                Element.prototype.matchesSelector ||
-                Element.prototype.mozMatchesSelector ||
-                Element.prototype.msMatchesSelector ||
-                Element.prototype.oMatchesSelector ||
-                Element.prototype.webkitMatchesSelector ||
-                function(s) {
-                    var matches = (this.document || this.ownerDocument).querySelectorAll(s),
-                        i = matches.length;
-                    while (--i >= 0 && matches.item(i) !== this) {
-                        // Define variable to fix empty block JSHint
-                        var l;
-                    }
+    Element.prototype.removeElement = function(selector) {
 
-                    return i > -1;
-                };
+        var element = this.cloneNode(true),
+            countHtml = element.querySelector(selector);
+
+        if (countHtml !== null) {
+            countHtml.remove();
         }
 
-        for ( ; element && element !== document; element = element.parentNode ) {
-            if ( element.matches( selector ) ) {
-                return element;
-            }
-        }
-
-        return null;
-    }
+        return element;
+    };
 
     /**
      * Detects the current page type
@@ -123,6 +105,39 @@
             properties: properties
         };
         DY.API('event', eventData);
+    };
+
+    /**
+     * Getting the relative element based on the structure
+     * Structure has to be in JSON type, except regex (for example replace) params should not be strings
+     */
+    DynamicYield_Tracking.prototype.applySelectors = function (target, relations) {
+        for(var key in relations) {
+            try{
+                var trimmedKey = key.replace(/[0-9]/g, '');
+
+                switch(trimmedKey){
+                    case "options":
+                        target = target.options[target.selectedIndex];
+                        break;
+                    default:
+                        target = relations[key] ? (Array.isArray(relations[key]) ? target[trimmedKey].apply(target,relations[key]) : target[trimmedKey](relations[key])) : target[trimmedKey];
+                }
+
+                switch(trimmedKey){
+                    case "match":
+                        target = target[1];
+                        break;
+                    case "childNodes":
+                        target = target[0];
+                        break;
+                    default:
+                }
+            } catch(e){
+                return;
+            }
+        }
+        return target;
     };
 
     /**
@@ -243,170 +258,98 @@
         this.syncCartEvent();
 
         if(type === 'category') {
-            var layeredNav = doc.querySelector(DY_SETTINGS.eventSelectors.layered_nav_block);
-            if (layeredNav !== null) {
-                var layeredOptionsWrapper = layeredNav.querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_content);
-
-                if (layeredOptionsWrapper !== null && layeredOptionsWrapper.length) {
-                    for (var i = 0; i < layeredOptionsWrapper.length; i++) {
-                        var layeredLinks = layeredOptionsWrapper[i].querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_trigger);
-
-                        if (layeredLinks !== null && layeredLinks.length) {
-                            for (var l = 0; l < layeredLinks.length; l++) {
-                                addEventHandler(layeredLinks[l], 'click', function (event) {
-                                    this.onLayeredNavClick(event);
-                                }.bind(this));
-                            }
-                        }
+            /**
+             * Layered navigation
+             */
+            DYO.waitForElement('.filter-options', function(element) {
+                var layeredNavTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_trigger);
+                for (var s = 0; s < layeredNavTrigger.length; s++) {
+                    layeredNavTrigger[s].addEventListener('click',function(event){
+                        DynamicYield_Tracking.prototype.onLayeredNavClick(event);
+                    },false);
+                }
+                var layeredSwatchTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_swatch_trigger);
+                for (var s = 0; s < layeredSwatchTrigger.length; s++) {
+                    layeredSwatchTrigger[s].addEventListener('click',function(event){
+                        DynamicYield_Tracking.prototype.onLayeredNavClick(event);
+                    },false);
+                }
+            }, 1, 100, 100);
+            /**
+             * Catalog sorting
+             */
+            DYO.waitForElement('.sorter-options', function(element) {
+                var sorterTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.category_page_sort_order_trigger);
+                var switcherTrigger = document.querySelector(DY_SETTINGS.eventSelectors.category_page_sort_order_switcher_trigger);
+                for (var s = 0; s < sorterTrigger.length; s++) {
+                    sorterTrigger[s].onchange = function (event) {
+                        DynamicYield_Tracking.prototype.onSortChange(event,false);
                     }
                 }
-            }
-
-            var sorter = doc.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_block);
-
-            if (sorter !== null) {
-                var sorterSelect = sorter.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_type),
-                    sorterLink = sorter.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_order);
-
-                if (sorterSelect !== null) {
-                    sorterSelect.onchange = function(event) {
-                        this.onSortChange(event);
-                    }.bind(this);
-                }
-
-                if (sorterLink !== null) {
-                    addEventHandler(sorterLink, 'click', function (event) {
-                        this.onSortChange(event);
-                    }.bind(this));
-                }
-            }
-
+                switcherTrigger.addEventListener('click',function(event){
+                    DynamicYield_Tracking.prototype.onSortChange(event,true);
+                },false);
+            }, 1, 100, 100);
         } else if(type === 'product') {
-            var optionsWrapper = doc.querySelector(DY_SETTINGS.eventSelectors.product_options_wrapper);
-
-            if (optionsWrapper !== null) {
-                var regularAttribute = optionsWrapper.querySelectorAll(DY_SETTINGS.eventSelectors.product_options_regular_attribute);
-
-                if (regularAttribute !== null && regularAttribute.length) {
-                    for (var r = 0; r < regularAttribute.length; r++) {
-                        regularAttribute[r].onchange = function (event) {
-                            this.onProductAttributeSelectChange(event);
-                        }.bind(this);
+            /**
+             * Regular dropdown attributes
+             */
+            DYO.waitForElement('.swatch-attribute-options .swatch-select', function(element) {
+                var dropDownTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.product_page_attribute_trigger);
+                for (var s = 0; s < dropDownTrigger.length; s++) {
+                    dropDownTrigger[s].onchange = function (event) {
+                        DynamicYield_Tracking.prototype.onProductAttributeSelectChange(event);
                     }
                 }
-
-                var customOption = optionsWrapper.querySelectorAll(DY_SETTINGS.eventSelectors.product_custom_options_container);
-
-                if (customOption !== null && customOption.length) {
-                    for (var c = 0; c < customOption.length; c++) {
-                        if (customOption[c].tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_select) {
-                            customOption[c].onchange = function (event) {
-                                this.onProductCustomOptionChange(event);
-                            }.bind(this);
-                        } else if (customOption[c].tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_input) {
-                            if (customOption[c].getAttribute('type').toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_radio ||
-                                customOption[c].getAttribute('type').toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_type_checkbox) {
-                                addEventHandler(customOption[c], 'click', function (event) {
-                                    this.onProductCustomOptionChange(event);
-                                }.bind(this));
-                            }
-                        }
+            }, 1, 100, 100);
+            /**
+             * Product custom options
+             */
+            DYO.waitForElement('.product-custom-option option', function(element) {
+                var customOptions = document.querySelectorAll(DY_SETTINGS.eventSelectors.product_page_custom_option_trigger);
+                for (var s = 0; s < customOptions.length; s++) {
+                    customOptions[s].onclick = function (event) {
+                        DynamicYield_Tracking.prototype.onProductCustomOptionChange(event);
                     }
                 }
-
-                var swatchAttribute = optionsWrapper.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_container);
-
-                if (swatchAttribute !== null) {
-                    addEventHandler(swatchAttribute, 'DOMNodeInserted', function (event) {
-                        var swatchSelect = swatchAttribute.querySelectorAll(DY_SETTINGS.eventSelectors.product_custom_options_swatch_select);
-
-                        if (swatchSelect !== null && swatchSelect.length) {
-                            for (var s = 0; s < swatchSelect.length; s++) {
-                                swatchSelect[s].onchange = function (event) {
-                                    this.onProductSwatchClick(event);
-                                }.bind(this);
-                            }
-                        }
-
-                        this.onProductSwatchClick(event);
-                    }.bind(this));
+            }, 1, 100, 100);
+            /**
+             * Swatch based attributes
+             */
+            DYO.waitForElement('.swatch-attribute-options .swatch-option', function(element) {
+                var swatchTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.product_page_swatch_trigger);
+                for (var s = 0; s < swatchTrigger.length; s++) {
+                    swatchTrigger[s].onclick = function (event) {
+                        DynamicYield_Tracking.prototype.onProductSwatchClick(event);
+                    }
                 }
-            }
+            }, 1, 100, 100);
         }
     };
 
     /**
-     * Handles category filter changes
+     * Layered navigation filter
      *
      * @param event
      */
     DynamicYield_Tracking.prototype.onLayeredNavClick = function(event) {
-        var self = event.currentTarget,
-            value,
-            name,
-            filterTitle,
-            filterContainer = getClosestElement(self, DY_SETTINGS.eventSelectors.layered_nav_filter_container),
-            isSwatchLink = self.querySelector(DY_SETTINGS.eventSelectors.layered_nav_filter_swatch_option),
-            isPrice = false;
+        var self = event.currentTarget;
+        var filterString = false;
+        var name = this.applySelectors(self,DY_CUSTOM_STRUCTURE.category_page_filters_type);
+        var value = this.applySelectors(self,DY_CUSTOM_STRUCTURE.category_page_filters_price_value)
+            || this.applySelectors(self,DY_CUSTOM_STRUCTURE.category_page_filters_regular_value)
+            || this.applySelectors(self,DY_CUSTOM_STRUCTURE.category_page_filters_swatch_value)
+            || this.applySelectors(self,DY_CUSTOM_STRUCTURE.category_page_filters_swatch_image_value);
 
-        if (filterContainer === null) {
-            return false;
+        if (value.toString().match(/[a-z]/i)) {
+            filterString = true;
         }
-
-        filterTitle = filterContainer.querySelector(DY_SETTINGS.eventSelectors.layered_nav_filter_title);
-
-        if (filterTitle === null) {
-            return false;
-        }
-
-        name = filterTitle.innerText.trim();
-
-        if (isSwatchLink !== null) {
-            var dataLabel = isSwatchLink.getAttribute(DY_SETTINGS.eventSelectors.layered_nav_filter_swatch_data_title),
-                optionLabel = isSwatchLink.getAttribute(DY_SETTINGS.eventSelectors.layered_nav_filter_swatch_title);
-
-            value = (dataLabel || optionLabel).trim();
-        } else {
-            var regex = /^\D+|\D+$/g,
-                prices = self.querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_filter_price);
-
-            if (prices !== null && prices.length) {
-                isPrice = true;
-
-                var priceArray = [];
-
-                for(var p = 0; p < prices.length; p++) {
-                    priceArray.push(prices[p].innerText.replace(regex, '').trim());
-                }
-
-                value = priceArray.join('-');
-            } else {
-                var element = self.cloneNode(true),
-                    countHtml = element.querySelector(DY_SETTINGS.eventSelectors.layered_nav_filter_item_count);
-
-                if (countHtml !== null) {
-                    countHtml.remove();
-                }
-
-                value = element.innerText.trim();
-            }
-        }
-
-        if(name !== null && value !== null && value !== "") {
+        if(name && value) {
             var eventProperties = {
                 dyType: 'filter-items-v1',
                 filterType: name,
-                filterNumericValue: value
             };
-
-            if (!isPrice && isNaN(value)) {
-                eventProperties = {
-                    dyType: 'filter-items-v1',
-                    filterType: name,
-                    filterStringValue: value
-                };
-            }
-
+            filterString ? eventProperties.filterStringValue = value : eventProperties.filterNumericValue = value;
             this.callEvent('Filter Items', eventProperties);
         }
     };
@@ -417,38 +360,13 @@
      * @param event
      */
     DynamicYield_Tracking.prototype.onProductSwatchClick = function(event) {
-        var self = event,
-            target = self.currentTarget,
-            relatedNode = self.relatedNode,
-            name,
-            value;
-
-        if (!relatedNode && !target) {
+        var target = event.currentTarget;
+        if (!target) {
             return false;
         }
-
-        if (typeof relatedNode !== "undefined") {
-            var child = relatedNode.parentNode;
-
-            name = child.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_value).innerText;
-            value = child.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_selected).innerText.trim();
-        } else if (target.tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_swatch_select) {
-            var parent = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_parent),
-                selected = target.options[target.selectedIndex];
-            if(!parent) {
-                return false;
-            }
-            name = parent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_swatch_attribute_value).innerText;
-            value = selected.value > 0 ? selected.innerText.trim() : false;
-        } else {
-            return false;
-        }
-
-        name = name.trim();
-
-        if(name.substr(-1) === ":") {
-            name = name.substr(0, name.length - 1);
-        }
+        var name = this.applySelectors(target,DY_CUSTOM_STRUCTURE.product_page_swatch_type);
+        var value = this.applySelectors(target,DY_CUSTOM_STRUCTURE.product_page_swatch_value) ||
+            this.applySelectors(target,DY_CUSTOM_STRUCTURE.product_page_swatch_image_value);
 
         if(name && value) {
             this.callEvent('Change Attribute', {
@@ -465,24 +383,10 @@
      * @param event
      */
     DynamicYield_Tracking.prototype.onProductAttributeSelectChange = function(event) {
-        var self = event.currentTarget,
-            parent = getClosestElement(self, DY_SETTINGS.eventSelectors.product_options_regular_attribute_parent);
-        if (!parent) {
-            return false;
-        }
-        var name = parent.querySelector(DY_SETTINGS.eventSelectors.product_options_regular_attribute_name_label)
-                .querySelector(DY_SETTINGS.eventSelectors.product_options_regular_attribute_name_container).innerText,
-            selected = self.options[self.selectedIndex],
-            value;
-
-        name = name.trim();
-        value = selected.value > 0 ? selected.innerText.trim() : false;
-
-        if (name.substr(-1) === ":") {
-            name = name.substr(0, name.length - 1);
-        }
-
-        if (name && value) {
+        var self = event.currentTarget;
+        var name = this.applySelectors(self,DY_CUSTOM_STRUCTURE.product_page_attribute_type);
+        var value = this.applySelectors(self,DY_CUSTOM_STRUCTURE.product_page_attribute_value);
+        if(name && value) {
             this.callEvent('Change Attribute', {
                 dyType: 'change-attr-v1',
                 attributeType: name,
@@ -497,54 +401,13 @@
      * @param event
      */
     DynamicYield_Tracking.prototype.onProductCustomOptionChange = function (event) {
-        var self = event,
-            target = self.currentTarget,
-            control = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control);
-        if(!control) {
-            return false;
+        var self = event.currentTarget;
+        var name = this.applySelectors(self,DY_CUSTOM_STRUCTURE.product_page_custom_option_type);
+        var value = this.applySelectors(self,DY_CUSTOM_STRUCTURE.product_page_custom_option_value);
+        if(!value && self.getAttribute("type")) {
+            value = this.applySelectors(self,DY_CUSTOM_STRUCTURE.product_page_custom_option_alt_value);
         }
-        var parent = getClosestElement(control, DY_SETTINGS.eventSelectors.product_custom_options_control_parent),
-            name,
-            value;
-
-        if (!parent) {
-            return false;
-        }
-
-        var label = parent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label);
-
-        if (!label) {
-            return false;
-        }
-
-        name = label.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label_container).innerText.trim();
-
-        if (target.tagName.toLowerCase() === DY_SETTINGS.eventSelectors.product_custom_options_swatch_select) {
-            if (target.getAttribute(DY_SETTINGS.eventSelectors.product_custom_options_select_multiple) === null) {
-                var selected = target.options[target.selectedIndex];
-
-                value = selected.value > 0 ? selected.innerText.trim() : false;
-            }
-        } else {
-            var subParent = getClosestElement(target, DY_SETTINGS.eventSelectors.product_custom_options_control_parent);
-            if (!subParent) {
-                return false;
-            }
-            var subLabel = subParent.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label);
-
-            if (target.getAttribute('type') === DY_SETTINGS.eventSelectors.product_custom_options_type_checkbox) {
-                if (target.checked) {
-                    value = subLabel.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label_container).innerText.trim();
-                }
-            } else {
-                value = subLabel.querySelector(DY_SETTINGS.eventSelectors.product_custom_options_label_container).innerText.trim();
-            }
-        }
-
-        if(name.substr(-1) === ":") {
-            name = name.substr(0, name.length - 1)}
-
-        if (name && value) {
+        if(name && value) {
             this.callEvent('Change Attribute', {
                 dyType: 'change-attr-v1',
                 attributeType: name,
@@ -558,44 +421,21 @@
      *
      * @param event
      */
-    DynamicYield_Tracking.prototype.onSortChange = function(event) {
-        var caller = event.currentTarget,
-            target = getClosestElement(caller, DY_SETTINGS.eventSelectors.toolbar_sorter_block);
-        if(!target) {
-            return false;
+    DynamicYield_Tracking.prototype.onSortChange = function(event,switcher) {
+        var caller = event.currentTarget;
+        var sortBy = this.applySelectors(caller,DY_CUSTOM_STRUCTURE.category_page_sort_order_by);
+        var sortOrder = this.applySelectors(caller,DY_CUSTOM_STRUCTURE.category_page_sort_order_direction);
+        if(sortOrder) {
+            sortOrder = switcher ? sortOrder.toUpperCase() : (sortOrder === "desc" ? "ASC" : "DESC");
+            if(sortBy && sortOrder) {
+                this.callEvent('Sort Items', {
+                    dyType: 'sort-items-v1',
+                    sortBy:  sortBy,
+                    sortOrder: sortOrder
+                });
+            }
         }
-        var select = target.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_type),
-            option = select.options[select.selectedIndex];
-
-        if (!option) {
-            return;
-        }
-
-        var title = option.innerText.trim(),
-            switcher = target.querySelector(DY_SETTINGS.eventSelectors.toolbar_sorter_order),
-            sortOrder,
-            changingDir = false,
-            url = switcher.getAttribute(DY_SETTINGS.eventSelectors.toolbar_sorter_order_value);
-
-        if (typeof url === "string") {
-            sortOrder = url;
-        }
-
-        if (sortOrder) {
-            changingDir = switcher === caller;
-            sortOrder = changingDir ? sortOrder.toUpperCase() : (sortOrder === "desc" ? "ASC" : "DESC");
-        } else {
-            return;
-        }
-
-        this.callEvent('Sort Items', {
-            dyType: 'sort-items-v1',
-            sortBy:  title,
-            sortOrder: sortOrder
-        });
     };
-
     DY = DY || {};
-
     DY.Tracker = new DynamicYield_Tracking();
 })(DY, window, document);
