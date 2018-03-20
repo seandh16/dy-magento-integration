@@ -56,24 +56,6 @@
     }
 
     /**
-     * Remove child element by selector and return current element
-     *
-     * @param selector
-     * @returns {Node}
-     */
-    Element.prototype.removeElement = function(selector) {
-
-        var element = this.cloneNode(true),
-            countHtml = element.querySelector(selector);
-
-        if (countHtml !== null) {
-            countHtml.remove();
-        }
-
-        return element;
-    };
-
-    /**
      * Detects the current page type
      *
      * @returns {*}
@@ -108,30 +90,55 @@
     };
 
     /**
+     * Remove child element by selector and return current element
+     *
+     * @param selector
+     * @returns {Node}
+     */
+    Element.prototype.removeChildElement = function(selector) {
+
+        var element = this.cloneNode(true),
+            countHtml = element.querySelector(selector);
+
+        if (countHtml !== null) {
+            countHtml.remove();
+        }
+
+        return element;
+    };
+
+    /**
+     * Return child node by index
+     *
+     * @param index
+     * @returns {*}
+     */
+    Element.prototype.getChildNode = function(index) {
+        return this.childNodes[index];
+    };
+
+    /**
+     * Return selected option
+     *
+     * @returns {*}
+     */
+    Element.prototype.getSelectedOption = function() {
+        var selected = this.selectedIndex;
+        return this.options[selected];
+    };
+
+    /**
      * Getting the relative element based on the structure
      * Structure has to be in JSON type, except regex (for example replace) params should not be strings
      */
     DynamicYield_Tracking.prototype.applySelectors = function (target, relations) {
         for(var key in relations) {
             try{
+                var index = relations[key].match(/\|return=(\d*)/);
                 var trimmedKey = key.replace(/[0-9]/g, '');
-
-                switch(trimmedKey){
-                    case "options":
-                        target = target.options[target.selectedIndex];
-                        break;
-                    default:
-                        target = relations[key] ? (Array.isArray(relations[key]) ? target[trimmedKey].apply(target,relations[key]) : target[trimmedKey](relations[key])) : target[trimmedKey];
-                }
-
-                switch(trimmedKey){
-                    case "match":
-                        target = target[1];
-                        break;
-                    case "childNodes":
-                        target = target[0];
-                        break;
-                    default:
+                target = relations[key] ? (Array.isArray(relations[key]) ? target[trimmedKey].apply(target,relations[key]) : target[trimmedKey](relations[key])) : target[trimmedKey];
+                if(index != null) {
+                    target = index ? target : target[index[1]];
                 }
             } catch(e){
                 return;
@@ -261,7 +268,7 @@
             /**
              * Layered navigation
              */
-            DYO.waitForElement('.filter-options', function(element) {
+            DYO.waitForElement(DY_SETTINGS.eventSelectors.layered_nav_trigger, function(element) {
                 var layeredNavTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.layered_nav_trigger);
                 for (var s = 0; s < layeredNavTrigger.length; s++) {
                     layeredNavTrigger[s].addEventListener('click',function(event){
@@ -278,7 +285,7 @@
             /**
              * Catalog sorting
              */
-            DYO.waitForElement('.sorter-options', function(element) {
+            DYO.waitForElement(DY_SETTINGS.eventSelectors.category_page_sort_order_trigger, function() {
                 var sorterTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.category_page_sort_order_trigger);
                 var switcherTrigger = document.querySelector(DY_SETTINGS.eventSelectors.category_page_sort_order_switcher_trigger);
                 for (var s = 0; s < sorterTrigger.length; s++) {
@@ -294,7 +301,7 @@
             /**
              * Regular dropdown attributes
              */
-            DYO.waitForElement('.swatch-attribute-options .swatch-select', function(element) {
+            DYO.waitForElement(DY_SETTINGS.eventSelectors.product_page_attribute_trigger, function() {
                 var dropDownTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.product_page_attribute_trigger);
                 for (var s = 0; s < dropDownTrigger.length; s++) {
                     dropDownTrigger[s].onchange = function (event) {
@@ -305,7 +312,7 @@
             /**
              * Product custom options
              */
-            DYO.waitForElement('.product-custom-option option', function(element) {
+            DYO.waitForElement(DY_SETTINGS.eventSelectors.product_page_custom_option_trigger, function() {
                 var customOptions = document.querySelectorAll(DY_SETTINGS.eventSelectors.product_page_custom_option_trigger);
                 for (var s = 0; s < customOptions.length; s++) {
                     customOptions[s].onclick = function (event) {
@@ -316,7 +323,7 @@
             /**
              * Swatch based attributes
              */
-            DYO.waitForElement('.swatch-attribute-options .swatch-option', function(element) {
+            DYO.waitForElement(DY_SETTINGS.eventSelectors.product_page_swatch_trigger, function(element) {
                 var swatchTrigger = document.querySelectorAll(DY_SETTINGS.eventSelectors.product_page_swatch_trigger);
                 for (var s = 0; s < swatchTrigger.length; s++) {
                     swatchTrigger[s].onclick = function (event) {
@@ -341,7 +348,7 @@
             || this.applySelectors(self,DY_CUSTOM_STRUCTURE.category_page_filters_swatch_value)
             || this.applySelectors(self,DY_CUSTOM_STRUCTURE.category_page_filters_swatch_image_value);
 
-        if (value.toString().match(/[a-z]/i)) {
+        if (value && value.toString().match(/[a-z]/i)) {
             filterString = true;
         }
         if(name && value) {

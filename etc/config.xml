@@ -21,19 +21,19 @@
                 <category_page_sort_order_trigger>.sorter-options</category_page_sort_order_trigger>
                 <category_page_sort_order_switcher_trigger>.sorter-action</category_page_sort_order_switcher_trigger>
                 <category_page_filters_type>{"closest":".filter-options-item","querySelector":".filter-options-title","innerText":""}</category_page_filters_type>
-                <category_page_filters_price_value>{"removeElement":".count","innerText":"","trim":"()"}</category_page_filters_price_value>
-                <category_page_filters_regular_value>{"childNodes":"","textContent":"","trim":"()"}</category_page_filters_regular_value>
+                <category_page_filters_price_value>{"removeChildElement":".count","innerText":"","trim":"()"}</category_page_filters_price_value>
+                <category_page_filters_regular_value>{"getChildNode":"()","textContent":"","trim":"()"}</category_page_filters_regular_value>
                 <category_page_filters_swatch_value>{"getAttribute":"option-label"}</category_page_filters_swatch_value>
                 <category_page_filters_swatch_image_value>{"getAttribute":"option-label"}</category_page_filters_swatch_image_value>
                 <product_page_swatch_type>{"closest":".swatch-attribute","querySelector":".swatch-attribute-label","innerText":""}</product_page_swatch_type>
                 <product_page_swatch_value>{"innerText":""}</product_page_swatch_value>
                 <product_page_swatch_image_value>{"getAttribute":"option-label"}</product_page_swatch_image_value>
                 <product_page_attribute_type>{"closest":".swatch-attribute","querySelector":".swatch-attribute-label","innerText":""}</product_page_attribute_type>
-                <product_page_attribute_value>{"options":"","innerText":"","trim":"()"}</product_page_attribute_value>
+                <product_page_attribute_value>{"getSelectedOption":"()","innerText":"","trim":"()"}</product_page_attribute_value>
                 <product_page_custom_option_type>{"closest":".control","closest":".field","querySelector":".label span","innerText":""}</product_page_custom_option_type>
-                <product_page_custom_option_value>{"options":"","innerText":"","trim":"()"}</product_page_custom_option_value>
+                <product_page_custom_option_value>{"getSelectedOption":"()","innerText":"","trim":"()"}</product_page_custom_option_value>
                 <product_page_custom_option_alt_value>{"closest":".field","querySelector":".label","innerText":""}</product_page_custom_option_alt_value>
-                <category_page_sort_order_by>{"closest":".toolbar-sorter","querySelector":".sorter-options","options":"","innerText":"","trim":"()"}</category_page_sort_order_by>
+                <category_page_sort_order_by>{"closest":".toolbar-sorter","querySelector":".sorter-options","getSelectedOption":"()","innerText":"","trim":"()"}</category_page_sort_order_by>
                 <category_page_sort_order_direction>{"closest":".toolbar-sorter","querySelector":".sorter-action","getAttribute":"data-value"}</category_page_sort_order_direction>
             </dyi_event_selectors>
         </dev>
