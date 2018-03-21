@@ -138,7 +138,7 @@
                 var trimmedKey = key.replace(/[0-9]/g, '');
                 target = relations[key] ? (Array.isArray(relations[key]) ? target[trimmedKey].apply(target,relations[key]) : target[trimmedKey](relations[key])) : target[trimmedKey];
                 if(index != null) {
-                    target = index ? target : target[index[1]];
+                    target = index ? target[index[1]] : target;
                 }
             } catch(e){
                 return;
