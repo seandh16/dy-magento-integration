@@ -226,12 +226,26 @@ class Data extends AbstractHelper implements HelperInterface
     }
 
     /**
+     * Return store locale for a store view
+     *
+     * @param $storeId
+     * @return mixed
+     */
+    public function getStoreLocale($storeId) {
+        return $this->scopeConfig->getValue(self::LOCALE_ENABLE, Scope::SCOPE_STORE, $storeId) ?
+            ($this->scopeConfig->getValue(self::LOCALE_CUSTOM_ENABLE, Scope::SCOPE_STORE, $storeId) ?
+                $this->scopeConfig->getValue(self::LOCALE_CUSTOM_LOCALE, Scope::SCOPE_STORE, $storeId) :
+                $this->scopeConfig->getValue(self::LOCALE_CUSTOM_SELECT, Scope::SCOPE_STORE, $storeId)) :
+            $this->scopeConfig->getValue(\DynamicYield\Integration\Model\Export::LOCALE_CODE, Scope::SCOPE_STORE, $storeId);
+    }
+
+    /**p
      * @return array
      */
     public function getCurrentContext()
     {
         $name = $this->getCurrentPageType();
-        $language = $this->isMultiLanguage() ? $this->_store->getLocale() : null;
+        $language = $this->isMultiLanguage() ? $this->getStoreLocale($this->_storeManager->getStore()->getId()) : null;
         $type = "OTHER";
         $data = null;
 
@@ -492,6 +506,9 @@ class Data extends AbstractHelper implements HelperInterface
         $locale = [];
         $stores = $this->_storeManager->getStores();
         foreach ($stores as $store) {
+            if($this->scopeConfig->getValue(self::LOCALE_ENABLE, Scope::SCOPE_STORE, $store->getId())) {
+                return true;
+            }
             if (!$store->isActive()) continue;
             $locale[] = $this->scopeConfig->getValue(HelperData::XML_PATH_DEFAULT_LOCALE, Scope::SCOPE_STORE, $store->getId());
         }

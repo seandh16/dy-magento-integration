@@ -191,4 +191,15 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     {
         return $this->_dataHelper->isMultiLanguage();
     }
+
+    /**
+     * Return store locale for a store view
+     *
+     * @param $storeId
+     * @return mixed
+     */
+    public function getStoreLocale($storeId)
+    {
+        return $this->_dataHelper->getStoreLocale($storeId);
+    }
 }

@@ -66,6 +66,44 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
+
+            <group id="locale" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Custom Locale</label>
+
+                <field id="enable" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Custom Locale Configuration</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="enable_custom" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Custom Locale</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Choose "Yes" to write a custom locale otherwise select a value from the list.</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+
+                <field id="select" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Locale</label>
+                    <source_model>Magento\Config\Model\Config\Source\Locale</source_model>
+                    <comment>Select the locale to use in context and feed.</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="enable_custom">0</field>
+                    </depends>
+                </field>
+
+                <field id="custom" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Locale</label>
+                    <source_model>Magento\Config\Model\Config\Source\Locale</source_model>
+                    <comment>Write a custom locale to use in context and feed.</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="enable_custom">1</field>
+                    </depends>
+                </field>
+            </group>
         </section>
 
         <section id="dev">

@@ -150,6 +150,11 @@ class Export
     protected $_handler;
 
     /**
+     * @var array
+     */
+    protected $_uniqueStores;
+
+    /**
      * Export constructor
      *
      * @param State $state
@@ -162,7 +167,7 @@ class Export
      * @param StockRegistry $stockRegistry
      * @param Handler $handler
      * @param LoggerInterface $logger
-     * @param DataHelper $dataHelper
+     * @param FeedHelper $feedHelper
      */
     public function __construct(
         State $state,
@@ -174,7 +179,8 @@ class Export
         ProductCollectionFactory $productCollectionFactory,
         StockRegistry $stockRegistry,
         Handler $handler,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        FeedHelper $feedHelper
     )
     {
         $this->_state = $state;
@@ -187,6 +193,7 @@ class Export
         $this->_stockRegistry = $stockRegistry;
         $this->_handler = $handler;
         $this->_logger = $logger->setHandlers([$this->_handler]);
+        $this->_feedHelper = $feedHelper;
     }
 
     /**
@@ -200,17 +207,18 @@ class Export
         /** @var Group $group */
         $group = $website->getDefaultGroup();
         $stores = $group->getStores();
-        $defaultLocale = $group->getDefaultStore()->getConfig(self::LOCALE_CODE);
 
         /** @var Store $store */
         foreach ($stores as $store) {
-            if ($defaultLocale != $store->getConfig(self::LOCALE_CODE)) {
-                $locales[$store->getId()] = $store->getConfig(self::LOCALE_CODE);
-                $this->_stores[$store->getId()] = $store;
-            }
+            $locales[$store->getId()] = $this->_feedHelper->getStoreLocale($store->getId());
+            $this->_stores[$store->getId()] = $store;
         }
 
         $locales = array_unique($locales);
+
+        foreach ($locales as $key => $value) {
+            $this->_uniqueStores[] = $key;
+        }
 
         return $locales;
     }
@@ -246,7 +254,6 @@ class Export
     public function export()
     {
         $this->_usedProductAttribute = $this->_objectManager->get(UsedProductAttribute::class);
-        $this->_feedHelper = $this->_objectManager->get(FeedHelper::class);
 
         $this->setStores();
 
@@ -281,8 +288,8 @@ class Export
                 if (!in_array($code, $this->_globalAttributes)
                     && in_array($code, $translatableAttributes)) {
                     /** @var Store $store */
-                    foreach ($this->_stores as $store) {
-                        $header[] = $this->getLngKey($store->getConfig(self::LOCALE_CODE), $code);
+                    foreach ($this->_uniqueStores as $storeId) {
+                        $header[] = $this->getLngKey($this->_feedHelper->getStoreLocale($storeId), $code);
                     }
                 }
             }
@@ -337,13 +344,14 @@ class Export
             $ids = [];
 
             /**
-            * Collect selected product IDs
-            */
+             * Collect selected product IDs
+             */
             foreach ($collection as $product) {
                 $ids[] = $product->getId();
             }
 
             foreach ($this->_stores as $store) {
+                if(!in_array($store->getId(),$this->_uniqueStores)) continue;
                 $this->_productCollectionFactory->create()->setStore($store);
                 $storeCollection[$store->getId()] = $this->_productCollectionFactory->create()
                     ->addAttributeToSelect('*')
@@ -413,9 +421,11 @@ class Export
 
         if(!empty($storeCollection)) {
             foreach ($this->_stores as $store) {
+                if(!in_array($store->getId(), $this->_uniqueStores)) continue;
+
                 /** @var Store $store */
                 $this->_storeManager->setCurrentStore($store);
-                $langCode = $store->getConfig(self::LOCALE_CODE);
+                $langCode = $this->_feedHelper->getStoreLocale($store->getId());
 
                 $continue = false;
 
