@@ -154,25 +154,28 @@
      */
     DynamicYield_Tracking.prototype.syncCartEvent = function () {
         try{
-            if (window.XMLHttpRequest) {
-                var xhr = new XMLHttpRequest();
-            } else {
-                var xhr = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            xhr.open('GET', '/dyIntegration/synccart/index');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var session = JSON.parse(xhr.responseText);
-                    if(session.sync_cart == false) {
-                        var eventData = {
-                            name: session.eventData.name,
-                            properties: session.eventData.properties
-                        };
-                        try{ DY.API('event', eventData); }catch(e){}
-                    }
+            if (!sessionStorage.isNewSession) {
+                sessionStorage.isNewSession = true;
+                if (window.XMLHttpRequest) {
+                    var xhr = new XMLHttpRequest();
+                } else {
+                    var xhr = new ActiveXObject("Microsoft.XMLHTTP");
                 }
-            };
-            xhr.send();
+                xhr.open('GET', '/dyIntegration/synccart/index');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        var session = JSON.parse(xhr.responseText);
+                        if(session.sync_cart == false) {
+                            var eventData = {
+                                name: session.eventData.name,
+                                properties: session.eventData.properties
+                            };
+                            try{ DY.API('event', eventData); }catch(e){}
+                        }
+                    }
+                };
+                xhr.send();
+            }
         } catch (e){}
     };
 
