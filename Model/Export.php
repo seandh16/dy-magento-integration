@@ -20,7 +20,7 @@ use Magento\Store\Model\Group;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManager;
 use Magento\Framework\ObjectManagerInterface;
-use DynamicYield\Integration\Helper\Feed as FeedHelper;
+use DynamicYield\Integration\Helper\Feed\Proxy as FeedHelper;
 use Magento\Framework\App\State;
 use Magento\Store\Model\Website;
 use Psr\Log\LoggerInterface;
