@@ -4,7 +4,7 @@
             <config_path>dyi_integration/feed/cron_expr</config_path>
         </job>
         <job name="heartbeat_update" instance="DynamicYield\Integration\Cron\HeartBeat" method="execute">
-            <schedule>*/5 * * * *</schedule>
+            <config_path>dyi_integration/feed/heartbeat_expr</config_path>
         </job>
     </group>
 </config>

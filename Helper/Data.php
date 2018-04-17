@@ -581,4 +581,11 @@ class Data extends AbstractHelper implements HelperInterface
         return false;
     }
 
+    /**
+     * @return mixed
+     */
+    public function isFeedSyncEnabled() {
+        return $this->scopeConfig->getValue(self::PRODUCT_SYNC_ENABLE);
+    }
+
 }

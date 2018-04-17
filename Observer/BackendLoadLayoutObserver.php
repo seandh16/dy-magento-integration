@@ -86,11 +86,13 @@ class BackendLoadLayoutObserver implements ObserverInterface
     public function execute(Observer $observer)
     {
         if ($this->_state->getAreaCode() == "adminhtml" && !$this->isAuthPage()) {
-            if(!$this->_cronjob->isRunning()){
-                $this->_messageManager->addErrorMessage($this->_cronjob->getMessage());
-            }
-            if($this->_feedHelper->isSkippedProducts()) {
-                $this->_messageManager->addWarningMessage("DynamicYield Integration: Products missing mandatory attributes. Details: var/dyi_export/dyi_skipped_products.log");
+            if($this->_feedHelper->isFeedSyncEnabled()) {
+                if(!$this->_cronjob->isRunning()){
+                    $this->_messageManager->addErrorMessage($this->_cronjob->getMessage());
+                }
+                if($this->_feedHelper->isSkippedProducts()) {
+                    $this->_messageManager->addWarningMessage("DynamicYield Integration: Products missing mandatory attributes. Details: var/dyi_export/dyi_skipped_products.log");
+                }
             }
         }
     }

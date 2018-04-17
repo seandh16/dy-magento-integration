@@ -40,10 +40,20 @@
             <group id="feed" translate="label" type="text" sortOrder="20" showInDefault="1">
                 <label>Product Catalog Sync</label>
 
+                <field id="enable_feed_sync" translate="label comment" type="select" sortOrder="9" showInDefault="1">
+                    <label>Enable Product Feed Sync</label>
+                    <comment>Select "No" to disable product feed sync.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <backend_model>DynamicYield\Integration\Model\Config\Backend\EnableFeed</backend_model>
+                </field>
+
                 <field id="update_rate" translate="label comment" type="DynamicYield\Integration\Block\Adminhtml\Form\Field\SyncRate" sortOrder="10" showInDefault="1">
                     <label>Sync Rate</label>
                     <source_model>DynamicYield\Integration\Model\Config\Source\UpdateRateAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\UpdateRate</backend_model>
+                    <depends>
+                        <field id="enable_feed_sync">1</field>
+                    </depends>
                 </field>
 
                 <field id="attributes" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1">
@@ -51,6 +61,9 @@
                     <comment>Enhance your personalization capabilities by syncing up to 10 additional key product attributes (mandatory attributes are already selected and not visible). Note: You can add attributes by selecting them.</comment>
                     <source_model>DynamicYield\Integration\Model\Config\Source\ProductAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\ProductAttribute</backend_model>
+                    <depends>
+                        <field id="enable_feed_sync">1</field>
+                    </depends>
                 </field>
 
                 <field id="used_attributes" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1">
@@ -58,12 +71,18 @@
                     <comment>Additional used product attributes for sync.</comment>
                     <source_model>DynamicYield\Integration\Model\Config\Source\UsedProductAttribute</source_model>
                     <backend_model>DynamicYield\Integration\Model\Config\Backend\UsedProductAttribute</backend_model>
+                    <depends>
+                        <field id="enable_feed_sync">1</field>
+                    </depends>
                 </field>
 
                 <field id="dyi_debug_mode" translate="label comment" type="select" sortOrder="60" showInDefault="1">
                     <label>Debug Mode</label>
                     <comment>View</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable_feed_sync">1</field>
+                    </depends>
                 </field>
             </group>
 

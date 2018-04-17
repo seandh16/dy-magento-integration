@@ -202,4 +202,12 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     {
         return $this->_dataHelper->getStoreLocale($storeId);
     }
+
+    /**
+     * @return mixed
+     */
+    public function isFeedSyncEnabled() {
+        return $this->_dataHelper->isFeedSyncEnabled();
+    }
+
 }

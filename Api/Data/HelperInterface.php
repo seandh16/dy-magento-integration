@@ -10,4 +10,5 @@ interface HelperInterface
     const LOCALE_CUSTOM_ENABLE = 'dyi_integration/locale/enable_custom';
     const LOCALE_CUSTOM_LOCALE = 'dyi_integration/locale/custom';
     const LOCALE_CUSTOM_SELECT = 'dyi_integration/locale/select';
+    const PRODUCT_SYNC_ENABLE = 'dyi_integration/feed/enable_feed_sync';
 }

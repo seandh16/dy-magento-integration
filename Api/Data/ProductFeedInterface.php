@@ -14,4 +14,6 @@ interface ProductFeedInterface
     const ACCESS_KEY_ID = 'dyi_integration/general/access_key_id';
     const ACCESS_KEY = 'dyi_integration/general/access_key';
     const DEBUG_MODE = 'dyi_integration/feed/dyi_debug_mode';
+    const HEARTBEAT_SCHEDULE_PATH= 'dyi_integration/feed/heartbeat_expr';
+    const HEARTBEAT_EXPR = '*/5 * * * *';
 }
