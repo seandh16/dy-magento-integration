@@ -534,7 +534,8 @@ class Data extends AbstractHelper implements HelperInterface
     }
 
     /**
-     * Check if SKU is valid as per product feed requirements
+     * Check if SKU is valid
+     * No custom options
      *
      * @param $product
      * @return Mixed $variation
@@ -543,19 +544,12 @@ class Data extends AbstractHelper implements HelperInterface
     {
         try {
             $variation = $this->_productRepository->get($product->getSku());
-        } catch (NoSuchEntityException $e) {
-            try {
-                $variation = $this->_productRepository->get($product->getData('sku'));
-            } catch (NoSuchEntityException $e){
-                return null;
+            if($variation) {
+                return true;
             }
+        } catch (NoSuchEntityException $e) {
+            return null;
         }
-
-        if($variation) {
-            return $variation;
-        }
-
-        return null;
     }
 
     /**
