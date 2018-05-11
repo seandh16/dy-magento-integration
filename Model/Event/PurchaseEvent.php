@@ -2,6 +2,7 @@
 
 namespace DynamicYield\Integration\Model\Event;
 
+use DynamicYield\Integration\Helper\Data;
 use DynamicYield\Integration\Model\Event;
 use Magento\Sales\Model\Order;
 use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
@@ -27,20 +28,28 @@ class PurchaseEvent extends Event
     protected $_priceHelper;
 
     /**
+     * @var Data
+     */
+    protected $_dataHelper;
+
+    /**
      * PurchaseEvent constructor
      *
      * @param Order $order
      * @param ProductRepository $productRepository
+     * @param Data $data
      * @param PriceHelper $priceHelper
      */
     public function __construct(
         Order $order,
         ProductRepository $productRepository,
+        Data $data,
         PriceHelper $priceHelper
     )
     {
         $this->_order = $order;
         $this->_productRepository = $productRepository;
+        $this->_dataHelper = $data;
         $this->_priceHelper = $priceHelper;
     }
 
@@ -96,7 +105,7 @@ class PurchaseEvent extends Event
             }
 
             $items[] = [
-                'productId' => $product->getSku(),
+                'productId' => $this->_dataHelper->validateSku($product) ? $product->getSku() : $product->getData('sku'),
                 'quantity' => round($item->getQtyOrdered(), 2),
                 'itemPrice' => round($this->_priceHelper->currency($product->getData('price'),false,false),2)
             ];
