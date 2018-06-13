@@ -328,6 +328,9 @@ class Export
         $collection = $this->_productCollectionFactory->create();
         $collection->addAttributeToSelect('*')
             ->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
+            ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
+                Visibility::VISIBILITY_BOTH, Visibility::VISIBILITY_IN_CATALOG
+            ]])
             ->addAttributeToFilter('type_id', ['nin' => [
                 Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
             ]]);
@@ -357,6 +360,9 @@ class Export
                 $storeCollection[$store->getId()]->addFieldToFilter("entity_id",["in" => $ids]);
                 $storeCollection[$store->getId()]->getSelect()->limit($limit, 0);
                 $storeCollection[$store->getId()]->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
+                    ->addAttributeToFilter(Product::VISIBILITY, ['in' => [
+                        Visibility::VISIBILITY_BOTH, Visibility::VISIBILITY_IN_CATALOG
+                    ]])
                     ->addAttributeToFilter('type_id', ['nin' => [
                         Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
                     ]]);
@@ -393,8 +399,8 @@ class Export
         $rowData = [
             'name' => $_product->getName(),
             'url' => $_product->getProductUrl(),
-            'sku' => $_product->getSku(),
-            'group_id' => $_product->getSku(),
+            'sku' => $_product->getData('sku'),
+            'group_id' => $_product->getData('sku'),
             'price' => $_product->getData('price') ? round($_product->getData('price'),2) : round($this->getChildPrice($_product),2),
             'in_stock' => $this->_stockRegistry->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),

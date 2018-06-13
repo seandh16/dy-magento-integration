@@ -47,11 +47,12 @@ abstract class Event
     /**
      * Get all cart items
      * @param Cart $cart
+     * @param Data $dataHelper
      * @param PriceHelper $priceHelper
      * @param array $except
      * @return array
      */
-    public function getCartItems(Cart $cart,PriceHelper $priceHelper = null, array $except = [])
+    public function getCartItems(Cart $cart, Data $dataHelper = null,PriceHelper $priceHelper = null, array $except = [])
     {
         $prepareItems = [];
         $items = [];
@@ -81,10 +82,20 @@ abstract class Event
                 continue;
             }
 
+            $variation = $dataHelper->validateSku($product);
+
+            /**
+             * IF invalid variation and no parent item - skip (because we need parent values)
+             * IF valid variation and does not have a parent - skip (because we want need only variation values)
+             */
+            if(($variation == null && $item->getParentItemId() == null) || ($variation != null && $item->getParentItemId() != null)){
+                continue;
+            }
+
             $prepareItems[$item->getSku()] = [
-                'itemPrice' => round($priceHelper->currency($product->getData('price'),false,false),2),
-                'productId' =>  $product->getSku(),
-                'quantity' => round($item->getQty(), 2)
+                'itemPrice' => $variation ? round($priceHelper->currency($variation->getData('price'),false,false),2) : round($priceHelper->currency($product->getData('price'),false,false),2),
+                'productId' =>  $variation ? $variation->getSku() : ($dataHelper->getParentItemSku($item) ?: ""),
+                'quantity' => round($item->getQty(), 2),
             ];
         }
 
