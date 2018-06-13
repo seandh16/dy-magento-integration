@@ -304,7 +304,7 @@ class Data extends AbstractHelper implements HelperInterface
                         continue;
                     }
 
-                    if (isset($prepareItems[$quoteItem->getSku()]) || !$this->validateSku($quoteItem)) {
+                    if (isset($prepareItems[$quoteItem->getSku()])) {
                         continue;
                     }
 

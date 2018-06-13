@@ -47,12 +47,11 @@ abstract class Event
     /**
      * Get all cart items
      * @param Cart $cart
-     * @param Data $dataHelper
      * @param PriceHelper $priceHelper
      * @param array $except
      * @return array
      */
-    public function getCartItems(Cart $cart, Data $dataHelper = null, PriceHelper $priceHelper = null, array $except = [])
+    public function getCartItems(Cart $cart,PriceHelper $priceHelper = null, array $except = [])
     {
         $prepareItems = [];
         $items = [];
@@ -78,7 +77,7 @@ abstract class Event
 
             $product = $item->getProduct();
 
-            if(!$product || !$dataHelper->validateSku($product)) {
+            if(!$product) {
                 continue;
             }
 
