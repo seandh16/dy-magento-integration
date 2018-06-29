@@ -231,7 +231,8 @@ class Data extends AbstractHelper implements HelperInterface
      * @param $storeId
      * @return mixed
      */
-    public function getStoreLocale($storeId) {
+    public function getStoreLocale($storeId)
+    {
         return $this->scopeConfig->getValue(self::LOCALE_ENABLE, Scope::SCOPE_STORE, $storeId) ?
             ($this->scopeConfig->getValue(self::LOCALE_CUSTOM_ENABLE, Scope::SCOPE_STORE, $storeId) ?
                 $this->scopeConfig->getValue(self::LOCALE_CUSTOM_LOCALE, Scope::SCOPE_STORE, $storeId) :
@@ -294,36 +295,26 @@ class Data extends AbstractHelper implements HelperInterface
             case 'checkout_cart_index': {
                 $type = 'CART';
                 $data = [];
-
+                $prepareItems = [];
                 $quote = $this->_quoteSession->getQuote();
 
-                if($quote) {
-                    foreach ($quote->getAllItems() as $quoteItem) {
-                        if($quoteItem->getProduct()->getTypeId() == "grouped" || $quoteItem->getProduct()->getTypeId() == "bundle") {
-                            continue;
-                        }
-
-                        $product = $quoteItem->getProduct();
-
-                        if (!$product) {
-                            continue;
-                        }
-
-                        $variation = $this->validateSku($product);
-
-                        /**
-                         * IF invalid variation and no parent item - skip (because we need parent values)
-                         * IF valid variation and does not have a parent - skip (because we need only variation values)
-                         */
-                        if (($variation == null && $quoteItem->getParentItemId() == null) || ($variation != null && $quoteItem->getParentItemId() != null)) {
-                            continue;
-                        }
-
-
-
-                        $data[] = $variation != null ? $variation->getSku() : ($this->getParentItemSku($quoteItem) ?: "");
+            if($quote) {
+                foreach ($quote->getAllItems() as $quoteItem) {
+                    if($quoteItem->getProduct()->getTypeId() == "grouped" || $quoteItem->getProduct()->getTypeId() == "bundle") {
+                        continue;
                     }
+
+                    if (isset($prepareItems[$quoteItem->getSku()])) {
+                        continue;
+                    }
+
+                    $prepareItems[$quoteItem->getSku()] = $quoteItem->getSku();
                 }
+
+                foreach ($prepareItems as $prepareItem) {
+                    $data[] = $prepareItem;
+                }
+            }
 
                 break;
             }
@@ -522,7 +513,8 @@ class Data extends AbstractHelper implements HelperInterface
      * @param $product
      * @return Product
      */
-    public function getRandomChild($product){
+    public function getRandomChild($product)
+    {
         if($product->getTypeId() == "configurable"){
             $simpleCollection = $product->getTypeInstance()->getUsedProductCollection($product)
                 ->addAttributeToSelect('sku','price')
@@ -547,7 +539,8 @@ class Data extends AbstractHelper implements HelperInterface
      * @param $product
      * @return Mixed $variation
      */
-    public function validateSku($product) {
+    public function validateSku($product)
+    {
         try {
             $variation = $this->_productRepository->get($product->getSku());
         } catch (NoSuchEntityException $e) {
@@ -558,10 +551,7 @@ class Data extends AbstractHelper implements HelperInterface
             }
         }
 
-        if($variation && in_array($variation->getVisibility(),array(
-                Visibility::VISIBILITY_BOTH,
-                Visibility::VISIBILITY_IN_CATALOG))) {
-
+        if($variation) {
             return $variation;
         }
 
@@ -574,7 +564,8 @@ class Data extends AbstractHelper implements HelperInterface
      * @param $item
      * @return bool
      */
-    public function getParentItemSku($item) {
+    public function getParentItemSku($item)
+    {
         if($item->getParentItemId()) {
             return $item->getParentItem()->getProduct()->getData('sku');
         }
@@ -584,7 +575,8 @@ class Data extends AbstractHelper implements HelperInterface
     /**
      * @return mixed
      */
-    public function isFeedSyncEnabled() {
+    public function isFeedSyncEnabled()
+    {
         return $this->scopeConfig->getValue(self::PRODUCT_SYNC_ENABLE);
     }
 
