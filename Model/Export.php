@@ -348,7 +348,7 @@ class Export
         $collection->addUrlRewrite();
         $collection->addFieldToFilter("entity_id",["gt" => $offset]);
         $collection->getSelect()->limit($limit, 0);
-        $collection->getSelect()->joinLeft(array('catalog_product_super_link'),'`e`.`entity_id` = `catalog_product_super_link`.`product_id`',array('parent_id'));
+        $collection->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_id'));
         $collection->getSelect()->group('e.entity_id');
 
         $storeCollection = [];
@@ -461,8 +461,9 @@ class Export
 
     /**
      * @param Product $_product
-     * @param mixed $additionalAttributes
      * @param mixed $storeCollection
+     * @param mixed $parentProductCollection
+     * @param mixed $additionalAttributes
      *
      * @return array
      */
