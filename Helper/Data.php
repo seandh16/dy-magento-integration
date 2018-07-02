@@ -519,11 +519,7 @@ class Data extends AbstractHelper implements HelperInterface
             $simpleCollection = $product->getTypeInstance()->getUsedProductCollection($product)
                 ->addAttributeToSelect('sku','price')
                 ->addFilterByRequiredOptions()
-                ->addAttributeToFilter('status', Status::STATUS_ENABLED)
-                ->addAttributeToFilter('visibility', array('in' => array(
-                    Visibility::VISIBILITY_BOTH,
-                    Visibility::VISIBILITY_IN_CATALOG
-                )));
+                ->addAttributeToFilter('status', Status::STATUS_ENABLED);
 
             foreach($simpleCollection as $simple){
                 return $simple;

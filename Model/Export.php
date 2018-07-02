@@ -29,7 +29,7 @@ use Magento\Framework\UrlInterface;
 use Magento\CatalogInventory\Model\StockRegistry;
 use Magento\Catalog\Model\Product\Type;
 use DynamicYield\Integration\Model\Logger\Handler;
-
+use Magento\Framework\App\ResourceConnection as Resource;
 
 class Export
 {
@@ -154,6 +154,14 @@ class Export
      */
     protected $_uniqueStores;
 
+
+    protected $_resource;
+
+    /**
+     * @var UrlInterface
+     */
+    protected $_urlModel;
+
     /**
      * Export constructor
      *
@@ -168,6 +176,8 @@ class Export
      * @param Handler $handler
      * @param LoggerInterface $logger
      * @param FeedHelper $feedHelper
+     * @param Resource $resource
+     * @param UrlInterface $urlModel
      */
     public function __construct(
         State $state,
@@ -180,7 +190,9 @@ class Export
         StockRegistry $stockRegistry,
         Handler $handler,
         LoggerInterface $logger,
-        FeedHelper $feedHelper
+        FeedHelper $feedHelper,
+        Resource $resource,
+        UrlInterface $urlModel
     )
     {
         $this->_state = $state;
@@ -194,6 +206,8 @@ class Export
         $this->_handler = $handler;
         $this->_logger = $logger->setHandlers([$this->_handler]);
         $this->_feedHelper = $feedHelper;
+        $this->_resource = $resource;
+        $this->_urlModel = $urlModel;
     }
 
     /**
@@ -334,6 +348,8 @@ class Export
         $collection->addUrlRewrite();
         $collection->addFieldToFilter("entity_id",["gt" => $offset]);
         $collection->getSelect()->limit($limit, 0);
+        $collection->getSelect()->joinLeft(array('catalog_product_super_link'),'`e`.`entity_id` = `catalog_product_super_link`.`product_id`',array('parent_id'));
+        $collection->getSelect()->group('e.entity_id');
 
         $storeCollection = [];
 
@@ -364,9 +380,23 @@ class Export
             }
         }
 
+        $parentIds = array();
+        /**
+         * Collect selected parent IDs
+         */
+        foreach ($collection as $product) {
+            $parentIds[] = $product->getParentId();
+        }
+
+        $parentProductCollection = $this->_productCollectionFactory->create()
+            ->addAttributeToSelect('*')
+            ->addUrlRewrite();
+        $parentProductCollection->addFieldToFilter("entity_id", ["in" => $parentIds]);
+        $parentProductCollection->getSelect()->limit($limit, 0);
+
         /** @var Product $item */
         foreach ($collection as $item) {
-            $line = $this->readLine($item, $storeCollection, $additionalAttributes);
+            $line = $this->readLine($item, $storeCollection,$parentProductCollection, $additionalAttributes);
             if($line) fputcsv($file, $this->fillLine($line), ',');
         }
 
@@ -382,20 +412,68 @@ class Export
     }
 
     /**
+     * Get final price of variation
+     *
+     * @param $simpleProduct
+     * @param $parentCollection
+     * @return mixed
+     */
+    public function getFinalPrice($simpleProduct,$parentCollection)
+    {
+        foreach ($parentCollection as $parent) {
+            if ($parent->getId() == $simpleProduct->getParentId()) {
+                $values   = array();
+                $attributeCodes = array();
+
+                /**
+                 * Custom query to fetch configurable attributes
+                 */
+                $connectionReader = $this->_resource->getConnection('core_read');
+
+
+                $query =
+                    "SELECT eav.attribute_code, eav.attribute_id FROM "
+                    . $this->_resource->getTableName('eav_attribute') .
+                    " as eav LEFT JOIN "
+                    . $this->_resource->getTableName('catalog_product_super_attribute') .
+                    " as super ON eav.attribute_id = super.attribute_id WHERE (product_id = " . $parent->getId() . ");";
+
+                $result = $connectionReader->query($query);
+
+                while ($row = $result->fetch()) {
+                    $attributeCodes[$row['attribute_id']] = $row['attribute_code'];
+                };
+
+                foreach ($attributeCodes as $id => $code) {
+                    $values[$id] = $simpleProduct->getData($code);
+                }
+
+                $parent->addCustomOption('attributes', serialize($values));
+                $parent->addCustomOption('simple_product', $simpleProduct->getId(), $simpleProduct);
+
+                $price = $parent->getPriceModel()->getFinalPrice(null,$parent);
+                return $price ?: $simpleProduct->getPrice();
+            }
+        }
+
+        return $simpleProduct->getPrice();
+    }
+
+    /**
      * @param Product $_product
      * @param mixed $additionalAttributes
      * @param mixed $storeCollection
      *
      * @return array
      */
-    public function readLine(Product $_product, $storeCollection, $additionalAttributes)
+    public function readLine(Product $_product, $storeCollection,$parentProductCollection = null, $additionalAttributes)
     {
         $rowData = [
             'name' => $_product->getName(),
-            'url' => $_product->getProductUrl(),
+            'url' => $this->getProductUrl($_product),
             'sku' => $_product->getSku(),
-            'group_id' => $_product->getSku(),
-            'price' => $_product->getData('price') ? round($_product->getData('price'),2) : round($this->getChildPrice($_product),2),
+            'group_id' => $this->getGroupId($_product),
+            'price' => $_product->getParentId() ? $this->getFinalPrice($_product,$parentProductCollection) : $_product->getPrice(),
             'in_stock' => $this->_stockRegistry->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
             'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
@@ -476,6 +554,29 @@ class Export
     protected function getLngKey($langCode, $code)
     {
         return sprintf('lng:%s:%s', $langCode, $code);
+    }
+
+    /**
+     * Get product url
+     * Return parent url if child product is not visible
+     * @param $product
+     *
+     * @return string
+     */
+    protected function getProductUrl($product)
+    {
+        return $product->isVisibleInSiteVisibility() ? $this->_urlModel->getUrl('catalog/product/view', ['id' => $product->getId(), '_use_rewrite' => true]) : ($product->getParentId() ? $this->_urlModel->getUrl('catalog/product/view', ['id' => $product->getParentId(), '_use_rewrite' => true]) : $product->getProductUrl($product));
+    }
+
+    /**
+     * Return Group Id
+     *
+     * @param $product
+     * @return array|bool|string
+     */
+    protected function getGroupId($product)
+    {
+        return $product->getParentId() ? $this->_productResource->getAttributeRawValue($product->getParentId(), 'sku', 0)['sku'] : $product->getSku();
     }
 
     /**

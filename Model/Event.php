@@ -83,7 +83,7 @@ abstract class Event
             }
 
             $prepareItems[$item->getSku()] = [
-                'itemPrice' => round($priceHelper->currency($product->getData('price'),false,false),2),
+                'itemPrice' => round($priceHelper->currency($product->getFinalPrice(),false,false),2),
                 'productId' =>  $product->getSku(),
                 'quantity' => round($item->getQty(), 2)
             ];

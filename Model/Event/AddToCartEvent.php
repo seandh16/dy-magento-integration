@@ -123,7 +123,7 @@ class AddToCartEvent extends Event
 
         return [
             'cart' => $this->getCartItems($this->_cart, $this->_dataHelper,$this->_priceHelper),
-            'value' => round($this->_priceHelper->currency($product->getData('price'),false,false),2),
+            'value' => round($this->_priceHelper->currency($product->getFinalPrice(),false,false),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $this->_dataHelper->validateSku($product) ? $product->getSku() : $product->getData('sku'),
             'quantity' => round($this->_qty, 2)

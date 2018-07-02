@@ -107,7 +107,7 @@ class PurchaseEvent extends Event
             $items[] = [
                 'productId' => $this->_dataHelper->validateSku($product) ? $product->getSku() : $product->getData('sku'),
                 'quantity' => round($item->getQtyOrdered(), 2),
-                'itemPrice' => round($this->_priceHelper->currency($product->getData('price'),false,false),2)
+                'itemPrice' => round($this->_priceHelper->currency($product->getFinalPrice(),false,false),2)
             ];
         }
 
