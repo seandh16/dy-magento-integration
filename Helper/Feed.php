@@ -15,6 +15,8 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     const S3_BUCKET_REGION = 'us-east-1';
     const AWS_SDK_VERSION = '2006-03-01';
     const S3_FILE_NAME = 'productfeed.csv';
+    const BUCKET = "com.dynamicyield.feeds";
+    const EU_BUCKET = "dy-datafeeds-eu";
 
     /**
      * @var Data
@@ -102,11 +104,13 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     }
 
     /**
+     * Returns the S3 bucket
+     *
      * @return mixed
      */
     public function getBucket()
     {
-        return 'com.dynamicyield.feeds';
+        return ($this->_dataHelper->isEuropeAccount() || $this->_dataHelper->isEuropeCDNIntegration()) ? self::EU_BUCKET : self::BUCKET;
     }
 
     /**
