@@ -32,6 +32,22 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     protected $_file;
 
     /**
+     * Base attributes
+     *
+     * @var array
+     */
+    protected $_baseAttributes = [
+        'name',
+        'url',
+        'sku',
+        'group_id',
+        'price',
+        'in_stock',
+        'categories',
+        'image_url'
+    ];
+
+    /**
      * Feed constructor
      *
      * @param Context $context
@@ -83,6 +99,16 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     public function getFeedAttributes()
     {
         return $this->scopeConfig->getValue(self::FEED_ATTRIBUTES);
+    }
+
+    /**
+     * Get Base Attributes
+     *
+     * @return array
+     */
+    public function getBaseAttributes()
+    {
+        return $this->_baseAttributes;
     }
 
     /**

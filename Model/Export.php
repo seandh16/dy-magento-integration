@@ -30,6 +30,8 @@ use Magento\CatalogInventory\Model\StockRegistry;
 use Magento\Catalog\Model\Product\Type;
 use DynamicYield\Integration\Model\Logger\Handler;
 use Magento\Framework\App\ResourceConnection as Resource;
+use Magento\UrlRewrite\Model\UrlFinderInterface;
+use \Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 
 class Export
 {
@@ -163,6 +165,11 @@ class Export
     protected $_urlModel;
 
     /**
+     * @var UrlFinderInterface
+     */
+    protected $urlFinder;
+
+    /**
      * Export constructor
      *
      * @param State $state
@@ -178,6 +185,7 @@ class Export
      * @param FeedHelper $feedHelper
      * @param Resource $resource
      * @param UrlInterface $urlModel
+     * @param UrlFinderInterface $urlFinder
      */
     public function __construct(
         State $state,
@@ -192,7 +200,8 @@ class Export
         LoggerInterface $logger,
         FeedHelper $feedHelper,
         Resource $resource,
-        UrlInterface $urlModel
+        UrlInterface $urlModel,
+        UrlFinderInterface $urlFinder
     )
     {
         $this->_state = $state;
@@ -208,6 +217,7 @@ class Export
         $this->_feedHelper = $feedHelper;
         $this->_resource = $resource;
         $this->_urlModel = $urlModel;
+        $this->_urlFinder = $urlFinder;
     }
 
     /**
@@ -566,7 +576,29 @@ class Export
      */
     protected function getProductUrl($product)
     {
-        return $product->isVisibleInSiteVisibility() ? $this->_urlModel->getUrl('catalog/product/view', ['id' => $product->getId(), '_use_rewrite' => true]) : ($product->getParentId() ? $this->_urlModel->getUrl('catalog/product/view', ['id' => $product->getParentId(), '_use_rewrite' => true]) : $product->getProductUrl($product));
+        return $this->getRewrittenUrl($product);
+    }
+
+    /**
+     * Get rewritten product url
+     *
+     * @param $product
+     * @return mixed
+     */
+    protected function getRewrittenUrl($product)
+    {
+        $productId = $product->isVisibleInSiteVisibility() ? $product->getId() : $product->getParentId();
+
+        $urlRewrite = $this->_urlFinder->findOneByData([
+            UrlRewrite::ENTITY_ID => $productId,
+            UrlRewrite::ENTITY_TYPE => "product",
+        ]);
+
+        if($urlRewrite) {
+            return $this->_urlModel->getUrl($urlRewrite->getRequestPath());
+        }
+
+        return $product->getProductUrl();
     }
 
     /**

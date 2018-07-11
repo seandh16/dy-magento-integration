@@ -12,7 +12,7 @@ class UsedProductAttribute extends AbstractProductAttribute
      */
     public function getAttributes()
     {
-        $attributes = explode(',', $this->_feedHelper->getFeedAttributes());
+        $attributes = array_unique(array_merge($this->_feedHelper->getBaseAttributes(), explode(',', $this->_feedHelper->getFeedAttributes())));
 
         $collection = $this->_attribute->getCollection()
             ->join(Attribute::ENTITY, Attribute::ENTITY .'.attribute_id = main_table.attribute_id', '*')
