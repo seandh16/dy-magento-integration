@@ -37,6 +37,7 @@ class Export
 {
     const LOCALE_CODE = 'general/locale/code';
     const PRODUCT_GROUPED = "grouped";
+    const PRODUCT_CONFIGURABLE = "configurable";
 
     /**
      * @var array
@@ -353,7 +354,7 @@ class Export
         $collection->addAttributeToSelect('*')
             ->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
             ->addAttributeToFilter('type_id', ['nin' => [
-                Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
+                Type::TYPE_BUNDLE, static::PRODUCT_GROUPED, static::PRODUCT_CONFIGURABLE
             ]]);
         $collection->addUrlRewrite();
         $collection->addFieldToFilter("entity_id",["gt" => $offset]);
@@ -499,7 +500,9 @@ class Export
 
         /** @var Attribute $attribute */
         foreach ($additionalAttributes as $attribute) {
-            $rowData[$attribute->getAttributeCode()] = $this->buildAttributeData($_product, $attribute);
+            if(!in_array($attribute->getAttributeCode(),$this->_excludedAttributes)) {
+                $rowData[$attribute->getAttributeCode()] = $this->buildAttributeData($_product, $attribute);
+            }
         }
 
         if(!empty($storeCollection)) {
