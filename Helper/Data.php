@@ -23,6 +23,8 @@ use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Framework\Exception\NoSuchEntityException;
+use DynamicYield\Integration\Model\Config\Source\IntegrationType;
+use DynamicYield\Integration\Model\Export;
 
 
 
@@ -176,8 +178,8 @@ class Data extends AbstractHelper implements HelperInterface
         }
 
         return [
-            "//cdn.dynamicyield.com/api/{$sectionId}/api_static.js",
-            "//cdn.dynamicyield.com/api/{$sectionId}/api_dynamic.js",
+            "//".$this->getCDN()."/api/{$sectionId}/api_static.js",
+            "//".$this->getCDN()."/api/{$sectionId}/api_dynamic.js",
             $this->getViewFileUrl('DynamicYield_Integration::js/dy_tracker.js')
         ];
     }
@@ -234,13 +236,90 @@ class Data extends AbstractHelper implements HelperInterface
     public function getStoreLocale($storeId)
     {
         return $this->scopeConfig->getValue(self::LOCALE_ENABLE, Scope::SCOPE_STORE, $storeId) ?
-            ($this->scopeConfig->getValue(self::LOCALE_CUSTOM_ENABLE, Scope::SCOPE_STORE, $storeId) ?
-                $this->scopeConfig->getValue(self::LOCALE_CUSTOM_LOCALE, Scope::SCOPE_STORE, $storeId) :
-                $this->scopeConfig->getValue(self::LOCALE_CUSTOM_SELECT, Scope::SCOPE_STORE, $storeId)) :
-            $this->scopeConfig->getValue(\DynamicYield\Integration\Model\Export::LOCALE_CODE, Scope::SCOPE_STORE, $storeId);
+                    ($this->scopeConfig->getValue(self::LOCALE_CUSTOM_ENABLE, Scope::SCOPE_STORE, $storeId) ?
+                        $this->scopeConfig->getValue(self::LOCALE_CUSTOM_LOCALE, Scope::SCOPE_STORE, $storeId) :
+                            $this->scopeConfig->getValue(self::LOCALE_CUSTOM_SELECT, Scope::SCOPE_STORE, $storeId)) :
+                                $this->scopeConfig->getValue(Export::LOCALE_CODE, Scope::SCOPE_STORE, $storeId);
     }
 
-    /**p
+    /**
+     * Get default CDN
+     *
+     * @return string
+     */
+    public function getDefaultCDN()
+    {
+        return static::DEFAULT_CDN;
+    }
+
+    /**
+     * Get Europe CDN
+     *
+     * @return string
+     */
+    public function getEuropeCDN()
+    {
+        return static::EUROPE_CDN;
+    }
+
+    /**
+     * Get custom CDN
+     *
+     * @return mixed
+     */
+    public function getCustomCDN()
+    {
+        return $this->scopeConfig->getValue(self::CONF_CUSTOM_CDN);
+    }
+
+    /**
+     * Is EU account enabled
+     *
+     * @return mixed
+     */
+    public function isEuropeAccount()
+    {
+        return $this->scopeConfig->getValue(self::CONF_ENABLE_EUROPE_ACCOUNT);
+    }
+
+    /**
+     * Is CDN integration enabled
+     *
+     * @return mixed
+     */
+    public function isCDNIntegration()
+    {
+        return $this->scopeConfig->getValue(self::CONF_ENABLE_CDN_INTEGRATION) != IntegrationType::CDN_DISABLED;
+    }
+
+    /**
+     * Is European CDN Integration enabled
+     *
+     * @return bool
+     */
+    public function isEuropeCDNIntegration()
+    {
+        return $this->scopeConfig->getValue(self::CONF_ENABLE_CDN_INTEGRATION) == IntegrationType::CDN_EUROPEAN;
+    }
+
+    /**
+     * Get CDN url
+     *
+     * @return mixed|string
+     */
+    public function getCDN()
+    {
+        if($this->isEuropeAccount()) {
+            return $this->getEuropeCDN();
+        } elseif($this->isCDNIntegration()) {
+            return $this->getCustomCDN();
+        }
+
+        return $this->getDefaultCDN();
+    }
+
+
+    /**
      * @return array
      */
     public function getCurrentContext()
