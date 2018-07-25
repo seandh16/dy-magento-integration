@@ -82,6 +82,11 @@ class Export
         'image'
     ];
 
+    protected $customAttributes = [
+        'categories',
+        'url'
+    ];
+
     /**
      * @var array
      */
@@ -307,11 +312,12 @@ class Export
 
         $header = array_unique(array_merge($this->_baseAttributes, $additionalAttributes));
         $header = array_diff($header, $this->_excludedHeader);
+        $header = array_unique(array_merge($header, $this->customAttributes));
 
         if($this->_feedHelper->isMultiLanguage()) {
             foreach ($header as $code) {
                 if (!in_array($code, $this->_globalAttributes)
-                    && in_array($code, $translatableAttributes)) {
+                    && in_array($code, $translatableAttributes) || in_array($code,$this->customAttributes)) {
                     /** @var Store $store */
                     foreach ($this->_uniqueStores as $storeId) {
                         $header[] = $this->getLngKey($this->_feedHelper->getStoreLocale($storeId), $code);
@@ -385,7 +391,7 @@ class Export
                 $storeCollection[$store->getId()]->getSelect()->limit($limit, 0);
                 $storeCollection[$store->getId()]->addAttributeToFilter(Product::STATUS, ['eq' => Status::STATUS_ENABLED])
                     ->addAttributeToFilter('type_id', ['nin' => [
-                        Type::TYPE_BUNDLE, static::PRODUCT_GROUPED
+                        Type::TYPE_BUNDLE, static::PRODUCT_GROUPED,static::PRODUCT_CONFIGURABLE
                     ]]);
                 $storeCollection[$store->getId()]->load();
             }
@@ -526,6 +532,12 @@ class Export
 
                 if(!$continue) continue;
 
+                /**
+                 * Translate non-standard attributes
+                 */
+                $rowData[$this->getLngKey($langCode, 'categories')] = $this->buildCategories($storeProduct);
+                $rowData[$this->getLngKey($langCode, 'url')] = $this->getProductUrl($storeProduct,true);
+
                 /** @var Attribute $attribute */
                 foreach ($additionalAttributes as $attribute) {
                     $field = $this->getLngKey($langCode, $attribute->getAttributeCode());
@@ -577,9 +589,9 @@ class Export
      *
      * @return string
      */
-    protected function getProductUrl($product)
+    protected function getProductUrl($product,$store = null)
     {
-        return $this->getRewrittenUrl($product);
+        return $this->getRewrittenUrl($product,$store);
     }
 
     /**
@@ -588,14 +600,19 @@ class Export
      * @param $product
      * @return mixed
      */
-    protected function getRewrittenUrl($product)
+    protected function getRewrittenUrl($product,$store = null)
     {
         $productId = $product->isVisibleInSiteVisibility() ? $product->getId() : $product->getParentId();
 
-        $urlRewrite = $this->_urlFinder->findOneByData([
+        $filterData = [
             UrlRewrite::ENTITY_ID => $productId,
-            UrlRewrite::ENTITY_TYPE => "product",
-        ]);
+            UrlRewrite::ENTITY_TYPE => "product"
+        ];
+
+        if($store){
+            $filterData[UrlRewrite::STORE_ID] = $product->getStoreId();
+        }
+        $urlRewrite = $this->_urlFinder->findOneByData($filterData);
 
         if($urlRewrite) {
             return $this->_urlModel->getUrl($urlRewrite->getRequestPath());
