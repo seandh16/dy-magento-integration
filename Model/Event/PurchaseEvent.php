@@ -91,9 +91,9 @@ class PurchaseEvent extends Event
         foreach ($this->_order->getAllItems() as $item) {
 
             /**
-             * Skip bundle and grouped products (out of scope)
+             * Skip parent product types
              */
-            if($item->getProductType() == Type::TYPE_BUNDLE || $item->getProductType() == Data::PRODUCT_GROUPED) {
+            if(in_array($item->getProductType(), array(Type::TYPE_BUNDLE, Data::PRODUCT_GROUPED, Data::PRODUCT_CONFIGURABLE))) {
                 continue;
             }
 

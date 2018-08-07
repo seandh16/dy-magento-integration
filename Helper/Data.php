@@ -25,6 +25,7 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Framework\Exception\NoSuchEntityException;
 use DynamicYield\Integration\Model\Config\Source\IntegrationType;
 use DynamicYield\Integration\Model\Export;
+use Magento\Catalog\Model\Product\Type;
 
 
 
@@ -33,7 +34,8 @@ use DynamicYield\Integration\Model\Export;
 class Data extends AbstractHelper implements HelperInterface
 {
 
-    const PRODUCT_GROUPED = "grouped";
+    const PRODUCT_GROUPED = 'grouped';
+    const PRODUCT_CONFIGURABLE = 'configurable';
 
     /**
      * @var Registry
@@ -379,7 +381,10 @@ class Data extends AbstractHelper implements HelperInterface
 
             if($quote) {
                 foreach ($quote->getAllItems() as $quoteItem) {
-                    if($quoteItem->getProduct()->getTypeId() == "grouped" || $quoteItem->getProduct()->getTypeId() == "bundle") {
+                    /**
+                     * Skip parent product types
+                     */
+                    if(in_array($quoteItem->getProduct()->getTypeId(),array(static::PRODUCT_GROUPED, static::PRODUCT_CONFIGURABLE, Type::TYPE_BUNDLE))) {
                         continue;
                     }
 
