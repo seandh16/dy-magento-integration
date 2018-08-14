@@ -36,7 +36,7 @@ class ResponseHttpPlugin
         }
 
         if ($this->_helper->isEnabled() && $this->_helper->getJsIntegration()) {
-            preg_match('<head(.*)>', $value, $match);
+            preg_match('/<head[^>]*>/', $value, $match);
 
             if (isset($match[0])) {
                 $value = str_ireplace($match[0], $match[0] . "\n" . $this->_helper->getHtmlMarkup(), $value);

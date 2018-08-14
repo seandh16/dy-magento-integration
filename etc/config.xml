@@ -12,6 +12,7 @@
             </feed>
             <integration>
                 <cdn_integration>No</cdn_integration>
+                <europe_account>0</europe_account>
             </integration>
         </dyi_integration>
 
