@@ -320,6 +320,15 @@ class Data extends AbstractHelper implements HelperInterface
         return $this->getDefaultCDN();
     }
 
+    /**
+     * Get Excluded Category IDs
+     *
+     * @return array
+     */
+    public function getExcludedCategories()
+    {
+        return $this->scopeConfig->getValue(self::CONF_EXCLUDED_CATEGORIES);
+    }
 
     /**
      * @return array

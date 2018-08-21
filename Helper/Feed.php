@@ -148,6 +148,16 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     }
 
     /**
+     * Get excluded categories
+     *
+     * @return array
+     */
+    public function getExcludedCategories()
+    {
+        return explode(',', $this->_dataHelper->getExcludedCategories());
+    }
+
+    /**
      * @return string
      */
     public function getExportFilename()

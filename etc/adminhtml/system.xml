@@ -76,6 +76,15 @@
                     </depends>
                 </field>
 
+                <field id="excluded_categories" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1">
+                    <label>Excluded Categories</label>
+                    <comment>Categories to exclude from the product feed. Will be included in the feed as Keywords.</comment>
+                    <source_model>DynamicYield\Integration\Model\Config\Source\ExcludedCategory</source_model>
+                    <depends>
+                        <field id="enable_feed_sync">1</field>
+                    </depends>
+                </field>
+
                 <field id="dyi_debug_mode" translate="label comment" type="select" sortOrder="60" showInDefault="1">
                     <label>Debug Mode</label>
                     <comment>View</comment>

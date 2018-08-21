@@ -32,6 +32,8 @@ use DynamicYield\Integration\Model\Logger\Handler;
 use Magento\Framework\App\ResourceConnection as Resource;
 use Magento\UrlRewrite\Model\UrlFinderInterface;
 use \Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
+
 
 class Export
 {
@@ -50,7 +52,8 @@ class Export
         'price',
         'in_stock',
         'categories',
-        'image_url'
+        'image_url',
+        'keywords'
     ];
 
     /**
@@ -84,7 +87,8 @@ class Export
 
     protected $customAttributes = [
         'categories',
-        'url'
+        'url',
+        'keywords'
     ];
 
     /**
@@ -176,6 +180,16 @@ class Export
     protected $urlFinder;
 
     /**
+     * @var
+     */
+    protected $_excludedCategories;
+
+    /**
+     * @var CollectionFactory
+     */
+    protected $_categoryCollectionFactory;
+
+    /**
      * Export constructor
      *
      * @param State $state
@@ -192,6 +206,7 @@ class Export
      * @param Resource $resource
      * @param UrlInterface $urlModel
      * @param UrlFinderInterface $urlFinder
+     * @param CollectionFactory $categoryCollectionFactory
      */
     public function __construct(
         State $state,
@@ -207,7 +222,8 @@ class Export
         FeedHelper $feedHelper,
         Resource $resource,
         UrlInterface $urlModel,
-        UrlFinderInterface $urlFinder
+        UrlFinderInterface $urlFinder,
+        CollectionFactory $categoryCollectionFactory
     )
     {
         $this->_state = $state;
@@ -224,6 +240,7 @@ class Export
         $this->_resource = $resource;
         $this->_urlModel = $urlModel;
         $this->_urlFinder = $urlFinder;
+        $this->_categoryCollectionFactory = $categoryCollectionFactory;
     }
 
     /**
@@ -284,6 +301,7 @@ class Export
     public function export()
     {
         $this->_usedProductAttribute = $this->_objectManager->get(UsedProductAttribute::class);
+        $this->_excludedCategories = $this->_feedHelper->getExcludedCategories();
 
         $this->setStores();
 
@@ -502,6 +520,8 @@ class Export
             return false;
         }
 
+        $rowData['keywords'] = $this->buildCategories($_product,true);
+
         $currentStore = $_product->getStore();
 
         /** @var Attribute $attribute */
@@ -536,6 +556,7 @@ class Export
                  * Translate non-standard attributes
                  */
                 $rowData[$this->getLngKey($langCode, 'categories')] = $this->buildCategories($storeProduct);
+                $rowData[$this->getLngKey($langCode, 'keywords')] = $this->buildCategories($storeProduct,true);
                 $rowData[$this->getLngKey($langCode, 'url')] = $this->getProductUrl($storeProduct,true);
 
                 /** @var Attribute $attribute */
@@ -633,19 +654,50 @@ class Export
     }
 
     /**
+     * Get collection of product categories or keywords
+     *
+     * @param $product
+     * @param $keywords
+     *
+     * @return $collection
+     */
+    public function getCategoryCollection($product,$keywords = false)
+    {
+        $collection = $this->_categoryCollectionFactory->create();
+        $collection->addAttributeToSelect('name');
+        $collection->joinField(
+            'product_id',
+            'catalog_category_product',
+            'product_id',
+            'category_id = entity_id',
+            null
+        )->addFieldToFilter(
+            'product_id',
+            (int)$product->getEntityId()
+        );
+        if($keywords) {
+            $collection->addFieldToFilter('entity_id', array('in' => $this->_excludedCategories));
+        } else {
+            $collection->addFieldToFilter('entity_id', array('nin' => $this->_excludedCategories));
+        }
+
+        return $collection;
+    }
+
+    /**
      * @param Product $product
+     * @param $keywords
+     *
      * @return string
      */
-    protected function buildCategories(Product $product)
+    protected function buildCategories(Product $product, $keywords = false)
     {
-        $collection = $product->getCategoryCollection()
-            ->addNameToResult()
-            ->getItems();
+        $categories = $this->getCategoryCollection($product,$keywords)->getItems();
 
         return join('|', array_map(function ($category) {
             /** @var Category $category */
             return $category->getName();
-        }, $collection));
+        }, $categories));
     }
 
     /**

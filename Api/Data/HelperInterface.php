@@ -13,6 +13,7 @@ interface HelperInterface
     const PRODUCT_SYNC_ENABLE = 'dyi_integration/feed/enable_feed_sync';
     const CONF_ENABLE_EUROPE_ACCOUNT = 'dyi_integration/integration/europe_account';
     const CONF_ENABLE_CDN_INTEGRATION = 'dyi_integration/integration/cdn_integration';
+    const CONF_EXCLUDED_CATEGORIES = 'dyi_integration/feed/excluded_categories';
     const CONF_CUSTOM_CDN = 'dyi_integration/integration/cdn_url';
     const DEFAULT_CDN = "cdn.dynamicyield.com";
     const EUROPE_CDN = "cdn-eu.dynamicyield.com";
