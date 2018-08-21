@@ -56,6 +56,11 @@ class ExcludedCategory implements ArrayInterface
         $options = array();
         $categories = $this->getCategories();
 
+        $options[] = array(
+            'label' => 'None',
+            'value' => ''
+        );
+
         foreach($categories as $category)
         {
             $prefix = static::CATEGORY_LEVEL;
