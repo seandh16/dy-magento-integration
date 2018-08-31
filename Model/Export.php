@@ -33,6 +33,7 @@ use Magento\Framework\App\ResourceConnection as Resource;
 use Magento\UrlRewrite\Model\UrlFinderInterface;
 use \Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
+use DynamicYield\Integration\Api\Data\ProductFeedInterface;
 
 
 class Export
@@ -88,7 +89,8 @@ class Export
     protected $customAttributes = [
         'categories',
         'url',
-        'keywords'
+        'keywords',
+        ProductFeedInterface::FINAL_PRICE
     ];
 
     /**
@@ -332,6 +334,12 @@ class Export
         $header = array_diff($header, $this->_excludedHeader);
         $header = array_unique(array_merge($header, $this->customAttributes));
 
+        if(!$this->_feedHelper->isFinalPriceSelected()) {
+            if (($key = array_search(ProductFeedInterface::FINAL_PRICE, $header)) !== false) {
+                unset($header[$key]);
+            }
+        }
+
         if($this->_feedHelper->isMultiLanguage()) {
             foreach ($header as $code) {
                 if (!in_array($code, $this->_globalAttributes)
@@ -521,6 +529,7 @@ class Export
         }
 
         $rowData['keywords'] = $this->buildCategories($_product,true);
+        $rowData[ProductFeedInterface::FINAL_PRICE] = $_product->getFinalPrice();
 
         $currentStore = $_product->getStore();
 
@@ -558,6 +567,7 @@ class Export
                 $rowData[$this->getLngKey($langCode, 'categories')] = $this->buildCategories($storeProduct);
                 $rowData[$this->getLngKey($langCode, 'keywords')] = $this->buildCategories($storeProduct,true);
                 $rowData[$this->getLngKey($langCode, 'url')] = $this->getProductUrl($storeProduct,true);
+                $rowData[$this->getLngKey($langCode, ProductFeedInterface::FINAL_PRICE)] = $storeProduct->getFinalPrice();
 
                 /** @var Attribute $attribute */
                 foreach ($additionalAttributes as $attribute) {

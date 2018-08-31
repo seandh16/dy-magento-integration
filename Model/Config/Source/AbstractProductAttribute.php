@@ -47,23 +47,5 @@ abstract class AbstractProductAttribute implements ArrayInterface
      */
     abstract function getAttributes();
 
-    /**
-     * @return array
-     */
-    public function toOptionArray()
-    {
-        $attributes = $this->getAttributes();
 
-        $data = [];
-
-        /** @var Attribute $attribute */
-        foreach ($attributes as $attribute) {
-            $data[] = [
-                'value' => $attribute->getAttributeCode(),
-                'label' => $attribute->getAttributeCode() . " ({$attribute->getFrontend()->getLabel()})"
-            ];
-        }
-
-        return $data;
-    }
 }

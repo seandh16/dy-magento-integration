@@ -104,6 +104,20 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     }
 
     /**
+     * Is 'final_price' attribute selected
+     *
+     * @return bool
+     */
+    public function isFinalPriceSelected()
+    {
+        $attributeIds = explode(',', $this->getFeedAttributes());
+        if($attributeIds && in_array(static::FINAL_PRICE,$attributeIds)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Get Base Attributes
      *
      * @return array

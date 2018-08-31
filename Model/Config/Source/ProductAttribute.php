@@ -4,8 +4,33 @@ namespace DynamicYield\Integration\Model\Config\Source;
 
 use DynamicYield\Integration\Api\Data\ProductFeedInterface;
 
+
 class ProductAttribute extends AbstractProductAttribute
 {
+    /**
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        $attributes = $this->getAttributes();
+        $data = [];
+
+        /** @var Attribute $attribute */
+        foreach ($attributes as $attribute) {
+            $data[] = [
+                'value' => $attribute->getAttributeCode(),
+                'label' => $attribute->getAttributeCode() . " ({$attribute->getFrontend()->getLabel()})"
+            ];
+        }
+
+        $data[] = array(
+            "label" => ProductFeedInterface::FINAL_PRICE . " (Final Price)",
+            "value" => ProductFeedInterface::FINAL_PRICE
+        );
+
+        return $data;
+    }
+
     /**
      * @return mixed
      */
