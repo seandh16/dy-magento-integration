@@ -26,6 +26,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use DynamicYield\Integration\Model\Config\Source\IntegrationType;
 use DynamicYield\Integration\Model\Export;
 use Magento\Catalog\Model\Product\Type;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 
 
 
@@ -82,6 +83,13 @@ class Data extends AbstractHelper implements HelperInterface
      */
     protected $_count;
 
+    /**
+     * Category collection factory
+     *
+     * @var CategoryCollectionFactory
+     */
+    protected $_categoryCollectionFactory;
+
 
     /**
      * Data constructor
@@ -95,6 +103,7 @@ class Data extends AbstractHelper implements HelperInterface
      * @param Store $store
      * @param StoreManagerInterface $storeManager
      * @param ProductRepository $productRepository
+     * @param CategoryCollectionFactory $categoryCollectionFactory
      */
     public function __construct(
         Context $context,
@@ -105,7 +114,8 @@ class Data extends AbstractHelper implements HelperInterface
         Queue $queue,
         Store $store,
         StoreManagerInterface $storeManager,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        CategoryCollectionFactory $categoryCollectionFactory
     )
     {
         parent::__construct($context);
@@ -118,6 +128,7 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_store = $store;
         $this->_storeManager = $storeManager;
         $this->_productRepository = $productRepository;
+        $this->_categoryCollectionFactory = $categoryCollectionFactory;
     }
 
     /**
@@ -373,7 +384,7 @@ class Data extends AbstractHelper implements HelperInterface
                 $data = [];
 
                 if($category) {
-                    foreach ($category->getParentCategories() as $parentCategory) {
+                    foreach ($this->getParentCategories($category) as $parentCategory) {
                         $data[] = $parentCategory->getName();
                     }
                 }
@@ -416,6 +427,38 @@ class Data extends AbstractHelper implements HelperInterface
         $context = array('type' => strtoupper($type), 'lng' => $language, 'data' => $data);
 
         return array_filter($context,function($var){return !is_null($var);});
+    }
+
+
+    public function getDefaultStoreView()
+    {
+        return $this->scopeConfig->getValue(self::CONF_DEFAULT_STORE) ?: $this->_storeManager->getStore();
+    }
+
+    /**
+     * Return parent categories of category
+     *
+     * @param \Magento\Catalog\Model\Category $category
+     * @return \Magento\Framework\DataObject[]
+     */
+    public function getParentCategories($category)
+    {
+        $pathIds = array_reverse(explode(',', $category->getPathInStore()));
+        /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categories */
+        $categories = $this->_categoryCollectionFactory->create();
+        return $categories->setStore(
+            $this->getDefaultStoreView()
+        )->addAttributeToSelect(
+            'name'
+        )->addAttributeToSelect(
+            'url_key'
+        )->addFieldToFilter(
+            'entity_id',
+            ['in' => $pathIds]
+        )->addFieldToFilter(
+            'is_active',
+            1
+        )->load()->getItems();
     }
 
 

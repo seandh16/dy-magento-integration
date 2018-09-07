@@ -131,6 +131,11 @@
                         <field id="enable_custom">1</field>
                     </depends>
                 </field>
+                <field id="default_store" translate="label comment" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Store</label>
+                    <source_model>DynamicYield\Integration\Model\Config\Source\Store</source_model>
+                    <comment>Select the default store to use in context for category reporting.</comment>
+                </field>
             </group>
             <group id="integration" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Integration Type</label>
