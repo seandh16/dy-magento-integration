@@ -23,11 +23,13 @@ class UsedProductAttribute extends AbstractProductAttribute
             ];
         }
 
-        if($this->_feedHelper->isFinalPriceSelected()) {
-            $data[] = array(
-                "label" => ProductFeedInterface::FINAL_PRICE . " (Final Price)",
-                "value" => ProductFeedInterface::FINAL_PRICE
-            );
+        foreach ($this->_feedHelper->getCustomProductAttributes() as $customAttribute) {
+            if($this->_feedHelper->isAttributeSelected($customAttribute)) {
+                $data[] = array(
+                    "label" => $customAttribute . " (".$customAttribute.")",
+                    "value" => $customAttribute
+                );
+            }
         }
 
         return $data;

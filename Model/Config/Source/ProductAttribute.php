@@ -23,10 +23,12 @@ class ProductAttribute extends AbstractProductAttribute
             ];
         }
 
-        $data[] = array(
-            "label" => ProductFeedInterface::FINAL_PRICE . " (Final Price)",
-            "value" => ProductFeedInterface::FINAL_PRICE
-        );
+        /**
+         * Add non standard attributes
+         */
+        foreach($this->getCustomProductAttributes() as $attribute) {
+            $data[] = $attribute;
+        }
 
         return $data;
     }
@@ -53,5 +55,22 @@ class ProductAttribute extends AbstractProductAttribute
                 ->addFieldToFilter('attribute_code', ['nin' => $excludedAttributes]);
 
         return $collection;
+    }
+
+    /**
+     * Get custom attributes for select
+     *
+     * @return array
+     */
+    public function getCustomProductAttributes() {
+        $attributes = array();
+        foreach ($this->_feedHelper->getCustomProductAttributes() as $customAttribute) {
+            $attributes[] = array(
+                    "label" => $customAttribute . " (".$customAttribute.")",
+                    "value" => $customAttribute
+                );
+        }
+
+        return $attributes;
     }
 }

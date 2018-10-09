@@ -334,11 +334,16 @@ class Export
         $header = array_diff($header, $this->_excludedHeader);
         $header = array_unique(array_merge($header, $this->customAttributes));
 
-        if(!$this->_feedHelper->isFinalPriceSelected()) {
-            if (($key = array_search(ProductFeedInterface::FINAL_PRICE, $header)) !== false) {
-                unset($header[$key]);
+        foreach ($this->_feedHelper->getCustomProductAttributes() as $customAttribute) {
+            if(!$this->_feedHelper->isAttributeSelected($customAttribute)) {
+                if (($key = array_search($customAttribute, $header)) !== false) {
+                    unset($header[$key]);
+                }
+            } else {
+                $header[] = $customAttribute;
             }
         }
+        $header = array_unique($header);
 
         if($this->_feedHelper->isMultiLanguage()) {
             foreach ($header as $code) {
@@ -530,6 +535,7 @@ class Export
 
         $rowData['keywords'] = $this->buildCategories($_product,true);
         $rowData[ProductFeedInterface::FINAL_PRICE] = $_product->getFinalPrice();
+        $rowData[ProductFeedInterface::PRODUCT_ID] = $_product->getId();
 
         $currentStore = $_product->getStore();
 

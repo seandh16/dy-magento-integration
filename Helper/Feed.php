@@ -49,6 +49,11 @@ class Feed extends AbstractHelper implements ProductFeedInterface
         'image_url'
     ];
 
+    protected $_customProductAttributes = [
+        ProductFeedInterface::FINAL_PRICE,
+        ProductFeedInterface::PRODUCT_ID
+    ];
+
     /**
      * Feed constructor
      *
@@ -104,14 +109,22 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     }
 
     /**
-     * Is 'final_price' attribute selected
+     * @return array
+     */
+    public function getCustomProductAttributes() {
+        return $this->_customProductAttributes;
+    }
+
+    /**
+     * Check if additional attribute is selected
      *
+     * @param $attributeCode
      * @return bool
      */
-    public function isFinalPriceSelected()
+    public function isAttributeSelected($attributeCode)
     {
         $attributeIds = explode(',', $this->getFeedAttributes());
-        if($attributeIds && in_array(static::FINAL_PRICE,$attributeIds)) {
+        if($attributeIds && in_array($attributeCode,$attributeIds)) {
             return true;
         }
         return false;
