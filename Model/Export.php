@@ -518,7 +518,7 @@ class Export
     public function readLine(Product $_product, $storeCollection,$parentProductCollection = null, $additionalAttributes)
     {
         $rowData = [
-            'name' => $_product->getName(),
+            'name' => $this->getProductName($_product, $_product->getStore()->getId()),
             'url' => $this->getProductUrl($_product),
             'sku' => $_product->getSku(),
             'group_id' => $this->getGroupId($_product),
@@ -582,6 +582,8 @@ class Export
                         $rowData[$field] = $this->buildAttributeData($storeProduct, $attribute);
                     }
                 }
+                $rowData[$this->getLngKey($langCode, 'name')] = $this->getProductName($storeProduct, $store->getId());
+
             }
         }
 
@@ -629,6 +631,18 @@ class Export
     protected function getProductUrl($product,$store = null)
     {
         return $this->getRewrittenUrl($product,$store);
+    }
+
+    /**
+     * Get Product Name (parent if exists)
+     *
+     * @param $product
+     * @param $storeId
+     * @return mixed
+     */
+    public function getProductName($product,$storeId = 0)
+    {
+        return $product->getParentId() ? $this->_productResource->getAttributeRawValue($product->getParentId(), 'name', $storeId) : $product->getName();
     }
 
     /**
