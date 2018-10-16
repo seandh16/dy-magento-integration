@@ -424,6 +424,9 @@ class Export
                     ->addAttributeToFilter('type_id', ['nin' => [
                         Type::TYPE_BUNDLE, static::PRODUCT_GROUPED,static::PRODUCT_CONFIGURABLE
                     ]]);
+                $storeCollection[$store->getId()]->getSelect()->limit($limit, 0);
+                $storeCollection[$store->getId()]->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_id'));
+                $storeCollection[$store->getId()]->getSelect()->group('e.entity_id');
                 $storeCollection[$store->getId()]->load();
             }
         }
