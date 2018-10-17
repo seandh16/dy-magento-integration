@@ -27,6 +27,7 @@ use DynamicYield\Integration\Model\Config\Source\IntegrationType;
 use DynamicYield\Integration\Model\Export;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Store\Model\ScopeInterface;
 
 
 
@@ -432,7 +433,7 @@ class Data extends AbstractHelper implements HelperInterface
 
     public function getDefaultStoreView()
     {
-        return $this->scopeConfig->getValue(self::CONF_DEFAULT_STORE) ?: $this->_storeManager->getStore();
+        return $this->scopeConfig->getValue(self::CONF_DEFAULT_STORE,ScopeInterface::SCOPE_STORE) ?: $this->_storeManager->getStore();
     }
 
     /**
