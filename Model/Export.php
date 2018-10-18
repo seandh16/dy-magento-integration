@@ -519,6 +519,10 @@ class Export
      */
     public function readLine(Product $_product, $storeCollection,$parentProductCollection = null, $additionalAttributes)
     {
+        if($defaultStore = $this->_storeManager->getDefaultStoreView()) {
+            $this->_storeManager->setCurrentStore($defaultStore->getStoreId());
+        }
+
         $rowData = [
             'name' => $this->getProductName($_product, $_product->getStore()->getId()),
             'url' => $this->getProductUrl($_product),
@@ -668,7 +672,7 @@ class Export
         $urlRewrite = $this->_urlFinder->findOneByData($filterData);
 
         if($urlRewrite) {
-            return $this->_urlModel->getUrl($urlRewrite->getRequestPath());
+            return $this->_storeManager->getStore($product->getStoreId())->getBaseUrl(UrlInterface::URL_TYPE_LINK) . $urlRewrite->getRequestPath();
         }
 
         return $product->getProductUrl();
