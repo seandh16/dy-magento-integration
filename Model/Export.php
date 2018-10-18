@@ -396,7 +396,12 @@ class Export
         $collection->addUrlRewrite();
         $collection->addFieldToFilter("entity_id",["gt" => $offset]);
         $collection->getSelect()->limit($limit, 0);
-        $collection->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_id'));
+        if($this->_feedHelper->isEnterpriseEdition()) {
+            $collection->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_row_id' => 'parent_id'));
+            $collection->getSelect()->joinLeft(array('self' => $this->_resource->getTableName('catalog_product_entity')),'`super`.`parent_id` = `self`.`row_id`',array('parent_id' => 'entity_id'));
+        } else {
+            $collection->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_id'));
+        }
         $collection->getSelect()->group('e.entity_id');
 
         $storeCollection = [];
@@ -424,7 +429,12 @@ class Export
                     ->addAttributeToFilter('type_id', ['nin' => [
                         Type::TYPE_BUNDLE, static::PRODUCT_GROUPED,static::PRODUCT_CONFIGURABLE
                     ]]);
-                $storeCollection[$store->getId()]->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_id'));
+                if($this->_feedHelper->isEnterpriseEdition()) {
+                    $storeCollection[$store->getId()]->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_row_id' => 'parent_id'));
+                    $storeCollection[$store->getId()]->getSelect()->joinLeft(array('self' => $this->_resource->getTableName('catalog_product_entity')),'`super`.`parent_id` = `self`.`row_id`',array('parent_id' => 'entity_id'));
+                } else {
+                    $storeCollection[$store->getId()]->getSelect()->joinLeft(array('super' => $this->_resource->getTableName('catalog_product_super_link')),'`e`.`entity_id` = `super`.`product_id`',array('parent_id'));
+                }
                 $storeCollection[$store->getId()]->getSelect()->group('e.entity_id');
                 $storeCollection[$store->getId()]->load();
             }
@@ -441,7 +451,7 @@ class Export
         $parentProductCollection = $this->_productCollectionFactory->create()
             ->addAttributeToSelect('*')
             ->addUrlRewrite();
-        $parentProductCollection->addFieldToFilter("entity_id", ["in" => $parentIds]);
+        $parentProductCollection->addFieldToFilter('entity_id', ['in' => $parentIds]);
         $parentProductCollection->getSelect()->limit($limit, 0);
 
         /** @var Product $item */

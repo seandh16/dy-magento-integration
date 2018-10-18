@@ -18,4 +18,5 @@ interface ProductFeedInterface
     const HEARTBEAT_EXPR = '*/5 * * * *';
     const FINAL_PRICE = 'final_price';
     const PRODUCT_ID = 'product_id';
+    const EDITION_COMMUNITY = 'Community';
 }

@@ -131,6 +131,16 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     }
 
     /**
+     * Check if enterprise edition
+     *
+     * @return bool
+     */
+    public function isEnterpriseEdition()
+    {
+        return $this->_dataHelper->getMagentoEdition() != ProductFeedInterface::EDITION_COMMUNITY;
+    }
+
+    /**
      * Get Base Attributes
      *
      * @return array

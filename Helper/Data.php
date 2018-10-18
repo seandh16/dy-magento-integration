@@ -28,6 +28,7 @@ use DynamicYield\Integration\Model\Export;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Store\Model\ScopeInterface;
+use \Magento\Framework\App\ProductMetadataInterface;
 
 
 
@@ -91,6 +92,11 @@ class Data extends AbstractHelper implements HelperInterface
      */
     protected $_categoryCollectionFactory;
 
+    /**
+     * @var ProductMetadataInterface
+     */
+    protected $_metaData;
+
 
     /**
      * Data constructor
@@ -116,7 +122,8 @@ class Data extends AbstractHelper implements HelperInterface
         Store $store,
         StoreManagerInterface $storeManager,
         ProductRepository $productRepository,
-        CategoryCollectionFactory $categoryCollectionFactory
+        CategoryCollectionFactory $categoryCollectionFactory,
+        ProductMetadataInterface $metaData
     )
     {
         parent::__construct($context);
@@ -130,6 +137,15 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_storeManager = $storeManager;
         $this->_productRepository = $productRepository;
         $this->_categoryCollectionFactory = $categoryCollectionFactory;
+        $this->_metaData = $metaData;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMagentoEdition()
+    {
+        return $this->_metaData->getEdition();
     }
 
     /**
