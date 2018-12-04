@@ -37,9 +37,11 @@ class EmptyCartPlugin
             $items = $cart->getQuote()->getItems();
             $itemIds = [];
 
-            foreach ($items as $item) {
-                /** @var Item $item */
-                $itemIds[] = $item->getId();
+            if($items) {
+                foreach ($items as $item) {
+                    /** @var Item $item */
+                    $itemIds[] = $item->getId();
+                }
             }
 
             $this->_eventManager->dispatch('dyi_empty_cart', [
