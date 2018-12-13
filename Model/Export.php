@@ -533,6 +533,12 @@ class Export
             $this->_storeManager->setCurrentStore($defaultStore->getStoreId());
         }
 
+        if($_product->getParentId()) {
+            if($this->_productResource->getAttributeRawValue($_product->getParentId(), 'status', $_product->getStore()->getId()) != Status::STATUS_ENABLED) {
+                return false;
+            }
+        }
+
         $rowData = [
             'name' => $this->getProductName($_product, $_product->getStore()->getId()),
             'url' => $this->getProductUrl($_product),
@@ -742,7 +748,7 @@ class Export
 
         return join('|', array_map(function ($category) {
             /** @var Category $category */
-            return $category->getName();
+            return trim($category->getName());
         }, $categories));
     }
 

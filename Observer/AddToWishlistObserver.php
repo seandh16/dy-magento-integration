@@ -3,6 +3,7 @@
 namespace DynamicYield\Integration\Observer;
 
 use Magento\Framework\Event\Observer;
+use Magento\Catalog\Model\ResourceModel\Product as ProductResource;
 
 class AddToWishlistObserver extends AbstractObserver
 {
@@ -15,7 +16,19 @@ class AddToWishlistObserver extends AbstractObserver
     function dispatch(Observer $observer)
     {
         $product = $observer->getEvent()->getProduct();
-        $this->_addToWishlistEvent->setProduct($product);
+
+        $productSku = $product->getSku();
+        $item = $observer->getEvent()->getItem();
+        if($item) {
+            if($simple = $item->getOptionByCode('simple_product')) {
+                if($simpleId = $simple->getProductId()) {
+                    $productSku = $this->_productResource->getAttributeRawValue($simpleId, 'sku', 0)['sku'];
+                }
+            }
+        }
+
+
+        $this->_addToWishlistEvent->setProductSku($productSku);
         $data = $this->_addToWishlistEvent->build();
 
         return $this->buildResponse([

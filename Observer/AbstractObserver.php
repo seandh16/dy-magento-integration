@@ -12,6 +12,7 @@ use DynamicYield\Integration\Model\Event\RemoveFromCartEvent;
 use DynamicYield\Integration\Model\Event\SearchEvent;
 use DynamicYield\Integration\Model\Event\SignupEvent;
 use DynamicYield\Integration\Model\Event\SubscribeToNewsletterEvent;
+use Magento\Catalog\Model\ResourceModel\Product\Proxy as ProductResource;
 use DynamicYield\Integration\Model\Event\SyncCartEvent;
 use DynamicYield\Integration\Model\Queue;
 use Magento\Framework\App\Response\Http as Response;
@@ -110,6 +111,11 @@ abstract class AbstractObserver implements ObserverInterface
     protected $_syncCartEvent;
 
     /**
+     * @var ProductResource
+     */
+    protected $_productResource;
+
+    /**
      * AbstractObserver constructor
      * @param Request $request
      * @param Response $response
@@ -128,6 +134,7 @@ abstract class AbstractObserver implements ObserverInterface
      * @param SubscribeToNewsletterEvent $subscribeToNewsletterEvent
      * @param State $state
      * @param Session $customerSession
+     * @param ProductResource $productResource
      */
     public function __construct(
         Request $request,
@@ -146,7 +153,8 @@ abstract class AbstractObserver implements ObserverInterface
         SignupEvent $signupEvent,
         SubscribeToNewsletterEvent $subscribeToNewsletterEvent,
         State $state,
-        Session $customerSession
+        Session $customerSession,
+        ProductResource $productResource
     )
     {
         $this->_request = $request;
@@ -166,6 +174,7 @@ abstract class AbstractObserver implements ObserverInterface
         $this->_state = $state;
         $this->_customerSession = $customerSession;
         $this->_syncCartEvent = $syncCartEvent;
+        $this->_productResource = $productResource;
     }
 
     /**

@@ -10,7 +10,7 @@ class AddToWishlistEvent extends Event
     /**
      * @var Product
      */
-    protected $_product;
+    protected $_productSku;
 
     /**
      * @return string
@@ -44,15 +44,15 @@ class AddToWishlistEvent extends Event
     function generateProperties()
     {
         return [
-            'productId' => $this->_product->getSku()
+            'productId' => $this->_productSku
         ];
     }
 
     /**
-     * @param Product $product
+     * @param string $productSku
      */
-    public function setProduct(Product $product)
+    public function setProductSku($productSku)
     {
-        $this->_product = $product;
+        $this->_productSku = $productSku;
     }
 }
