@@ -195,6 +195,18 @@ class Feed extends AbstractHelper implements ProductFeedInterface
     }
 
     /**
+     * Get Excluded Category IDs
+     *
+     * @param $storeId
+     * @return array
+     */
+    public function getCategoryTree($storeId)
+    {
+        return  $this->_dataHelper->getCategoryTree($storeId) != '' ?  explode(',', $this->_dataHelper->getCategoryTree($storeId)) : null;
+    }
+
+
+    /**
      * @return string
      */
     public function getExportFilename()

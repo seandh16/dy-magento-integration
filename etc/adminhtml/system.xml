@@ -37,7 +37,7 @@
                 </field>
             </group>
 
-            <group id="feed" translate="label" type="text" sortOrder="20" showInDefault="1">
+            <group id="feed" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Product Catalog Sync</label>
 
                 <field id="enable_feed_sync" translate="label comment" type="select" sortOrder="9" showInDefault="1">
@@ -80,6 +80,14 @@
                     <label>Excluded Categories</label>
                     <comment>Categories to exclude from the product feed. Will be included in the feed as Keywords.</comment>
                     <source_model>DynamicYield\Integration\Model\Config\Source\ExcludedCategory</source_model>
+                    <depends>
+                        <field id="enable_feed_sync">1</field>
+                    </depends>
+                </field>
+                <field id="website_category_root" translate="label comment" type="multiselect" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Category Trees</label>
+                    <comment>Define the root category for each store view. Leave empty if all trees should be included in all store views.</comment>
+                    <source_model>DynamicYield\Integration\Model\Config\Source\CategoryTree</source_model>
                     <depends>
                         <field id="enable_feed_sync">1</field>
                     </depends>

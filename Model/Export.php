@@ -733,6 +733,14 @@ class Export
             $collection->addFieldToFilter('entity_id', array('nin' => $this->_excludedCategories));
         }
 
+        if(!empty($this->_feedHelper->getCategoryTree($product->getStore()->getId()))) {
+            $conditions = array();
+            foreach ($this->_feedHelper->getCategoryTree($product->getStore()->getId()) as $tree) {
+                $conditions[] = array('attribute' => 'path', 'like' => '%/'.$tree.'/%');
+            }
+            $collection->addFieldToFilter($conditions);
+        }
+
         return $collection;
     }
 

@@ -359,6 +359,17 @@ class Data extends AbstractHelper implements HelperInterface
     }
 
     /**
+     * Get Category Root
+     *
+     * @param $storeId
+     * @return array
+     */
+    public function getCategoryTree($storeId = 0)
+    {
+        return $this->scopeConfig->getValue(self::CONF_CATEGORY_ROOT,Scope::SCOPE_STORE,$storeId);
+    }
+
+    /**
      * @return array
      */
     public function getCurrentContext()
