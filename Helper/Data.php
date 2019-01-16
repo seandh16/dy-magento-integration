@@ -579,6 +579,13 @@ class Data extends AbstractHelper implements HelperInterface
         $html = '';
 
         if ($this->isEnabled() && $this->getJsIntegration()) {
+
+            $html .= '
+            <link rel="dns-prefetch" href="//'.$this->getCDN().'">
+            <link rel="dns-prefetch" href="//st.dynamicyield.com">
+            <link rel="dns-prefetch" href="//rcom.dynamicyield.com">
+            ' . "\n";
+
             $html .= '<script type="text/javascript">// <![CDATA[
                 window.DY = window.DY || {};
                 DY.recommendationContext = ' . json_encode($this->getCurrentContext()) . ';
