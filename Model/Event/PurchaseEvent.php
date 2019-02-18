@@ -75,6 +75,7 @@ class PurchaseEvent extends Event
     function getDefaultProperties()
     {
         return [
+            'uniqueTransactionId' => null,
             'value' => null,
             'currency' => null,
             'cart' => []
@@ -112,6 +113,7 @@ class PurchaseEvent extends Event
         }
 
         return [
+            'uniqueTransactionId' => $this->generateUniqueId(),
             'value' => round($this->_order->getGrandTotal(),2),
             'currency' => $this->_order->getOrderCurrencyCode(),
             'cart' => $items

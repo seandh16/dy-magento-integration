@@ -97,10 +97,10 @@ abstract class Event
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function generateUniqueId() {
-        $eventId = intval(str_pad(mt_rand(0, 999999999999), 10, '0', STR_PAD_LEFT));
+        $eventId = (string) intval(str_pad(mt_rand(0, 999999999999), 10, '0', STR_PAD_LEFT));
         return $eventId;
     }
 }
