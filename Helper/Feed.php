@@ -13,6 +13,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
 {
     const FEED_SKIPPED_PRODUCTS = 'dyi_skipped_products.log';
     const S3_BUCKET_REGION = 'us-east-1';
+    const S3_BUCKET_REGION_EUROPE = 'eu-central-1';
     const AWS_SDK_VERSION = '2006-03-01';
     const S3_FILE_NAME = 'productfeed.csv';
     const BUCKET = "com.dynamicyield.feeds";
@@ -252,7 +253,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function getRegion()
     {
-        return static::S3_BUCKET_REGION;
+        return $this->_dataHelper->isEuropeAccount() ? static::S3_BUCKET_REGION_EUROPE : static::S3_BUCKET_REGION;
     }
 
     /**
