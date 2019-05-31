@@ -4,6 +4,7 @@ namespace DynamicYield\Integration\Model\System\Message;
 
 use DynamicYield\Integration\Model\Cronjob as CronjobModel;
 use Magento\Framework\Notification\MessageInterface;
+use DynamicYield\Integration\Helper\Feed\Proxy as FeedHelper;
 
 class Cronjob implements MessageInterface
 {
@@ -13,15 +14,23 @@ class Cronjob implements MessageInterface
     protected $_cronjob;
 
     /**
+     * @var FeedHelper
+     */
+    protected $_feedHelper;
+
+    /**
      * Cronjob constructor
      *
      * @param CronjobModel $cronjob
+     * @param FeedHelper $feedhelper
      */
     public function __construct(
-        CronjobModel $cronjob
+        CronjobModel $cronjob,
+        FeedHelper $feedHelper
     )
     {
         $this->_cronjob = $cronjob;
+        $this->_feedHelper = $feedHelper;
     }
 
     /**
@@ -41,7 +50,7 @@ class Cronjob implements MessageInterface
      */
     public function isDisplayed()
     {
-        return !$this->_cronjob->isRunning();
+        return !$this->_feedHelper->isFeedSyncEnabled() ? false : !$this->_cronjob->isRunning();
     }
 
     /**
