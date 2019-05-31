@@ -22,7 +22,7 @@ class Cronjob implements MessageInterface
      * Cronjob constructor
      *
      * @param CronjobModel $cronjob
-     * @param FeedHelper $feedhelper
+     * @param FeedHelper $feedHelper
      */
     public function __construct(
         CronjobModel $cronjob,
