@@ -108,6 +108,10 @@ class RemoveFromCartEvent extends Event
         $item = $quote->getItemById($this->_cartItem);
         $currency = $quote->getQuoteCurrencyCode();
 
+        if(!$item) {
+            return $this->getDefaultProperties();
+        }
+
         if (!$currency) {
             $currency = $quote->getStoreCurrencyCode() ?
                 $quote->getStoreCurrencyCode() : $quote->getBaseCurrencyCode();
