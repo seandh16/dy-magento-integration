@@ -520,6 +520,26 @@ class Export
     }
 
     /**
+     * Get Product Image Url
+     * Fallback to parent product image
+     *
+     * @param $product
+     * @return mixed
+     */
+    public function getProductImageUrl($product)
+    {
+        $image = null;
+
+        if(!in_array($product->getImage(),array('no_selection',''))) {
+            $image = $product->getImage();
+        } elseif ($product->getParentId()) {
+            $image = $this->_productResource->getAttributeRawValue($product->getParentId(), 'image', $product->getStore()->getId());
+        }
+
+        return $image ? $product->getMediaConfig()->getMediaUrl($image) : '';
+    }
+
+    /**
      * @param Product $_product
      * @param mixed $storeCollection
      * @param mixed $parentProductCollection
@@ -547,7 +567,7 @@ class Export
             'price' => $_product->getParentId() ? $this->getFinalPrice($_product,$parentProductCollection) : $_product->getPrice(),
             'in_stock' => $this->_stockRegistry->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
-            'image_url' => $_product->getImage() ? $_product->getMediaConfig()->getMediaUrl($_product->getImage()) : null
+            'image_url' => $this->getProductImageUrl($_product)
         ];
 
         if(count($rowData) != count(array_diff($rowData,array('')))) {
@@ -708,12 +728,13 @@ class Export
     /**
      * Get collection of product categories or keywords
      *
-     * @param $product
+     * @param $productId
+     * @param $storeId
      * @param $keywords
      *
      * @return $collection
      */
-    public function getCategoryCollection($product,$keywords = false)
+    public function getCategoryCollection($productId, $storeId, $keywords = false)
     {
         $collection = $this->_categoryCollectionFactory->create();
         $collection->addAttributeToSelect('name');
@@ -725,7 +746,7 @@ class Export
             null
         )->addFieldToFilter(
             'product_id',
-            (int)$product->getEntityId()
+            $productId
         );
         if($keywords) {
             $collection->addFieldToFilter('entity_id', array('in' => $this->_excludedCategories));
@@ -733,9 +754,9 @@ class Export
             $collection->addFieldToFilter('entity_id', array('nin' => $this->_excludedCategories));
         }
 
-        if(!empty($this->_feedHelper->getCategoryTree($product->getStore()->getId()))) {
+        if(!empty($this->_feedHelper->getCategoryTree($storeId))) {
             $conditions = array();
-            foreach ($this->_feedHelper->getCategoryTree($product->getStore()->getId()) as $tree) {
+            foreach ($this->_feedHelper->getCategoryTree($storeId) as $tree) {
                 $conditions[] = array('attribute' => 'path', 'like' => '%/'.$tree.'/%');
             }
             $collection->addFieldToFilter($conditions);
@@ -752,7 +773,8 @@ class Export
      */
     protected function buildCategories(Product $product, $keywords = false)
     {
-        $categories = $this->getCategoryCollection($product,$keywords)->getItems();
+        $categories = $this->getCategoryCollection($product->getId(),$product->getStore()->getId(), $keywords)->getItems() ?:
+            $this->getCategoryCollection($product->getParentId(),$product->getStore()->getId(), $keywords)->getItems();
 
         return join('|', array_map(function ($category) {
             /** @var Category $category */
@@ -776,6 +798,10 @@ class Export
 
         if (is_array($attributeData)) {
             $attributeData = join("|", $attributeData);
+        }
+
+        if(!$attributeData || $attributeData = '') {
+            $attributeData = $this->_productResource->getAttributeRawValue($product->getParentId(), $attribute->getAttributeCode(), $product->getStore()->getId());
         }
 
         return $attributeData;
