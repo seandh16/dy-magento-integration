@@ -44,19 +44,12 @@ class Index extends Action
      */
     public function execute()
     {
+        $events = $this->_queue->getCollection();
         $json = $this->_jsonFactory->create();
-        $data = $this->getRequest()->getParam('data', []);
-
-        if (is_array($data) && empty($data)) {
-            return $json->setData([
-                'data' => $this->_queue->getCollection(),
-            ]);
-        }
-
-        $this->_queue->addToQueue(json_decode($data, true));
+        $this->_queue->clearQueue();
 
         return $json->setData([
-            'status' => true
+            'events' => $events
         ]);
     }
 }

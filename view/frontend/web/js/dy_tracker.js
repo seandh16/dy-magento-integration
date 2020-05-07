@@ -148,6 +148,35 @@
     };
 
     /**
+     * Workaround for Page Cache
+     */
+    DynamicYield_Tracking.prototype.fetchEvents = function () {
+        try{
+            if (window.XMLHttpRequest) {
+                var xhr = new XMLHttpRequest();
+            } else {
+                var xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xhr.open('GET', '/dyIntegration/storage/index');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if(response.events) {
+                        response.events.forEach(function (event) {
+                            console.log(event);
+
+                            try{ DY.API('event', event.properties); console.log('here'); }catch(e){console.log(e);}
+                        });
+                    } else {
+                        console.log('empty');
+                    }
+                }
+            };
+            xhr.send();
+        } catch (e){}
+    };
+
+    /**
      * Workaround for Page Cache issue.
      * Check if this is a new session
      * If a new session send a Sync Cart event
@@ -266,6 +295,7 @@
     DynamicYield_Tracking.prototype.onLoad = function() {
         var type = this.detectPage();
         this.syncCartEvent();
+        this.fetchEvents();
 
         if(type === 'category') {
             /**
