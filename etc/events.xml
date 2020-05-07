@@ -9,9 +9,6 @@
     <event name="wishlist_add_product">
         <observer name="AddToWishlistEvent" instance="DynamicYield\Integration\Observer\AddToWishlistObserver" />
     </event>
-    <event name="customer_login">
-        <observer name="LoginEvent" instance="DynamicYield\Integration\Observer\LoginObserver" />
-    </event>
     <event name="checkout_onepage_controller_success_action">
         <observer name="PurchaseEvent" instance="DynamicYield\Integration\Observer\PurchaseObserver" />
     </event>
