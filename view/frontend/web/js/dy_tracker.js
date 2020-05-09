@@ -163,12 +163,8 @@
                     var response = JSON.parse(xhr.responseText);
                     if(response.events) {
                         response.events.forEach(function (event) {
-                            console.log(event);
-
-                            try{ DY.API('event', event.properties); console.log('here'); }catch(e){console.log(e);}
+                            try{ DY.API('event', event.properties); }catch(e){}
                         });
-                    } else {
-                        console.log('empty');
                     }
                 }
             };
