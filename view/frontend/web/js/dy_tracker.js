@@ -157,7 +157,7 @@
             } else {
                 var xhr = new ActiveXObject("Microsoft.XMLHTTP");
             }
-            xhr.open('GET', '/dyIntegration/storage/index');
+            xhr.open('GET', '/dyIntegration/storage/index?requestId="' + getUniqueId() + '"');
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
