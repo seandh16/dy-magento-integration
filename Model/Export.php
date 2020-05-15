@@ -386,6 +386,11 @@ class Export
         if($this->_feedHelper->getIsDebugMode()){
             $time_start = microtime(true);
         }
+
+        if($defaultStore = $this->_storeManager->getDefaultStoreView()) {
+            $this->_storeManager->setCurrentStore($defaultStore->getStoreId());
+        }
+
         /** @var Collection $collection */
         $collection = $this->_productCollectionFactory->create();
         $collection->addAttributeToSelect('*')
