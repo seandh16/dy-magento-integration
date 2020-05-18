@@ -474,7 +474,7 @@ class Data extends AbstractHelper implements HelperInterface
         $pathIds = array_reverse(explode(',', $category->getPathInStore()));
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categories */
         $categories = $this->_categoryCollectionFactory->create();
-        return $categories->setStore(
+        $categories->setStore(
             $this->getDefaultStoreView()
         )->addAttributeToSelect(
             'name'
@@ -486,7 +486,10 @@ class Data extends AbstractHelper implements HelperInterface
         )->addFieldToFilter(
             'is_active',
             1
-        )->load()->getItems();
+        );
+        $categories->getSelect()->order(new \Zend_Db_Expr('FIELD(e.entity_id,' . implode(',', $pathIds).')'));
+
+        return $categories->load()->getItems();
     }
 
 
