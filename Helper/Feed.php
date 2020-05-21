@@ -300,4 +300,13 @@ class Feed extends AbstractHelper implements ProductFeedInterface
         return $this->_dataHelper->isFeedSyncEnabled();
     }
 
+    /**
+     * @param $string
+     * @return string|string[]|null
+     */
+    public function replaceSpaces($string)
+    {
+        return preg_replace('/\s+/', '_', $string);
+    }
+
 }

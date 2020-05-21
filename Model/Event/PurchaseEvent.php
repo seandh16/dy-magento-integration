@@ -105,8 +105,10 @@ class PurchaseEvent extends Event
                 continue;
             }
 
+            $sku = $this->_dataHelper->validateSku($product) ? $product->getSku() : $product->getData('sku');
+
             $items[] = [
-                'productId' => $this->_dataHelper->validateSku($product) ? $product->getSku() : $product->getData('sku'),
+                'productId' => $this->_dataHelper->replaceSpaces($sku),
                 'quantity' => round($item->getQtyOrdered(), 2),
                 'itemPrice' => round($this->_priceHelper->currency($product->getFinalPrice(),false,false),2)
             ];

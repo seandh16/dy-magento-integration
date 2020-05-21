@@ -395,7 +395,7 @@ class Data extends AbstractHelper implements HelperInterface
                 $product = $this->_registry->registry('current_product');
 
                 if($product) {
-                    $data[] = $this->getRandomChild($product)->getSku();
+                    $data[] = $this->replaceSpaces($this->getRandomChild($product)->getSku());
                 }
 
                 break;
@@ -436,11 +436,13 @@ class Data extends AbstractHelper implements HelperInterface
                         continue;
                     }
 
-                    if (isset($prepareItems[$quoteItem->getSku()]) || !$this->validateSku($quoteItem)) {
+                    $sku = $this->replaceSpaces($quoteItem->getSku());
+
+                    if (isset($prepareItems[$sku]) || !$this->validateSku($quoteItem)) {
                         continue;
                     }
 
-                    $prepareItems[$quoteItem->getSku()] = $quoteItem->getSku();
+                    $prepareItems[$sku] = $sku;
                 }
 
                 foreach ($prepareItems as $prepareItem) {
@@ -742,6 +744,15 @@ class Data extends AbstractHelper implements HelperInterface
     public function isFeedSyncEnabled()
     {
         return $this->scopeConfig->getValue(self::PRODUCT_SYNC_ENABLE);
+    }
+
+    /**
+     * @param $string
+     * @return string|string[]|null
+     */
+    public function replaceSpaces($string)
+    {
+        return preg_replace('/\s+/', '_', $string);
     }
 
 }
