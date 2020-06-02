@@ -121,11 +121,13 @@ class RemoveFromCartEvent extends Event
         $store = $this->_storeManager->getStore();
         $storeCurrency = $store->getCurrentCurrency();
 
+        $sku = $this->_dataHelper->validateSku($item->getProduct()) ? $item->getProduct()->getSku() : $item->getProduct()->getData('sku');
+
         return [
             'cart' => $this->getCartItems($this->_cart, $this->_dataHelper, $this->_priceHelper,[$item->getId()]),
             'value' => round($this->_priceHelper->currency($item->getProduct()->getFinalPrice(),false,false),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
-            'productId' => $this->_dataHelper->validateSku($item->getProduct()) ? $item->getProduct()->getSku() : $item->getProduct()->getData('sku'),
+            'productId' => $this->_dataHelper->replaceSpaces($sku),
             'quantity' => round($item->getQty(), 2)
         ];
     }

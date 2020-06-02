@@ -72,7 +72,9 @@ abstract class Event
                 continue;
             }
 
-            if (in_array($item->getId(), $except) || isset($prepareItems[$item->getSku()])) {
+            $sku = $dataHelper ? $dataHelper->replaceSpaces($item->getSku()) : $item->getSku();
+
+            if (in_array($item->getId(), $except) || isset($prepareItems[$sku])) {
                 continue;
             }
 
@@ -82,9 +84,9 @@ abstract class Event
                 continue;
             }
 
-            $prepareItems[$item->getSku()] = [
+            $prepareItems[$sku] = [
                 'itemPrice' => round($priceHelper->currency($product->getFinalPrice(),false,false),2),
-                'productId' =>  $product->getSku(),
+                'productId' =>  $dataHelper->replaceSpaces($product->getSku()),
                 'quantity' => round($item->getQty(), 2)
             ];
         }

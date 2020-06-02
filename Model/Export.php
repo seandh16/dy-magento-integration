@@ -567,8 +567,8 @@ class Export
         $rowData = [
             'name' => $this->getProductName($_product, $_product->getStore()->getId()),
             'url' => $this->getProductUrl($_product),
-            'sku' => $_product->getSku(),
-            'group_id' => $this->getGroupId($_product),
+            'sku' => $this->_feedHelper->replaceSpaces($_product->getSku()),
+            'group_id' => $this->_feedHelper->replaceSpaces($this->getGroupId($_product)),
             'price' => $_product->getParentId() ? $this->getFinalPrice($_product,$parentProductCollection) : $_product->getPrice(),
             'in_stock' => $this->_stockRegistry->getStockItem($_product->getId())->getIsInStock() ? "true" : "false",
             'categories' => $this->buildCategories($_product),
