@@ -115,7 +115,7 @@ class PurchaseEvent extends Event
         }
 
         return [
-            'uniqueTransactionId' => $this->generateUniqueId(),
+            'uniqueTransactionId' => (string) $this->_order->getIncrementId(),
             'value' => round($this->_order->getGrandTotal(),2),
             'currency' => $this->_order->getOrderCurrencyCode(),
             'cart' => $items
