@@ -8,9 +8,9 @@ use Magento\Customer\Model\Data\Customer;
 class SignupEvent extends Event
 {
     /**
-     * @var Customer
+     * @var string
      */
-    protected $_customer;
+    protected $_email;
 
     /**
      * @return string
@@ -44,15 +44,15 @@ class SignupEvent extends Event
     function generateProperties()
     {
         return [
-            'hashedEmail' => hash('sha256', strtolower($this->_customer->getEmail()))
+            'hashedEmail' => hash('sha256', strtolower($this->_email))
         ];
     }
 
     /**
-     * @param Customer $customer
+     * @param string
      */
-    public function setCustomer(Customer $customer)
+    public function setCustomerEmail($email)
     {
-        $this->_customer = $customer;
+        $this->_email = $email;
     }
 }

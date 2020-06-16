@@ -15,12 +15,15 @@ class SignupObserver extends AbstractObserver
     function dispatch(Observer $observer)
     {
         $customer = $observer->getEvent()->getCustomer();
-        $this->_signupEvent->setCustomer($customer);
-        $data = $this->_signupEvent->build();
 
-        return $this->buildResponse([
-            'type' => self::EVENT_TYPE,
-            'properties' => $data
-        ]);
+        if($customer) {
+            $this->_signupEvent->setCustomerEmail($customer->getEmail());
+            $data = $this->_signupEvent->build();
+
+            return $this->buildResponse([
+                'type' => self::EVENT_TYPE,
+                'properties' => $data
+            ]);
+        }
     }
 }
