@@ -125,7 +125,7 @@ class AddToCartEvent extends Event
 
         return [
             'cart' => $this->getCartItems($this->_cart, $this->_dataHelper,$this->_priceHelper),
-            'value' => round($this->_priceHelper->currency($product->getFinalPrice(),false,false),2),
+            'value' => round(($this->_priceHelper->currency($product->getFinalPrice(),false,false) * $this->_qty),2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $this->_dataHelper->replaceSpaces($sku),
             'quantity' => round($this->_qty, 2)
