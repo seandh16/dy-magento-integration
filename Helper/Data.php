@@ -586,6 +586,9 @@ class Data extends AbstractHelper implements HelperInterface
         if ($this->isEnabled() && $this->getJsIntegration()) {
 
             $html .= '
+            <link rel="preconnect" href="//'.$this->getCDN().'">
+            <link rel="preconnect" href="//st.dynamicyield.com">
+            <link rel="preconnect" href="//rcom.dynamicyield.com">
             <link rel="dns-prefetch" href="//'.$this->getCDN().'">
             <link rel="dns-prefetch" href="//st.dynamicyield.com">
             <link rel="dns-prefetch" href="//rcom.dynamicyield.com">
