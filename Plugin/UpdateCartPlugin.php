@@ -44,7 +44,7 @@ class UpdateCartPlugin
                     $qtyChange = $updateItem['qty'] - $item->getQty();
 
                     if ($qtyChange <= 0 || !$product = $item->getProduct()) {
-                        return;
+                        continue;
                     }
 
                     $this->_eventManager->dispatch('dyi_add_item_to_cart', [
