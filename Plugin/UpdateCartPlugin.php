@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: martinslaganovskis
- * Date: 20.12.8
- * Time: 13:30
- */
 
 namespace DynamicYield\Integration\Plugin;
 
