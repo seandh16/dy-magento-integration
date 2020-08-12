@@ -203,7 +203,9 @@ abstract class AbstractObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $eventName = $observer->getEvent()->getName() . '_observer_executed';
+        $eventIndex = $observer->getEvent()->getIndex() ?: '';
+
+        $eventName = $observer->getEvent()->getName() . '_observer_executed' . $eventIndex;
         if ($this->_registry->registry($eventName)) {
             return $this;
         }
