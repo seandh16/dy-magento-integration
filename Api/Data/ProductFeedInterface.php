@@ -17,6 +17,7 @@ interface ProductFeedInterface
     const HEARTBEAT_SCHEDULE_PATH= 'dyi_integration/feed/heartbeat_expr';
     const HEARTBEAT_EXPR = '*/5 * * * *';
     const FINAL_PRICE = 'final_price';
+    const BASE_PRICE = 'base_price';
     const PRODUCT_ID = 'product_id';
     const EDITION_COMMUNITY = 'Community';
 }

@@ -90,7 +90,8 @@ class Export
         'categories',
         'url',
         'keywords',
-        ProductFeedInterface::FINAL_PRICE
+        ProductFeedInterface::FINAL_PRICE,
+        ProductFeedInterface::BASE_PRICE
     ];
 
     /**
@@ -582,6 +583,7 @@ class Export
 
         $rowData['keywords'] = $this->buildCategories($_product,true);
         $rowData[ProductFeedInterface::FINAL_PRICE] = $_product->getFinalPrice();
+        $rowData[ProductFeedInterface::BASE_PRICE] = $_product->getPrice();
         $rowData[ProductFeedInterface::PRODUCT_ID] = $_product->getId();
 
         $currentStore = $_product->getStore();
@@ -621,6 +623,7 @@ class Export
                 $rowData[$this->getLngKey($langCode, 'keywords')] = $this->buildCategories($storeProduct,true);
                 $rowData[$this->getLngKey($langCode, 'url')] = $this->getProductUrl($storeProduct,true);
                 $rowData[$this->getLngKey($langCode, ProductFeedInterface::FINAL_PRICE)] = $storeProduct->getFinalPrice();
+                $rowData[$this->getLngKey($langCode, ProductFeedInterface::BASE_PRICE)] = $storeProduct->getPrice();
 
                 /** @var Attribute $attribute */
                 foreach ($additionalAttributes as $attribute) {

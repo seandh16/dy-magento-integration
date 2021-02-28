@@ -52,6 +52,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
 
     protected $_customProductAttributes = [
         ProductFeedInterface::FINAL_PRICE,
+        ProductFeedInterface::BASE_PRICE,
         ProductFeedInterface::PRODUCT_ID
     ];
 
