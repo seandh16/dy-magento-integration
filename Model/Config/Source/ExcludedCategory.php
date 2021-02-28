@@ -5,8 +5,7 @@ namespace DynamicYield\Integration\Model\Config\Source;
 use Magento\Framework\Option\ArrayInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 
-class
-ExcludedCategory implements ArrayInterface
+class ExcludedCategory implements ArrayInterface
 {
     const CATEGORY_LEVEL = '-';
 
