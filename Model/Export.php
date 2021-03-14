@@ -28,7 +28,6 @@ use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductColl
 use Magento\Framework\UrlInterface;
 use Magento\CatalogInventory\Model\StockRegistry;
 use Magento\Catalog\Model\Product\Type;
-use DynamicYield\Integration\Model\Logger\Handler;
 use Magento\Framework\App\ResourceConnection as Resource;
 use Magento\UrlRewrite\Model\UrlFinderInterface;
 use \Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
@@ -147,7 +146,7 @@ class Export
     /**
      * @var LoggerInterface
      */
-    protected $_logger;
+    protected $logger;
 
     /**
      * @var ProductCollectionFactory
@@ -158,11 +157,6 @@ class Export
      * @var StockRegistry
      */
     protected $_stockRegistry;
-
-    /**
-     * @var Handler
-     */
-    protected $_handler;
 
     /**
      * @var array
@@ -220,7 +214,6 @@ class Export
         ProductFactory $productFactory,
         ProductCollectionFactory $productCollectionFactory,
         StockRegistry $stockRegistry,
-        Handler $handler,
         LoggerInterface $logger,
         FeedHelper $feedHelper,
         Resource $resource,
@@ -237,8 +230,7 @@ class Export
         $this->_productFactory = $productFactory;
         $this->_productCollectionFactory = $productCollectionFactory;
         $this->_stockRegistry = $stockRegistry;
-        $this->_handler = $handler;
-        $this->_logger = $logger->setHandlers([$this->_handler]);
+        $this->logger = $logger;
         $this->_feedHelper = $feedHelper;
         $this->_resource = $resource;
         $this->_urlModel = $urlModel;
@@ -294,7 +286,7 @@ class Export
                 fopen($this->_feedHelper->getExportFile(), 'r')
             );
         } catch (S3Exception $e) {
-            $this->_logger->error("DYI: There was an error uploading the file " . $e->getMessage());
+            $this->logger->error("DYI: There was an error uploading the file " . $e->getMessage());
         }
     }
 
@@ -468,7 +460,7 @@ class Export
 
         if($this->_feedHelper->getIsDebugMode()) {
             $memory = memory_get_usage();
-            $this->_logger->debug('DYI: MEMORY USED ' . $memory . '. Chunk export execution time in seconds: ' . (microtime(true) - $time_start));
+            $this->logger->debug('DYI: MEMORY USED ' . $memory . '. Chunk export execution time in seconds: ' . (microtime(true) - $time_start));
         }
 
         return [
@@ -825,7 +817,7 @@ class Export
         try {
             file_put_contents($this->_feedHelper->getFeedLogFile(), $products,FILE_APPEND | LOCK_EX);
         } catch (\Exception $e) {
-            $this->_logger->error("Error logging skipped products: ".$e->getMessage());
+            $this->logger->error("Error logging skipped products: ".$e->getMessage());
         }
     }
 
@@ -839,7 +831,7 @@ class Export
                 file_put_contents($this->_feedHelper->getFeedLogFile(), "");
             }
         } catch (\Exception $e) {
-            $this->_logger->error("Error clearing log file: ".$e->getMessage());
+            $this->logger->error("Error clearing log file: ".$e->getMessage());
         }
     }
 

@@ -8,6 +8,18 @@
             </argument>
         </arguments>
     </type>
+    <virtualType name="DyiFeedLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="debug" xsi:type="object">DynamicYield\Integration\Model\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="DynamicYield\Integration\Model\Export">
+        <arguments>
+            <argument name="logger" xsi:type="object">DyiFeedLogger</argument>
+        </arguments>
+    </type>
 
     <!-- Web API Plugin -->
     <type name="Magento\Quote\Model\CouponManagement">
