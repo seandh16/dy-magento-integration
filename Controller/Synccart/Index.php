@@ -2,23 +2,20 @@
 
 namespace DynamicYield\Integration\Controller\Synccart;
 
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
+use DynamicYield\Integration\Model\Event\SyncCartEvent as Synccartevent;
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Customer\Model\Session;
-use DynamicYield\Integration\Model\Event\SyncCartEvent as Synccartevent;
 
-class Index extends Action
+class Index implements HttpGetActionInterface
 {
-
     const SYNC_CART = 'sync_cart';
 
     /**
      * @var JsonFactory
      */
     protected $_jsonFactory;
-
 
     /**
      * @var Session
@@ -29,23 +26,19 @@ class Index extends Action
      * @var Synccartevent
      */
     protected $_syncCartEvent;
+
     /**
      * Index constructor
      *
-     * @param Context $context
      * @param JsonFactory $jsonFactory
      * @param Session $session
      * @param Synccartevent $event
      */
     public function __construct(
-        Context $context,
         JsonFactory $jsonFactory,
         Session $session,
         Synccartevent $event
-    )
-    {
-        parent::__construct($context);
-
+    ) {
         $this->_jsonFactory = $jsonFactory;
         $this->_customerSession = $session;
         $this->_syncCartEvent = $event;
@@ -67,16 +60,16 @@ class Index extends Action
 
         $json = $this->_jsonFactory->create();
 
-        $syncCart = $getSessionId == $this->_customerSession->getSessionId() ? true : false;
+        $syncCart = $getSessionId == $this->_customerSession->getSessionId();
 
-        if(!$syncCart) {
+        if (!$syncCart) {
             return $json->setData([
-                'sync_cart' => $syncCart,
+                'sync_cart' => false,
                 'eventData' => $this->_syncCartEvent->build()
             ]);
         } else {
             return $json->setData([
-                'sync_cart' => $syncCart,
+                'sync_cart' => true,
             ]);
         }
     }
