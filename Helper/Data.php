@@ -10,7 +10,6 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-use Magento\Framework\Registry;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Category;
 use Magento\Framework\View\Asset\Repository;
@@ -29,11 +28,13 @@ use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Store\Model\ScopeInterface;
 use \Magento\Framework\App\ProductMetadataInterface;
+use DynamicYield\Integration\Service\GetCurrentCategoryService;
+use DynamicYield\Integration\Service\GetCurrentProductService;
 
-
-
-
-
+/**
+ * Class Data
+ * @package DynamicYield\Integration\Helper
+ */
 class Data extends AbstractHelper implements HelperInterface
 {
 
@@ -41,9 +42,14 @@ class Data extends AbstractHelper implements HelperInterface
     const PRODUCT_CONFIGURABLE = 'configurable';
 
     /**
-     * @var Registry
+     * @var GetCurrentProductService
      */
-    protected $_registry;
+    protected $_currentProductService;
+
+    /**
+     * @var GetCurrentCategoryService
+     */
+    protected $_currentCategoryService;
 
     /**
      * @var Session
@@ -102,7 +108,6 @@ class Data extends AbstractHelper implements HelperInterface
      * Data constructor
      *
      * @param Context $context
-     * @param Registry $registry
      * @param Session $quoteSession
      * @param Repository $assetRepo
      * @param ConfigFactory $configFactory
@@ -111,10 +116,11 @@ class Data extends AbstractHelper implements HelperInterface
      * @param StoreManagerInterface $storeManager
      * @param ProductRepository $productRepository
      * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @paarm GetCurrentProductService $getCurrentProductService
+     * @paarm GetCurrentCategoryService $getCurrentCategoryService
      */
     public function __construct(
         Context $context,
-        Registry $registry,
         Session $quoteSession,
         Repository $assetRepo,
         ConfigFactory $configFactory,
@@ -123,12 +129,13 @@ class Data extends AbstractHelper implements HelperInterface
         StoreManagerInterface $storeManager,
         ProductRepository $productRepository,
         CategoryCollectionFactory $categoryCollectionFactory,
-        ProductMetadataInterface $metaData
+        ProductMetadataInterface $metaData,
+        GetCurrentProductService $getCurrentProductService,
+        GetCurrentCategoryService $getCurrentCategoryService
     )
     {
         parent::__construct($context);
 
-        $this->_registry = $registry;
         $this->_quoteSession = $quoteSession;
         $this->_assetRepo = $assetRepo;
         $this->_queue = $queue;
@@ -138,6 +145,8 @@ class Data extends AbstractHelper implements HelperInterface
         $this->_productRepository = $productRepository;
         $this->_categoryCollectionFactory = $categoryCollectionFactory;
         $this->_metaData = $metaData;
+        $this->_currentProductService = $getCurrentProductService;
+        $this->_currentCategoryService = $getCurrentCategoryService;
     }
 
     /**
@@ -224,7 +233,7 @@ class Data extends AbstractHelper implements HelperInterface
             $eventData = json_encode($event['properties']);
 
             return "<script type=\"text/javascript\">
-                    DY.API('event', " . $eventData . "); 
+                    DY.API('event', " . $eventData . ");
             </script>\n";
         }
     }
@@ -392,9 +401,9 @@ class Data extends AbstractHelper implements HelperInterface
                 /**
                  * @var $product Product
                  */
-                $product = $this->_registry->registry('current_product');
+                $product = $this->_currentProductService->getProduct();
 
-                if($product) {
+                if ($product) {
                     $data[] = $this->replaceSpaces($this->getRandomChild($product)->getSku());
                 }
 
@@ -407,11 +416,11 @@ class Data extends AbstractHelper implements HelperInterface
                 /**
                  * @var $category Category
                  */
-                $category = $this->_registry->registry('current_category');
+                $category = $this->_currentCategoryService->getCategory();
 
                 $data = [];
 
-                if($category) {
+                if ($category) {
                     foreach ($this->getParentCategories($category) as $parentCategory) {
                         $data[] = $parentCategory->getName();
                     }
@@ -605,7 +614,7 @@ class Data extends AbstractHelper implements HelperInterface
                     "currentPage": "' . $this->getCurrentPageType() . '",
                     "eventSelectors": ' . json_encode($this->getEventSelectors()) . '
                 };
-                
+
             </script>' . "\n";
 
             $html .= '<script type="text/javascript">
