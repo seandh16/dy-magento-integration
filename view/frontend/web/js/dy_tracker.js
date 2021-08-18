@@ -69,6 +69,10 @@
             if (DY_SETTINGS.currentPage === 'catalog_product_view') {
                 return "product";
             }
+
+            if (DY_SETTINGS.currentPage === 'catalogsearch_result_index') {
+                return "catalogsearch"
+            }
         }
 
         return null;
@@ -360,6 +364,15 @@
                     }
                 }
             }, 1, 100, 100);
+        } else if (type === "catalogsearch") {
+            let urlParams = new URLSearchParams(window.location.search);
+            let searchTerm = urlParams.get('q');
+            if(searchTerm) {
+                this.callEvent('Keyword Search', {
+                    dyType: 'keyword-search-v1',
+                    keywords: searchTerm
+                });
+            }
         }
     };
 

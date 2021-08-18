@@ -9,7 +9,6 @@ use DynamicYield\Integration\Model\Event\AddToWishlistEvent;
 use DynamicYield\Integration\Model\Event\LoginEvent;
 use DynamicYield\Integration\Model\Event\PurchaseEvent;
 use DynamicYield\Integration\Model\Event\RemoveFromCartEvent;
-use DynamicYield\Integration\Model\Event\SearchEvent;
 use DynamicYield\Integration\Model\Event\SignupEvent;
 use DynamicYield\Integration\Model\Event\SubscribeToNewsletterEvent;
 use Magento\Catalog\Model\ResourceModel\Product\Proxy as ProductResource;
@@ -81,11 +80,6 @@ abstract class AbstractObserver implements ObserverInterface
     protected $_removeFromCartEvent;
 
     /**
-     * @var SearchEvent
-     */
-    protected $_searchEvent;
-
-    /**
      * @var SignupEvent
      */
     protected $_signupEvent;
@@ -129,7 +123,6 @@ abstract class AbstractObserver implements ObserverInterface
      * @param LoginEvent $loginEvent
      * @param PurchaseEvent $purchaseEvent
      * @param RemoveFromCartEvent $removeFromCartEvent
-     * @param SearchEvent $searchEvent
      * @param SignupEvent $signupEvent
      * @param SubscribeToNewsletterEvent $subscribeToNewsletterEvent
      * @param State $state
@@ -149,7 +142,6 @@ abstract class AbstractObserver implements ObserverInterface
         LoginEvent $loginEvent,
         PurchaseEvent $purchaseEvent,
         RemoveFromCartEvent $removeFromCartEvent,
-        SearchEvent $searchEvent,
         SignupEvent $signupEvent,
         SubscribeToNewsletterEvent $subscribeToNewsletterEvent,
         State $state,
@@ -168,7 +160,6 @@ abstract class AbstractObserver implements ObserverInterface
         $this->_loginEvent = $loginEvent;
         $this->_purchaseEvent = $purchaseEvent;
         $this->_removeFromCartEvent = $removeFromCartEvent;
-        $this->_searchEvent = $searchEvent;
         $this->_signupEvent = $signupEvent;
         $this->_subscribeToNewsletterEvent = $subscribeToNewsletterEvent;
         $this->_state = $state;
