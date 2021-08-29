@@ -18,7 +18,6 @@ use Magento\Framework\App\Response\Http as Response;
 use Magento\Framework\App\Request\Http as Request;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Registry;
 use Magento\Framework\App\State;
 use Magento\Customer\Model\Session;
 
@@ -43,11 +42,6 @@ abstract class AbstractObserver implements ObserverInterface
      * @var Data
      */
     protected $_helper;
-
-    /**
-     * @var Registry
-     */
-    protected $_registry;
 
     /**
      * @var AddPromoCodeEvent
@@ -115,7 +109,6 @@ abstract class AbstractObserver implements ObserverInterface
      * @param Response $response
      * @param Queue $queue
      * @param Data $helper
-     * @param Registry $registry
      * @param SyncCartEvent $syncCartEvent
      * @param AddPromoCodeEvent $addPromoCodeEvent
      * @param AddToCartEvent $addToCartEvent
@@ -134,7 +127,6 @@ abstract class AbstractObserver implements ObserverInterface
         Response $response,
         Queue $queue,
         Data $helper,
-        Registry $registry,
         SyncCartEvent $syncCartEvent,
         AddPromoCodeEvent $addPromoCodeEvent,
         AddToCartEvent $addToCartEvent,
@@ -153,7 +145,6 @@ abstract class AbstractObserver implements ObserverInterface
         $this->_response = $response;
         $this->_queue = $queue;
         $this->_helper = $helper;
-        $this->_registry = $registry;
         $this->_addPromoCodeEvent = $addPromoCodeEvent;
         $this->_addToCartEvent = $addToCartEvent;
         $this->_addToWishlistEvent = $addToWishlistEvent;
@@ -194,16 +185,6 @@ abstract class AbstractObserver implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $eventIndex = $observer->getEvent()->getIndex() ?: '';
-
-        $eventName = $observer->getEvent()->getName() . '_observer_executed' . $eventIndex;
-        if ($this->_registry->registry($eventName)) {
-            return $this;
-        }
-
         $this->dispatch($observer);
-        $this->_registry->register($eventName, true);
     }
-
-
 }
