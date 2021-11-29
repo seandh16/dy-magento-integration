@@ -6,4 +6,7 @@
     <event name="controller_action_postdispatch">
         <observer name="dy_server_cookie" instance="DynamicYield\Integration\Observer\ServerCookie" shared="false"/>
     </event>
+    <event name="newsletter_subscriber_save_after">
+        <observer name="SubscribeToNewsletterEvent" instance="DynamicYield\Integration\Observer\SubscribeToNewsletterObserver" />
+    </event>
 </config>

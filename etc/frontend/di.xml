@@ -4,14 +4,6 @@
         <plugin name="DynamicYield_Integration::responseHttpBefore" type="DynamicYield\Integration\Plugin\ResponseHttpPlugin" sortOrder="1" disabled="false" />
     </type>
 
-    <type name="Magento\CatalogSearch\Controller\Result\Index">
-        <plugin name="DynamicYield_Integration::afterSearchResult" type="DynamicYield\Integration\Plugin\SearchResultPlugin" sortOrder="2" disabled="false" />
-    </type>
-
-    <type name="Magento\Newsletter\Model\Subscriber">
-        <plugin name="DynamicYield_Integration::afterNewsletterSubscription" type="DynamicYield\Integration\Plugin\NewsletterSubscriptionPlugin" sortOrder="3" disabled="false" />
-    </type>
-
     <type name="Magento\Checkout\Model\Cart">
         <plugin name="DynamicYield_Integration::beforeRemoveFromCart" type="DynamicYield\Integration\Plugin\RemoveFromCartPlugin" sortOrder="4" disabled="false" />
         <plugin sortOrder="1" name="dynamicYieldIntegrationCart" type="DynamicYield\Integration\Plugin\UpdateCartPlugin" disabled="false"/>

@@ -3,12 +3,11 @@
 namespace DynamicYield\Integration\Controller\Storage;
 
 use DynamicYield\Integration\Model\Queue;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 
-class Index extends Action
+class Index implements HttpGetActionInterface
 {
     /**
      * @var JsonFactory
@@ -23,18 +22,13 @@ class Index extends Action
     /**
      * Index constructor
      *
-     * @param Context $context
      * @param JsonFactory $jsonFactory
      * @param Queue $queue
      */
     public function __construct(
-        Context $context,
         JsonFactory $jsonFactory,
         Queue $queue
-    )
-    {
-        parent::__construct($context);
-
+    ) {
         $this->_jsonFactory = $jsonFactory;
         $this->_queue = $queue;
     }
