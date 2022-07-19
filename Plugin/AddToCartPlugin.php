@@ -5,12 +5,12 @@ namespace DynamicYield\Integration\Plugin;
 use Closure;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
-use Magento\Framework\App\RequestInterface;
 use Magento\Catalog\Model\ProductRepository;
-use Magento\Checkout\Model\Cart;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote as Cart;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -49,8 +49,7 @@ class AddToCartPlugin
         ProductRepository $productRepository,
         RequestInterface $request,
         StoreManagerInterface $storeManager
-    )
-    {
+    ) {
         $this->_eventManager = $eventManager;
         $this->_productRepository = $productRepository;
         $this->_request = $request;
@@ -60,11 +59,11 @@ class AddToCartPlugin
     /**
      * @param Cart $cart
      * @param Closure $proceed
-     * @param Product|int $productInfo
-     * @param DataObject|array $requestInfo
+     * @param Product $productInfo
+     * @param array|DataObject $requestInfo
      * @return mixed
      */
-    public function aroundAddProduct(Cart $cart, Closure $proceed, $productInfo, $requestInfo)
+    public function aroundAddProduct(Cart $cart, Closure $proceed, Product $productInfo, $requestInfo)
     {
         $product = $this->_initProduct($productInfo);
         $request = $this->_initProductRequest($requestInfo);
@@ -101,7 +100,8 @@ class AddToCartPlugin
                 /** @var Store $store */
                 $store = $this->_storeManager->getStore();
                 return $this->_productRepository->getById($product, false, $store->getId());
-            } catch (NoSuchEntityException $exception) {}
+            } catch (NoSuchEntityException $exception) {
+            }
         }
 
         return false;
@@ -115,7 +115,7 @@ class AddToCartPlugin
     {
         if (is_array($productRequest)) {
             return new DataObject($productRequest);
-        } else if (is_numeric($productRequest)) {
+        } elseif (is_numeric($productRequest)) {
             return new DataObject(['qty' => $productRequest]);
         }
 

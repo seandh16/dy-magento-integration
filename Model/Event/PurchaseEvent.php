@@ -4,11 +4,10 @@ namespace DynamicYield\Integration\Model\Event;
 
 use DynamicYield\Integration\Helper\Data;
 use DynamicYield\Integration\Model\Event;
-use Magento\Sales\Model\Order;
 use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Framework\Pricing\Helper\Data as PriceHelper;
-
+use Magento\Sales\Model\Order;
 
 class PurchaseEvent extends Event
 {
@@ -45,8 +44,7 @@ class PurchaseEvent extends Event
         ProductRepository $productRepository,
         Data $data,
         PriceHelper $priceHelper
-    )
-    {
+    ) {
         $this->_order = $order;
         $this->_productRepository = $productRepository;
         $this->_dataHelper = $data;
@@ -56,7 +54,7 @@ class PurchaseEvent extends Event
     /**
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return "Purchase";
     }
@@ -64,7 +62,7 @@ class PurchaseEvent extends Event
     /**
      * @return string
      */
-    function getType()
+    public function getType()
     {
         return "purchase-v1";
     }
@@ -72,7 +70,7 @@ class PurchaseEvent extends Event
     /**
      * @return array
      */
-    function getDefaultProperties()
+    public function getDefaultProperties()
     {
         return [
             'uniqueTransactionId' => null,
@@ -85,7 +83,7 @@ class PurchaseEvent extends Event
     /**
      * @return array
      */
-    function generateProperties()
+    public function generateProperties()
     {
         $items = [];
 
@@ -94,14 +92,13 @@ class PurchaseEvent extends Event
             /**
              * Skip parent product types
              */
-            if(in_array($item->getProductType(), array(Type::TYPE_BUNDLE, Data::PRODUCT_GROUPED, Data::PRODUCT_CONFIGURABLE))) {
+            if (in_array($item->getProductType(), [Type::TYPE_BUNDLE, Data::PRODUCT_GROUPED, Data::PRODUCT_CONFIGURABLE])) {
                 continue;
             }
 
             $product = $item->getProduct();
 
-
-            if(!$product) {
+            if (!$product) {
                 continue;
             }
 
@@ -110,13 +107,13 @@ class PurchaseEvent extends Event
             $items[] = [
                 'productId' => $this->_dataHelper->replaceSpaces($sku),
                 'quantity' => round($item->getQtyOrdered(), 2),
-                'itemPrice' => round($this->_priceHelper->currency($product->getFinalPrice(),false,false),2)
+                'itemPrice' => round($this->_priceHelper->currency($product->getFinalPrice(), false, false), 2)
             ];
         }
 
         return [
             'uniqueTransactionId' => (string) $this->_order->getIncrementId(),
-            'value' => round($this->_order->getGrandTotal(),2),
+            'value' => round($this->_order->getGrandTotal(), 2),
             'currency' => $this->_order->getOrderCurrencyCode(),
             'cart' => $items
         ];

@@ -2,9 +2,9 @@
 
 namespace DynamicYield\Integration\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class IntegrationType implements ArrayInterface
+class IntegrationType implements OptionSourceInterface
 {
     const CDN_DISABLED = 'No';
     const CDN_ENABLED = 'Yes';

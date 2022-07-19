@@ -78,7 +78,7 @@ abstract class AbstractProductAttribute extends Value
     public function getFeedAttributes()
     {
         return array_filter(
-            explode(',', $this->_config->getValue(ProductFeedInterface::FEED_ATTRIBUTES))
+            explode(',', $this->_config->getValue(ProductFeedInterface::FEED_ATTRIBUTES) ?? '')
         );
     }
 

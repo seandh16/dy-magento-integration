@@ -17,7 +17,7 @@ class ProductAttribute extends AbstractProductAttribute
 
         if (!is_array($value)) {
             $value = array_filter(
-                explode(',', $value)
+                explode(',', $value ?? '')
             );
         }
 
@@ -30,7 +30,7 @@ class ProductAttribute extends AbstractProductAttribute
     public function getUsedAttributes()
     {
         return array_filter(
-            explode(',', $this->_config->getValue(ProductFeedInterface::USED_ATTRIBUTES))
+            explode(',', $this->_config->getValue(ProductFeedInterface::USED_ATTRIBUTES) ?? '')
         );
     }
 }

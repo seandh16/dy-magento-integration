@@ -3,8 +3,10 @@
 namespace DynamicYield\Integration\Plugin;
 
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote\Item;
-use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\Session;
 
 class EmptyCartPlugin
 {
@@ -26,15 +28,17 @@ class EmptyCartPlugin
     }
 
     /**
-     * @param Cart $cart
+     * @param Session $session
      * @param callable $proceed
      *
-     * @return Cart
+     * @return Session
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function aroundTruncate(Cart $cart, callable $proceed)
+    public function aroundTruncate(Session $session, callable $proceed)
     {
         if ($proceed()) {
-            $items = $cart->getQuote()->getItems();
+            $items = $session->getQuote()->getItems();
             $itemIds = [];
 
             if($items) {
@@ -49,6 +53,6 @@ class EmptyCartPlugin
             ]);
         }
 
-        return $cart;
+        return $session;
     }
 }

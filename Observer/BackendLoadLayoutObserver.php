@@ -8,9 +8,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Filesystem\Io\File;
 use DynamicYield\Integration\Helper\Feed;
-
 
 class BackendLoadLayoutObserver implements ObserverInterface
 {

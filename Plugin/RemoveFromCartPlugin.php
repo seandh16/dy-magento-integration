@@ -2,7 +2,7 @@
 
 namespace DynamicYield\Integration\Plugin;
 
-use Magento\Checkout\Model\Cart;
+use Magento\Quote\Model\Quote as Cart;
 use Magento\Framework\Event\ManagerInterface;
 
 class RemoveFromCartPlugin

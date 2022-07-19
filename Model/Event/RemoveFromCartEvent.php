@@ -3,14 +3,15 @@
 namespace DynamicYield\Integration\Model\Event;
 
 use DynamicYield\Integration\Helper\Data;
-use Magento\Checkout\Model\Session as CheckoutSession;
 use DynamicYield\Integration\Model\Event;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Pricing\Helper\Data as PriceHelper;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Checkout\Model\Cart;
-use Magento\Framework\Pricing\Helper\Data as PriceHelper;
-
 
 class RemoveFromCartEvent extends Event
 {
@@ -30,9 +31,9 @@ class RemoveFromCartEvent extends Event
     protected $_storeManager;
 
     /**
-     * @var Cart
+     * @var Quote
      */
-    protected $_cart;
+    protected $_quote;
 
     /**
      * @var PriceHelper
@@ -48,21 +49,20 @@ class RemoveFromCartEvent extends Event
      * RemoveFromCartEvent constructor
      * @param CheckoutSession $checkoutSession
      * @param StoreManagerInterface $storeManager
-     * @param Cart $cart
+     * @param Quote $quote
      * @param Data $data
      * @param PriceHelper $priceHelper
      */
     public function __construct(
         CheckoutSession $checkoutSession,
         StoreManagerInterface $storeManager,
-        Cart $cart,
+        Quote $quote,
         Data $data,
         PriceHelper $priceHelper
-    )
-    {
+    ) {
         $this->_checkoutSession = $checkoutSession;
         $this->_storeManager = $storeManager;
-        $this->_cart = $cart;
+        $this->_quote = $quote;
         $this->_dataHelper = $data;
         $this->_priceHelper = $priceHelper;
     }
@@ -70,7 +70,7 @@ class RemoveFromCartEvent extends Event
     /**
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return "Remove from Cart";
     }
@@ -78,7 +78,7 @@ class RemoveFromCartEvent extends Event
     /**
      * @return string
      */
-    function getType()
+    public function getType()
     {
         return "remove-from-cart-v1";
     }
@@ -86,7 +86,7 @@ class RemoveFromCartEvent extends Event
     /**
      * @return array
      */
-    function getDefaultProperties()
+    public function getDefaultProperties()
     {
         return [
             'value' => 0,
@@ -99,16 +99,21 @@ class RemoveFromCartEvent extends Event
 
     /**
      * @return array
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
-    function generateProperties()
+    public function generateProperties()
     {
-        $quote = $this->_checkoutSession->getQuote();
+        try {
+            $quote = $this->_checkoutSession->getQuote();
+        } catch (NoSuchEntityException|LocalizedException $e) {
+        }
 
         /** @var Item $item */
         $item = $quote->getItemById($this->_cartItem);
         $currency = $quote->getQuoteCurrencyCode();
 
-        if(!$item) {
+        if (!$item) {
             return $this->getDefaultProperties();
         }
 
@@ -124,8 +129,8 @@ class RemoveFromCartEvent extends Event
         $sku = $this->_dataHelper->validateSku($item->getProduct()) ? $item->getProduct()->getSku() : $item->getProduct()->getData('sku');
 
         return [
-            'cart' => $this->getCartItems($this->_cart, $this->_dataHelper, $this->_priceHelper,[$item->getId()]),
-            'value' => round($this->_priceHelper->currency($item->getProduct()->getFinalPrice(),false,false),2),
+            'cart' => $this->getCartItems($quote, $this->_dataHelper, $this->_priceHelper, [$item->getId()]),
+            'value' => round($this->_priceHelper->currency($item->getProduct()->getFinalPrice(), false, false), 2),
             'currency' => $currency ? $currency : $storeCurrency->getCode(),
             'productId' => $this->_dataHelper->replaceSpaces($sku),
             'quantity' => round($item->getQty(), 2)

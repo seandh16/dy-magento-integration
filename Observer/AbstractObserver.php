@@ -11,15 +11,15 @@ use DynamicYield\Integration\Model\Event\PurchaseEvent;
 use DynamicYield\Integration\Model\Event\RemoveFromCartEvent;
 use DynamicYield\Integration\Model\Event\SignupEvent;
 use DynamicYield\Integration\Model\Event\SubscribeToNewsletterEvent;
-use Magento\Catalog\Model\ResourceModel\Product\Proxy as ProductResource;
 use DynamicYield\Integration\Model\Event\SyncCartEvent;
 use DynamicYield\Integration\Model\Queue;
-use Magento\Framework\App\Response\Http as Response;
+use Magento\Catalog\Model\ResourceModel\Product\Proxy as ProductResource;
+use Magento\Customer\Model\Session;
 use Magento\Framework\App\Request\Http as Request;
+use Magento\Framework\App\Response\Http as Response;
+use Magento\Framework\App\State;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\App\State;
-use Magento\Customer\Model\Session;
 
 abstract class AbstractObserver implements ObserverInterface
 {
@@ -139,8 +139,7 @@ abstract class AbstractObserver implements ObserverInterface
         State $state,
         Session $customerSession,
         ProductResource $productResource
-    )
-    {
+    ) {
         $this->_request = $request;
         $this->_response = $response;
         $this->_queue = $queue;
@@ -163,7 +162,7 @@ abstract class AbstractObserver implements ObserverInterface
      * @param Observer $observer
      * @return mixed
      */
-    abstract function dispatch(Observer $observer);
+    abstract public function dispatch(Observer $observer);
 
     /**
      * @param array $data

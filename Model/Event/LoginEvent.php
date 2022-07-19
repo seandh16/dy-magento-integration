@@ -15,7 +15,7 @@ class LoginEvent extends Event
     /**
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return "Login";
     }
@@ -23,7 +23,7 @@ class LoginEvent extends Event
     /**
      * @return string
      */
-    function getType()
+    public function getType()
     {
         return "login-v1";
     }
@@ -31,7 +31,7 @@ class LoginEvent extends Event
     /**
      * @return array
      */
-    function getDefaultProperties()
+    public function getDefaultProperties()
     {
         return [
             'hashedEmail' => null
@@ -41,7 +41,7 @@ class LoginEvent extends Event
     /**
      * @return array
      */
-    function generateProperties()
+    public function generateProperties()
     {
         return [
             'hashedEmail' => hash('sha256', strtolower($this->_customer->getEmail()))

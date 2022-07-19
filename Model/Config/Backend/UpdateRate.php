@@ -84,7 +84,7 @@ class UpdateRate extends Value
         $label = $this->getData('field_config/label');
 
         if (!is_array($this->getValue())) {
-            list($value, $type) = explode(',', $this->getValue());
+            list($value, $type) = explode(',', $this->getValue() ?? '');
         } else {
             $value = $this->getValue()[0];
             $type = $this->getValue()[1];
@@ -127,7 +127,7 @@ class UpdateRate extends Value
     public function afterSave()
     {
         if (!is_array($this->getValue())) {
-            $value = explode(',', $this->getValue());
+            $value = explode(',', $this->getValue() ?? '');
         } else {
             $value = [
                 $this->getValue()[0],
