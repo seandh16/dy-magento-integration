@@ -4,16 +4,11 @@ namespace DynamicYield\Integration\Model\Event;
 
 use DynamicYield\Integration\Helper\Data;
 use DynamicYield\Integration\Model\Event;
-use Magento\Checkout\Model\Cart;
 use Magento\Framework\Pricing\Helper\Data as PriceHelper;
+use Magento\Checkout\Model\Session as CheckoutSession;
 
 class SyncCartEvent extends Event
 {
-    /**
-     * @var Cart
-     */
-    protected $_cart;
-
     /**
      * @var PriceHelper
      */
@@ -25,26 +20,29 @@ class SyncCartEvent extends Event
     protected $_dataHelper;
 
     /**
+     * @var CheckoutSession
+     */
+    private CheckoutSession $checkoutSession;
+
+    /**
      * AddToCartEvent constructor
-     * @param Cart $cart
      * @param Data $data
      * @param PriceHelper $priceHelper
      */
     public function __construct(
-        Cart $cart,
+        CheckoutSession $checkoutSession,
         Data $data,
         PriceHelper $priceHelper
-    )
-    {
-        $this->_cart = $cart;
+    ) {
         $this->_dataHelper = $data;
         $this->_priceHelper = $priceHelper;
+        $this->checkoutSession = $checkoutSession;
     }
 
     /**
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return "Sync Cart";
     }
@@ -52,7 +50,7 @@ class SyncCartEvent extends Event
     /**
      * @return string
      */
-    function getType()
+    public function getType()
     {
         return "sync-cart-v1";
     }
@@ -60,7 +58,7 @@ class SyncCartEvent extends Event
     /**
      * @return array
      */
-    function getDefaultProperties()
+    public function getDefaultProperties()
     {
         return [
             'cart' => [],
@@ -70,10 +68,10 @@ class SyncCartEvent extends Event
     /**
      * @return array
      */
-    function generateProperties()
+    public function generateProperties()
     {
         return [
-            'cart' => $this->getCartItems($this->_cart, $this->_dataHelper, $this->_priceHelper),
+            'cart' => $this->getCartItems($this->checkoutSession->getQuote(), $this->_dataHelper, $this->_priceHelper),
         ];
     }
 }

@@ -51,7 +51,7 @@ class SyncRate extends Select
                 '</label>';
         }
 
-        $value = explode(',', $this->getValue());
+        $value = explode(',', $this->getValue() ?? '');
 
         if (!is_array($value)) {
             $value = [$value];
@@ -59,10 +59,10 @@ class SyncRate extends Select
 
         $syncValue = isset($value[0]) ? 'value="' . $value[0] . '"' : '';
 
-        $html .= '<input id="' . $this->getHtmlId() . '" 
+        $html .= '<input id="' . $this->getHtmlId() . '"
             type="number" name="' . $this->getName() . '[]" ' . $syncValue .  ' style="float: left; width: 60px;" ' . $this->_getUiId() . ' />';
 
-        $html .= '<select name="' . $this->getName() . '[]" 
+        $html .= '<select name="' . $this->getName() . '[]"
             style="display: block; width: calc(100% - 80px); margin-left: 80px;">';
 
         if ($values = $this->getValues()) {

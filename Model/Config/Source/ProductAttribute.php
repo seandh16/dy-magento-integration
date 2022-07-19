@@ -38,9 +38,9 @@ class ProductAttribute extends AbstractProductAttribute
      */
     public function getAttributes()
     {
-        $attributes = explode(',', $this->_feedHelper->getProductAttributes());
-        $usedAttributes = explode(',', $this->_feedHelper->getUsedProductAttributes());
-        $feedAttributes = explode(',', $this->_feedHelper->getFeedAttributes());
+        $attributes = explode(',', $this->_feedHelper->getProductAttributes() ?? '');
+        $usedAttributes = explode(',', $this->_feedHelper->getUsedProductAttributes() ?? '');
+        $feedAttributes = explode(',', $this->_feedHelper->getFeedAttributes() ?? '');
 
         $newAttributes = array_unique(
             array_merge($attributes, $feedAttributes)

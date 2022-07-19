@@ -4,12 +4,16 @@
         <plugin name="DynamicYield_Integration::responseHttpBefore" type="DynamicYield\Integration\Plugin\ResponseHttpPlugin" sortOrder="1" disabled="false" />
     </type>
 
-    <type name="Magento\Checkout\Model\Cart">
+    <type name="Magento\Quote\Model\Quote">
         <plugin name="DynamicYield_Integration::beforeRemoveFromCart" type="DynamicYield\Integration\Plugin\RemoveFromCartPlugin" sortOrder="4" disabled="false" />
-        <plugin sortOrder="1" name="dynamicYieldIntegrationCart" type="DynamicYield\Integration\Plugin\UpdateCartPlugin" disabled="false"/>
+        <plugin name="DynamicYield_Integration::addToCartPlugin" type="DynamicYield\Integration\Plugin\AddToCartPlugin" sortOrder="7" disabled="false" />
     </type>
 
     <type name="Magento\Checkout\Model\Cart">
+        <plugin name="DynamicYield_Integration::beforeUpdateItems" type="DynamicYield\Integration\Plugin\UpdateCartPlugin" sortOrder="2" disabled="false"/>
+    </type>
+
+    <type name="Magento\Checkout\Model\Session">
         <plugin name="DynamicYield_Integration::aroundEmptyCartPlugin" type="DynamicYield\Integration\Plugin\EmptyCartPlugin" sortOrder="5" disabled="false" />
     </type>
 
@@ -17,7 +21,7 @@
         <plugin name="DynamicYield_Integration::afterCartSetCouponCode" type="DynamicYield\Integration\Plugin\CartSetCouponCodePlugin" sortOrder="6" disabled="false" />
     </type>
 
-    <type name="Magento\Checkout\Model\Cart">
-        <plugin name="DynamicYield_Integration::addToCartPlugin" type="DynamicYield\Integration\Plugin\AddToCartPlugin" sortOrder="7" disabled="false" />
-    </type>
+<!--    <type name="Magento\Quote\Model\CouponManagement">-->
+<!--        <plugin name="DynamicYield_Integration::afterSetCouponCode" type="DynamicYield\Integration\Plugin\SetCouponCodePlugin" sortOrder="8" disabled="false" />-->
+<!--    </type>-->
 </config>

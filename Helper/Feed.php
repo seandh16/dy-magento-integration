@@ -125,7 +125,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function isAttributeSelected($attributeCode)
     {
-        $attributeIds = explode(',', $this->getFeedAttributes());
+        $attributeIds = explode(',', $this->getFeedAttributes() ?? '');
         if($attributeIds && in_array($attributeCode,$attributeIds)) {
             return true;
         }
@@ -193,7 +193,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function getExcludedCategories()
     {
-        return explode(',', $this->_dataHelper->getExcludedCategories());
+        return explode(',', $this->_dataHelper->getExcludedCategories() ?? '');
     }
 
     /**
@@ -204,7 +204,7 @@ class Feed extends AbstractHelper implements ProductFeedInterface
      */
     public function getCategoryTree($storeId)
     {
-        return  $this->_dataHelper->getCategoryTree($storeId) != '' ?  explode(',', $this->_dataHelper->getCategoryTree($storeId)) : null;
+        return  $this->_dataHelper->getCategoryTree($storeId) != '' ?  explode(',', $this->_dataHelper->getCategoryTree($storeId) ?? '') : null;
     }
 
 

@@ -35,7 +35,8 @@ class Queue
      */
     public function getCollection()
     {
-        return json_decode($this->_session->getData(self::COLLECTION_ID),true);
+        $json = is_null($this->_session->getData(self::COLLECTION_ID)) ? '' : $this->_session->getData(self::COLLECTION_ID);
+        return json_decode($json,true);
     }
 
     /**

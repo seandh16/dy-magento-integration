@@ -18,7 +18,6 @@ use Magento\Framework\Locale\Resolver as Store;
 use Magento\Store\Model\ScopeInterface as Scope;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Directory\Helper\Data as HelperData;
-use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Api\ProductRepositoryInterface as ProductRepository;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -482,7 +481,7 @@ class Data extends AbstractHelper implements HelperInterface
      */
     public function getParentCategories($category)
     {
-        $pathIds = array_reverse(explode(',', $category->getPathInStore()));
+        $pathIds = array_reverse(explode(',', $category->getPathInStore() ?? ''));
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categories */
         $categories = $this->_categoryCollectionFactory->create();
         $categories->setStore(

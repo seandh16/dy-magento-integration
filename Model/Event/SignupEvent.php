@@ -3,7 +3,6 @@
 namespace DynamicYield\Integration\Model\Event;
 
 use DynamicYield\Integration\Model\Event;
-use Magento\Customer\Model\Data\Customer;
 
 class SignupEvent extends Event
 {
@@ -15,7 +14,7 @@ class SignupEvent extends Event
     /**
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return "Signup";
     }
@@ -23,7 +22,7 @@ class SignupEvent extends Event
     /**
      * @return string
      */
-    function getType()
+    public function getType()
     {
         return "signup-v1";
     }
@@ -31,7 +30,7 @@ class SignupEvent extends Event
     /**
      * @return array
      */
-    function getDefaultProperties()
+    public function getDefaultProperties()
     {
         return [
             'hashedEmail' => null
@@ -41,7 +40,7 @@ class SignupEvent extends Event
     /**
      * @return array
      */
-    function generateProperties()
+    public function generateProperties()
     {
         return [
             'hashedEmail' => hash('sha256', strtolower($this->_email))

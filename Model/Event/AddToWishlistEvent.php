@@ -15,7 +15,7 @@ class AddToWishlistEvent extends Event
     /**
      * @return string
      */
-    function getName()
+    public function getName()
     {
         return "Add to Wishlist";
     }
@@ -23,7 +23,7 @@ class AddToWishlistEvent extends Event
     /**
      * @return string
      */
-    function getType()
+    public function getType()
     {
         return "add-to-wishlist-v1";
     }
@@ -31,7 +31,7 @@ class AddToWishlistEvent extends Event
     /**
      * @return array
      */
-    function getDefaultProperties()
+    public function getDefaultProperties()
     {
         return [
             'productId' => null
@@ -41,7 +41,7 @@ class AddToWishlistEvent extends Event
     /**
      * @return array
      */
-    function generateProperties()
+    public function generateProperties()
     {
         return [
             'productId' => $this->_productSku
