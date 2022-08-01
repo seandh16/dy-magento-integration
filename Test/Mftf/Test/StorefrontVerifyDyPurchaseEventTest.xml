@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyDyPurchaseEventTest">
+        <annotations>
+            <stories value="Verify DY Purchase event"/>
+            <title value="Verify DY Purchase event"/>
+            <description value="Verify DY Purchase event"/>
+            <severity value="MAJOR"/>
+            <group value="Sales"/>
+            <group value="dynamicyield"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+        </after>
+
+        <!-- Go to PDP -->
+        <actionGroup ref="OpenStoreFrontProductPageActionGroup" stepKey="navigateToProductPage">
+            <argument name="productUrlKey" value="$createSimpleProduct.custom_attributes[url_key]$"/>
+        </actionGroup>
+
+        <!-- Enable MFTF test mode for DY tracker -->
+        <executeJS function="window.localStorage.setItem('mftfTestMode', true); DY.mftfTestMode = true;" stepKey="enableMFTFTestMode"/>
+
+        <!-- Add product to cart -->
+        <actionGroup ref="StorefrontAddProductToCartActionGroup" stepKey="cartAddSimpleProductToCart">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="productCount" value="1"/>
+        </actionGroup>
+
+        <!-- Go to checkout -->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <!-- Fill all required shipping information -->
+        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShippingSection">
+            <argument name="customerVar" value="CustomerEntityOne"/>
+            <argument name="customerAddressVar" value="CustomerAddressSimple"/>
+        </actionGroup>
+
+        <!-- Checkout select Purchase Order payment -->
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder"/>
+
+        <!--Click Place Order button-->
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlaceOrder"/>
+
+        <!-- Check for DY event -->
+        <executeJS function="return window.localStorage.getItem('purchase-v1') ? 'true' : 'false'" stepKey="isDyEventSet"/>
+        <assertEquals stepKey="assertDyEventSet">
+            <actualResult type="variable">isDyEventSet</actualResult>
+            <expectedResult type="string">true</expectedResult>
+        </assertEquals>
+
+    </test>
+</tests>

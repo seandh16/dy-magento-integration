@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyDyAPITest">
+        <annotations>
+            <features value="Cookie"/>
+            <stories value="Verify Storefront API"/>
+            <title value="Verify Storefront API in DY object"/>
+            <description value="Verify that API exists in DY object"/>
+            <severity value="MAJOR"/>
+            <group value="configuration"/>
+            <group value="dynamicyield"/>
+        </annotations>
+
+        <amOnPage url="/" stepKey="goToHomePage"/>
+
+        <!-- Check for DY API -->
+        <executeJS function="return DY.API ? 'true' : 'false'" stepKey="isDyAPISet"/>
+        <assertEquals stepKey="assertDyAPISet">
+            <actualResult type="variable">isDyAPISet</actualResult>
+            <expectedResult type="string">true</expectedResult>
+        </assertEquals>
+
+    </test>
+</tests>

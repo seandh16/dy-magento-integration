@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyDyPromoCodeOrderEventTest">
+        <annotations>
+            <stories value="Verify DY Promo Code event after order purchase"/>
+            <title value="Verify DY Promo Code event after order purchase"/>
+            <description value="Verify DY Promo Code event after order purchase"/>
+            <severity value="MAJOR"/>
+            <group value="Sales"/>
+            <group value="dynamicyield"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct"/>
+            <createData entity="ActiveSalesRuleForNotLoggedIn" stepKey="createCartPriceRule"/>
+            <createData entity="SimpleSalesRuleCoupon" stepKey="createCouponForCartPriceRule">
+                <requiredEntity createDataKey="createCartPriceRule"/>
+            </createData>
+        </before>
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createCartPriceRule" stepKey="deleteCartPriceRule"/>
+        </after>
+
+        <!-- Go to Storefront as Guest and add simple product to cart -->
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$createSimpleProduct$"/>
+        </actionGroup>
+
+        <!-- Enable MFTF test mode for DY tracker -->
+        <executeJS function="window.localStorage.setItem('mftfTestMode', true); DY.mftfTestMode = true;" stepKey="enableMFTFTestMode"/>
+
+        <!-- Go to Checkout -->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <!-- Fill all required fields with valid data and select Flat Rate, price = 5, shipping -->
+        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShipping">
+            <argument name="shippingMethod" value="Flat Rate"/>
+        </actionGroup>
+
+        <!-- Click Apply Discount Code: section is expanded. Input promo code, apply and see success message -->
+        <actionGroup ref="StorefrontApplyDiscountCodeActionGroup" stepKey="applyCoupon">
+            <argument name="discountCode" value="$createCouponForCartPriceRule.code$"/>
+        </actionGroup>
+
+        <!-- Select payment solution -->
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="clickCheckMoneyOrderPayment"/>
+
+        <!-- Click Place Order button -->
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlaceOrder"/>
+
+        <!-- Check for DY event -->
+        <executeJS function="return window.localStorage.getItem('enter-promo-code-v1') ? 'true' : 'false'" stepKey="isDyEventSet"/>
+        <assertEquals stepKey="assertDyEventSet">
+            <actualResult type="variable">isDyEventSet</actualResult>
+            <expectedResult type="string">true</expectedResult>
+        </assertEquals>
+
+    </test>
+</tests>
