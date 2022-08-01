@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyDyNewsletterEventTest">
+        <annotations>
+            <stories value="Verify DY Newsletter event"/>
+            <title value="Verify DY Newsletter event"/>
+            <description value="Verify DY Newsletter event"/>
+            <severity value="MAJOR"/>
+            <group value="customer"/>
+            <group value="dynamicyield"/>
+        </annotations>
+
+        <!-- Go to storefront -->
+        <actionGroup ref="StorefrontOpenHomePageActionGroup" stepKey="openStorefrontPage"/>
+
+        <!-- Enable MFTF test mode for DY tracker -->
+        <executeJS function="window.localStorage.setItem('mftfTestMode', true); DY.mftfTestMode = true;" stepKey="enableMFTFTestMode"/>
+
+        <!-- Subscribe a random email to newsletter -->
+        <actionGroup ref="StorefrontCreateNewsletterSubscriberActionGroup" stepKey="createSubscription">
+            <argument name="email" value="{{Simple_US_Customer.email}}"/>
+        </actionGroup>
+
+        <!-- Check for DY event -->
+        <executeJS function="return window.localStorage.getItem('newsletter-subscription-v1') ? 'true' : 'false'" stepKey="isDyEventSet"/>
+        <assertEquals stepKey="assertDyEventSet">
+            <actualResult type="variable">isDyEventSet</actualResult>
+            <expectedResult type="string">true</expectedResult>
+        </assertEquals>
+
+    </test>
+</tests>

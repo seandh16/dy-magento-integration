@@ -29,6 +29,17 @@
     "use strict";
 
     /**
+     * MFTF test mode boolean
+     *
+     * @type {boolean}
+     */
+    if (localStorage.getItem('mftfTestMode') !== null) {
+        DY.mftfTestMode = JSON.parse(localStorage.getItem('mftfTestMode'));
+    } else {
+        DY.mftfTestMode = false;
+    }
+
+    /**
      * Dynamic Yield Tracking constructor
      *
      * @constructor
@@ -167,7 +178,13 @@
                     var response = JSON.parse(xhr.responseText);
                     if(response.events) {
                         response.events.forEach(function (event) {
-                            try{ DY.API('event', event.properties); }catch(e){}
+                            try{ DY.API('event', event.properties);
+
+                                if(DY.mftfTestMode === true) {
+                                    window.localStorage.setItem(event.properties.properties.dyType, JSON.stringify(event.properties));
+                                }
+
+                            }catch(e){}
                         });
                     }
                 }
@@ -199,7 +216,13 @@
                                 name: session.eventData.name,
                                 properties: session.eventData.properties
                             };
-                            try{ DY.API('event', eventData); }catch(e){}
+                            try{ DY.API('event', eventData);
+
+                                if(DY.mftfTestMode === true) {
+                                    window.localStorage.setItem(eventData.properties.dyType, JSON.stringify(eventData));
+                                }
+
+                            }catch(e){}
                         }
                     }
                 };
@@ -242,7 +265,13 @@
                         var targetHeader = DY_SETTINGS.headerName || 'dy-event-data';
                         if(dy_headers[targetHeader]) {
                             var json = JSON.parse(headers[targetHeader]);
-                            try { DY.API('event', json); } catch (e){}
+                            try { DY.API('event', json);
+
+                                if(DY.mftfTestMode === true) {
+                                    window.localStorage.setItem(json.properties.dyType, JSON.stringify(json));
+                                }
+
+                            } catch (e){}
                         }
                     } catch (e) {}
                 }

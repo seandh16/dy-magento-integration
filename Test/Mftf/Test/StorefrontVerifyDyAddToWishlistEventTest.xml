@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyDyAddToWishlistEventTest">
+        <annotations>
+            <stories value="Verify DY Add to Wishlist event"/>
+            <title value="Verify DY Add to Wishlist event"/>
+            <description value="Verify DY Add to Wishlist event"/>
+            <severity value="MAJOR"/>
+            <group value="Wishlist"/>
+            <group value="dynamicyield"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="SimpleProduct" stepKey="product">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <createData entity="Simple_US_Customer" stepKey="customer"/>
+        </before>
+        <after>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <deleteData createDataKey="product" stepKey="deleteProduct"/>
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+        </after>
+
+        <!-- Login -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefrontAccount">
+            <argument name="Customer" value="$$customer$$"/>
+        </actionGroup>
+
+        <!-- Go to PDP -->
+        <actionGroup ref="OpenProductFromCategoryPageActionGroup" stepKey="openProductFromCategory">
+            <argument name="category" value="$$category$$"/>
+            <argument name="product" value="$$product$$"/>
+        </actionGroup>
+
+        <!-- Enable MFTF test mode for DY tracker -->
+        <executeJS function="window.localStorage.setItem('mftfTestMode', true); DY.mftfTestMode = true;" stepKey="enableMFTFTestMode"/>
+
+        <!-- Add product to wishlist-->
+        <actionGroup ref="StorefrontCustomerAddProductToWishlistActionGroup" stepKey="addProductToWishlist">
+            <argument name="productVar" value="$$product$$"/>
+        </actionGroup>
+
+        <!-- Check for DY event -->
+        <executeJS function="return window.localStorage.getItem('add-to-wishlist-v1') ? 'true' : 'false'" stepKey="isDyEventSet"/>
+        <assertEquals stepKey="assertDyEventSet">
+            <actualResult type="variable">isDyEventSet</actualResult>
+            <expectedResult type="string">true</expectedResult>
+        </assertEquals>
+
+    </test>
+</tests>
