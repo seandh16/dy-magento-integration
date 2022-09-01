@@ -3,9 +3,9 @@
 namespace DynamicYield\Integration\Model\Config\Source;
 
 use Magento\Store\Model\System\Store as SystemStore;
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class Store implements ArrayInterface
+class Store implements OptionSourceInterface
 {
     protected $_store;
 

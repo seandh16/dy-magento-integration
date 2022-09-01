@@ -3,7 +3,7 @@
 namespace DynamicYield\Integration\Model\Config\Source;
 
 use DynamicYield\Integration\Api\Data\ProductFeedInterface;
-
+use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 
 class ProductAttribute extends AbstractProductAttribute
 {
@@ -50,7 +50,7 @@ class ProductAttribute extends AbstractProductAttribute
             array_merge($newAttributes, $this->_helper->getDefaultAttributes())
         );
 
-        $collection = $this->_attribute->getCollection()
+        $collection = $this->attributeCollection
                 ->addFieldToFilter('entity_type_id', ['eq' => ProductFeedInterface::EAV_ENTITY_TYPE])
                 ->addFieldToFilter('attribute_code', ['nin' => $excludedAttributes]);
 

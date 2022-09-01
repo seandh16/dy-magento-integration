@@ -6,6 +6,7 @@ use DynamicYield\Integration\Api\Data\ProductFeedInterface;
 use DynamicYield\Integration\Helper\Data as Helper;
 use DynamicYield\Integration\Helper\Feed as FeedHelper;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 
 class UsedProductAttribute extends AbstractProductAttribute
@@ -15,9 +16,9 @@ class UsedProductAttribute extends AbstractProductAttribute
      */
     private AttributeCollectionFactory $attributeFactory;
 
-    public function __construct(Attribute $attribute, Helper $helper, FeedHelper $feedHelper, AttributeCollectionFactory $attributeFactory)
+    public function __construct(Attribute $attribute, Helper $helper, FeedHelper $feedHelper, Collection $attributeCollection, AttributeCollectionFactory $attributeFactory)
     {
-        parent::__construct($attribute, $helper, $feedHelper);
+        parent::__construct($attribute, $helper, $feedHelper, $attributeCollection,);
         $this->attributeFactory = $attributeFactory;
     }
 

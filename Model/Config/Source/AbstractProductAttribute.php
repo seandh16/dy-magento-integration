@@ -5,9 +5,10 @@ namespace DynamicYield\Integration\Model\Config\Source;
 use DynamicYield\Integration\Helper\Data as Helper;
 use DynamicYield\Integration\Helper\Feed as FeedHelper;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection;
 
-abstract class AbstractProductAttribute implements ArrayInterface
+abstract class AbstractProductAttribute implements OptionSourceInterface
 {
     /**
      * @var Attribute
@@ -24,6 +25,8 @@ abstract class AbstractProductAttribute implements ArrayInterface
      */
     protected $_feedHelper;
 
+    protected Collection $attributeCollection;
+
     /**
      * ProductAttribute constructor
      *
@@ -34,12 +37,14 @@ abstract class AbstractProductAttribute implements ArrayInterface
     public function __construct(
         Attribute $attribute,
         Helper $helper,
-        FeedHelper $feedHelper
+        FeedHelper $feedHelper,
+        Collection $attributeCollection
     )
     {
         $this->_attribute = $attribute;
         $this->_helper = $helper;
         $this->_feedHelper = $feedHelper;
+        $this->attributeCollection = $attributeCollection;
     }
 
     /**

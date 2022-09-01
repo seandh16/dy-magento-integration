@@ -2,9 +2,9 @@
 
 namespace DynamicYield\Integration\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class UpdateRateAttribute implements ArrayInterface
+class UpdateRateAttribute implements OptionSourceInterface
 {
     /**
      * @var array
