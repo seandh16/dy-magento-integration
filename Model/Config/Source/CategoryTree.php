@@ -2,10 +2,10 @@
 
 namespace DynamicYield\Integration\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 
-class CategoryTree implements ArrayInterface
+class CategoryTree implements OptionSourceInterface
 {
     const CATEGORY_LEVEL = '-';
 
