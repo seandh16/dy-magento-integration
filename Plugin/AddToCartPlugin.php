@@ -78,7 +78,7 @@ class AddToCartPlugin
             ]);
         }
 
-        return $cart;
+        return $closure;
     }
 
     /**
