@@ -2,7 +2,7 @@
   "name": "dynamic-yield/integration",
   "description": "Dynamic Yield Integration",
   "license": "proprietary",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "minimum-stability": "dev",
   "type": "magento2-module",
   "authors": [
