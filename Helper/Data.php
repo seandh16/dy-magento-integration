@@ -341,6 +341,20 @@ class Data extends AbstractHelper implements HelperInterface
     }
 
     /**
+     * Get link URL prefix
+     *
+     * @return mixed|string
+     */
+    public function getLinkPrefix()
+    {
+        if($this->isEuropeAccount()) {
+            return '-eu';
+        }
+
+        return '';
+    }
+
+    /**
      * Get CDN url
      *
      * @return mixed|string
@@ -595,11 +609,11 @@ class Data extends AbstractHelper implements HelperInterface
 
             $html .= '
             <link rel="preconnect" href="//'.$this->getCDN().'">
-            <link rel="preconnect" href="//st.dynamicyield.com">
-            <link rel="preconnect" href="//rcom.dynamicyield.com">
+            <link rel="preconnect" href="//st'.$this->getLinkPrefix().'.dynamicyield.com">
+            <link rel="preconnect" href="//rcom'.$this->getLinkPrefix().'.dynamicyield.com">
             <link rel="dns-prefetch" href="//'.$this->getCDN().'">
-            <link rel="dns-prefetch" href="//st.dynamicyield.com">
-            <link rel="dns-prefetch" href="//rcom.dynamicyield.com">
+            <link rel="dns-prefetch" href="//st'.$this->getLinkPrefix().'.dynamicyield.com">
+            <link rel="dns-prefetch" href="//rcom'.$this->getLinkPrefix().'.dynamicyield.com">
             ' . "\n";
 
             $html .= '<script type="text/javascript">// <![CDATA[
