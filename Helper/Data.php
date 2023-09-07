@@ -343,7 +343,7 @@ class Data extends AbstractHelper implements HelperInterface
     /**
      * Get link URL prefix
      *
-     * @return mixed|string
+     * @return string
      */
     public function getLinkPrefix()
     {
