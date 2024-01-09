@@ -171,7 +171,7 @@ class Export
     /**
      * @var UrlFinderInterface
      */
-    protected $urlFinder;
+    protected $_urlFinder;
 
     /**
      * @var
